@@ -1,0 +1,62 @@
+dlight-session/
+tdlib.log
+*.log
+cache/
+*.session
+web.db
+main.db
+
+# Секреты: vk.token2, tg.hash, tg.phone, пароль БД
+src/main/resources/application.properties
+.env
+secrets.*
+
+# Загрузки и временные файлы отправки
+uploads/
+
+# Сборка
+target/
+
+# IDE
+.idea/
+*.iml
+
+# ОС
+Thumbs.db
+.DS_Store
+
+# Python (MAX-коннектор)
+__pycache__/
+*.py[cod]
+
+tdlight-session/
+tdlib.log
+*.log
+cache/
+web.db
+main.db
+*.session
+
+src/main/resources/application.properties
+.env
+secrets.*
+
+# Zagruzki pri otpravke
+uploads/
+
+# Sborka
+target/
+
+# IDE
+.idea/
+*.iml
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Python (MAX)
+__pycache__/
+*.py[cod]
+'@ | Set-Content -Path .gitignore -Encoding ascii
+git add -A
