@@ -5,6 +5,8 @@ import it.tdlight.Log;
 import it.tdlight.Slf4JLogMessageHandler;
 import it.tdlight.client.*;
 import it.tdlight.jni.TdApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import v2.Config;
 import v2.connectors.base.*;
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class TgConnector implements BaseConnector {
 
     private final ConnectorConfig config = new ConnectorConfig();
+    private static final Logger log = LoggerFactory.getLogger(TgConnector.class);
 
     private final int apiId;
     private final String apiHash;
@@ -331,8 +334,65 @@ public class TgConnector implements BaseConnector {
 
     @Override public ConnectorConfig getConfig() { return config; }
 
+
     @Override public ConnectorResult updateConfig(ConnectorConfig c) {
-        // TODO: пробросить настройки из c в локальные переменные (scanGroups и т.д.)
-        return new ConnectorResult(true, "success");
+        if (c == null) {
+            return ConnectorResult.fail("Конфигурация не может быть null");
+        }
+
+        // Обновляем настройки сканирования из переданной конфигурации
+
+
+
+            // Настройки сканирования
+
+        this.scanGroups = c.scanGroups;
+        this.scanPersonal = c.scanPersonal;
+        this.whitelistGroupIds = c.whitelist;
+
+        v2.entity.Config config = configRepository.get();
+        List<String> myself = new ArrayList<>();
+        myself.add(String.valueOf(myUserId));
+        for (Long id:whitelistGroupIds){
+            myself.add(String.valueOf(id));
+        }
+        config.setTg_ids(myself);
+        configRepository.saveOrUpdate(config);
+
+
+        return ConnectorResult.ok("Конфигурация Telegram обновлена");
+    }
+
+
+    public long sendMessage(String peer, String text, String attachments, Long replyTo) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Message text cannot be empty");
+        }
+
+        try {
+            if (client == null) {
+                throw new IllegalStateException("Telegram client is not started");
+            }
+
+            long chatId = Long.parseLong(peer);
+            boolean markdown = false; // По умолчанию markdown выключен
+
+            // Если есть вложения - отправляем как файл с подписью
+            if (attachments != null && !attachments.isEmpty()) {
+                // В Telegram вложения обрабатываются отдельно через upload
+                // Для простоты пока отправляем текст с упоминанием вложений
+                log.warn("Attachments not fully supported in TG yet, sending as text reference: {}", attachments);
+                return TgSendSupport.sendText(client, chatId, text + "\n\n[Вложения: " + attachments + "]", replyTo != null ? replyTo : 0, markdown);
+            } else {
+                return TgSendSupport.sendText(client, chatId, text, replyTo != null ? replyTo : 0, markdown);
+            }
+
+        } catch (NumberFormatException e) {
+            log.error("Invalid peer ID format: {}", peer, e);
+            throw new IllegalArgumentException("Invalid peer ID: " + peer, e);
+        } catch (Exception e) {
+            log.error("Error sending message to TG peer {}", peer, e);
+            throw new RuntimeException("TG send failed: " + e.getMessage(), e);
+        }
     }
 }

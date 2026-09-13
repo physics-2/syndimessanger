@@ -39,4 +39,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
         }
         return save(user);
     }
+
+    @Query("SELECT DISTINCT u.id FROM User u WHERE :tags MEMBER OF u.tags")
+    List<Long> findUserIdsByTags(List<String> tags);
 }

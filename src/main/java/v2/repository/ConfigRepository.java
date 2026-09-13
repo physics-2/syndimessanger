@@ -11,6 +11,10 @@ public interface ConfigRepository extends JpaRepository<Config, Long> {
 
     Optional<Config> findById(Long id);
 
+    default Config get(){
+        return findById(1L).get();
+    }
+
     default Config saveOrUpdate(Config config){
         // Предполагаем, что конфиг у нас один (синглтон) и его ID = 1
         Optional<Config> existing = findById(1L);

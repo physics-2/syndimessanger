@@ -1,69 +1,342 @@
 package v2.connectors.max;
 
-import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 import v2.connectors.base.*;
 
 import java.util.Map;
 
+/**
+ * MAX Connector для v2 - реализует BaseConnector.
+ * Клиент к python-сервису MAX (pymax, FastAPI на :8081).
+ * Без System.out.println, без фоллбеков с мусорными данными.
+ */
+@Component
 public class MaxConnector implements BaseConnector {
 
-    private final RestTemplate http = new RestTemplate();
-    private static final String BASE = "http://localhost:8081/api/max";
+    private static final Logger log = LoggerFactory.getLogger(MaxConnector.class);
+    private static final String DEFAULT_BASE_URL = "http://localhost:8081";
+
+    private final RestClient http;
+    private final ObjectMapper mapper = new ObjectMapper();
     private final ConnectorConfig config = new ConnectorConfig();
 
+    // Состояние
+    private volatile boolean isListening = false;
+    private volatile boolean isScanning = false;
+    private volatile boolean isStarted = false;
+    private Long myUserId = null;
 
+    public MaxConnector() {
+        this.http = RestClient.builder().baseUrl(DEFAULT_BASE_URL).build();
+    }
 
-    @Override public String platform() { return "max"; }
+    @Override
+    public String platform() {
+        return "max";
+    }
 
     @Override
     public ConnectorStatus getStatus() {
         try {
-            Map<String, Object> r = http.getForObject(BASE + "/status", Map.class);
-            return new ConnectorStatus(
-                    "max",
-                    true,
-                    Boolean.TRUE.equals(r.get("listening")),
-                    Boolean.TRUE.equals(r.get("scanning")),
-                    r.get("my_user_id") != null ? ((Number) r.get("my_user_id")).longValue() : null,
-                    config
-            );
+            Map<String, Object> response = http.get()
+                    .uri("/api/max/status")
+                    .retrieve()
+                    .body(Map.class);
+
+            if (response != null) {
+                Boolean listening = (Boolean) response.get("listening");
+                Boolean scanning = (Boolean) response.get("scanning");
+                Object userIdObj = response.get("my_user_id");
+                Long userId = userIdObj instanceof Number ? ((Number) userIdObj).longValue() : null;
+
+                return new ConnectorStatus("max", isStarted,
+                        listening != null && listening,
+                        scanning != null && scanning,
+                        userId, config);
+            }
+            return new ConnectorStatus("max", false, false, false, null, config);
         } catch (Exception e) {
             return new ConnectorStatus("max", false, false, false, null, config);
         }
     }
 
-    @Override public ConnectorResult start()          { return startListening(); }
-    @Override public ConnectorResult stop()           { return stopListening(); }
+    @Override
+    public ConnectorResult start() {
+        if (isStarted) {
+            return ConnectorResult.ok("MAX уже запущен");
+        }
+        try {
+            // Проверяем доступность сервиса
+            http.get().uri("/api/max/status").retrieve().body(String.class);
+            isStarted = true;
+            return ConnectorResult.ok("MAX коннектор запущен");
+        } catch (Exception e) {
+            return ConnectorResult.fail("MAX сервис недоступен: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public ConnectorResult stop() {
+        isListening = false;
+        isStarted = false;
+        return ConnectorResult.ok("MAX остановлен");
+    }
 
     @Override
     public ConnectorResult startListening() {
-        http.postForObject(BASE + "/listen/start", null, String.class);
-        return ConnectorResult.ok("MAX прослушка ВКЛ");
+        if (!isStarted) {
+            return ConnectorResult.fail("MAX не запущен. Вызовите start() сначала.");
+        }
+        try {
+            http.post().uri("/api/max/listen/start").retrieve().body(String.class);
+            isListening = true;
+            return ConnectorResult.ok("MAX прослушка включена");
+        } catch (Exception e) {
+            return ConnectorResult.fail("Ошибка включения прослушки MAX: " + e.getMessage());
+        }
     }
 
     @Override
     public ConnectorResult stopListening() {
-        http.postForObject(BASE + "/listen/stop", null, String.class);
-        return ConnectorResult.ok("MAX прослушка ВЫКЛ");
+        try {
+            http.post().uri("/api/max/listen/stop").retrieve().body(String.class);
+            isListening = false;
+            return ConnectorResult.ok("MAX прослушка выключена");
+        } catch (Exception e) {
+            return ConnectorResult.fail("Ошибка выключения прослушки MAX: " + e.getMessage());
+        }
     }
 
     @Override
     public ConnectorResult startScan(ScanOptions options) {
-        Map<String, Object> body = Map.of("limit_per_chat",
-                options.limitPerChat() != null ? options.limitPerChat() : config.limitPerChat);
-        http.postForObject(BASE + "/scan", body, String.class);
-        return ConnectorResult.ok("Сканирование MAX запущено");
+        if (!isStarted) {
+            return ConnectorResult.fail("MAX не запущен");
+        }
+        if (isScanning) {
+            return ConnectorResult.fail("Сканирование уже идёт");
+        }
+
+        try {
+            Integer limit = options.limitPerChat() != null ? options.limitPerChat() : config.limitPerChat;
+            Map<String, Object> body = Map.of("limit_per_chat", limit);
+
+            http.post().uri("/api/max/scan").body(body).retrieve().body(String.class);
+            isScanning = true;
+            return ConnectorResult.ok("Сканирование MAX запущено");
+        } catch (Exception e) {
+            return ConnectorResult.fail("Ошибка запуска сканирования MAX: " + e.getMessage());
+        }
     }
 
-    @Override public ConnectorConfig getConfig() { return config; }
+    @Override
+    public ConnectorConfig getConfig() {
+        return config;
+    }
 
     @Override
-    public ConnectorResult updateConfig(ConnectorConfig c) {
-        http.postForObject(BASE + "/config", Map.of(
-                "scan_personal", c.scanPersonal,
-                "scan_groups",   c.scanGroups,
-                "limit_per_chat", c.limitPerChat
-        ), String.class);
-        return ConnectorResult.ok("Конфиг MAX обновлён");
+    public ConnectorResult updateConfig(ConnectorConfig newConfig) {
+        try {
+            Map<String, Object> body = Map.of(
+                    "scan_personal", newConfig.scanPersonal,
+                    "scan_groups", newConfig.scanGroups,
+                    "limit_per_chat", newConfig.limitPerChat
+            );
+            http.post().uri("/api/max/config").body(body).retrieve().body(String.class);
+
+            this.config.scanPersonal = newConfig.scanPersonal;
+            this.config.scanGroups = newConfig.scanGroups;
+            this.config.limitPerChat = newConfig.limitPerChat;
+            this.config.downloadMedia = newConfig.downloadMedia;
+
+            return ConnectorResult.ok("Конфигурация MAX обновлена");
+        } catch (Exception e) {
+            return ConnectorResult.fail("Ошибка обновления конфига MAX: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public long sendMessage(String peer, String text, String attachments, Long replyTo) {
+        if (text == null || text.trim().isEmpty()) {
+            throw new IllegalArgumentException("Message text cannot be empty");
+        }
+
+        try {
+            long chatId = Long.parseLong(peer);
+
+            // Подготовка запроса к MAX сервису
+            Map<String, Object> body = new java.util.HashMap<>();
+            body.put("chat_id", chatId);
+            body.put("text", text);
+
+            if (replyTo != null && replyTo > 0) {
+                body.put("reply_to", String.valueOf(replyTo));
+            }
+
+            // Если есть вложения - добавляем их
+            if (attachments != null && !attachments.isEmpty()) {
+                body.put("attachments", attachments);
+            }
+
+            body.put("notify", true);
+
+            String response = http.post()
+                    .uri("/api/max/send")
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
+
+            // Парсим ответ
+            JsonNode json = mapper.readTree(response);
+            String status = json.path("status").asText("");
+
+            if (!"ok".equalsIgnoreCase(status)) {
+                String errorMessage = json.path("message").asText(
+                        json.path("error").asText("MAX вернул ошибку"));
+                throw new RuntimeException("MAX send failed: " + errorMessage);
+            }
+
+            long messageId = json.path("message_id").asLong(0);
+
+            if (messageId <= 0) {
+                throw new RuntimeException("MAX returned invalid message ID: " + messageId);
+            }
+
+            log.info("Message sent to MAX chat {}: {}", chatId, messageId);
+            return messageId;
+
+        } catch (NumberFormatException e) {
+            log.error("Invalid peer ID format: {}", peer, e);
+            throw new IllegalArgumentException("Invalid peer ID: " + peer, e);
+        } catch (Exception e) {
+            log.error("Error sending message to MAX peer {}", peer, e);
+            throw new RuntimeException("MAX send failed: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Отправка текстового сообщения через MAX сервис.
+     * @param chatId ID чата
+     * @param text Текст сообщения
+     * @param replyTo ID сообщения для ответа (0 если нет)
+     * @param notify Уведомлять ли участников
+     */
+    public SendResult sendText(long chatId, String text, long replyTo, boolean notify) {
+        try {
+            Map<String, Object> body = Map.of(
+                    "chat_id", chatId,
+                    "text", text != null ? text : "",
+                    "reply_to", replyTo > 0 ? String.valueOf(replyTo) : "",
+                    "notify", notify
+            );
+
+            String response = http.post()
+                    .uri("/api/max/send")
+                    .body(body)
+                    .retrieve()
+                    .body(String.class);
+
+            return parseResponse(response, chatId, text);
+        } catch (Exception e) {
+            return SendResult.fail("max", chatId, "MAX недоступен: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Отправка файла через MAX сервис.
+     * @param chatId ID чата
+     * @param caption Подпись к файлу
+     * @param filePath Путь к файлу
+     * @param mimeType MIME тип файла
+     * @param replyTo ID сообщения для ответа (0 если нет)
+     * @param notify Уведомлять ли участников
+     */
+    public SendResult sendFile(long chatId, String caption, String filePath, String mimeType, long replyTo, boolean notify) {
+        try {
+            java.nio.file.Path path = java.nio.file.Path.of(filePath);
+            if (!java.nio.file.Files.exists(path)) {
+                return SendResult.fail("max", chatId, "Файл не найден: " + filePath);
+            }
+
+            byte[] fileBytes = java.nio.file.Files.readAllBytes(path);
+            String fileName = path.getFileName().toString();
+
+            // Определяем MIME тип если не указан
+            if (mimeType == null || mimeType.isBlank()) {
+                mimeType = java.nio.file.Files.probeContentType(path);
+                if (mimeType == null) {
+                    mimeType = "application/octet-stream";
+                }
+            }
+
+            // Используем multipart форму для отправки файла
+            org.springframework.http.client.MultipartBodyBuilder mp = new org.springframework.http.client.MultipartBodyBuilder();
+            mp.part("chat_id", String.valueOf(chatId));
+            mp.part("text", caption != null ? caption : "");
+            mp.part("reply_to", replyTo > 0 ? String.valueOf(replyTo) : "");
+            mp.part("notify", String.valueOf(notify));
+
+            org.springframework.core.io.ByteArrayResource resource =
+                    new org.springframework.core.io.ByteArrayResource(fileBytes) {
+                        @Override
+                        public String getFilename() {
+                            return fileName;
+                        }
+                    };
+
+            mp.part("file", resource)
+                    .contentType(org.springframework.http.MediaType.parseMediaType(mimeType));
+
+            String response = http.post()
+                    .uri("/api/max/send/media")
+                    .body(mp.build())
+                    .retrieve()
+                    .body(String.class);
+
+            return parseResponse(response, chatId, caption);
+        } catch (Exception e) {
+            return SendResult.fail("max", chatId, "Ошибка отправки файла в MAX: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Парсинг ответа от MAX сервиса.
+     * Ожидаемый формат: { "status": "ok", "message_id": ..., "chat_id": ... }
+     */
+    private SendResult parseResponse(String body, long chatId, String text) throws Exception {
+        if (body == null || body.isBlank()) {
+            return SendResult.fail("max", chatId, "Пустой ответ MAX сервиса");
+        }
+
+        JsonNode json = mapper.readTree(body);
+        String status = json.path("status").asText("");
+
+        if (!"ok".equalsIgnoreCase(status)) {
+            String errorMessage = json.path("message").asText(
+                    json.path("error").asText("MAX вернул ошибку"));
+            return SendResult.fail("max", chatId, errorMessage);
+        }
+
+        long messageId = json.path("message_id").asLong(0);
+        long resultChatId = json.path("chat_id").asLong(chatId);
+
+        return SendResult.ok("max", resultChatId, messageId, text);
+    }
+
+    /**
+     * Результат отправки сообщения.
+     */
+    public record SendResult(boolean success, String platform, long chatId, long messageId, String error) {
+        public static SendResult ok(String platform, long chatId, long messageId, String text) {
+            return new SendResult(true, platform, chatId, messageId, null);
+        }
+
+        public static SendResult fail(String platform, long chatId, String error) {
+            return new SendResult(false, platform, chatId, 0, error);
+        }
     }
 }

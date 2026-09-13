@@ -22,4 +22,6 @@ public interface BaseConnector {
     /** Конфигурация в едином формате */
     ConnectorConfig getConfig();
     ConnectorResult updateConfig(ConnectorConfig config);
+
+    long sendMessage(String peer, String message, String attachments, Long replyTo);
 }

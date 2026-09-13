@@ -1,5 +1,4 @@
-
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -12,1048 +11,183 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-        .fade-enter-from, .fade-leave-to { opacity: 0; }
-
-        /* Подсветка "своих" сообщений */
         .my-message-highlight {
             border-left: 3px solid #f59e0b;
             background: linear-gradient(to right, #fef3c7 0%, transparent 100%);
         }
-
-        /* Статусы коннекторов */
         .connector-status { transition: all 0.3s ease; }
         .connector-status:hover { transform: translateY(-2px); }
-
-        /* Поле ввода сообщения */
         #msg-input { max-height: 140px; resize: none; }
-        .pending-msg { opacity: .65; }
+        .chat-item.active { background-color: #eff6ff; border-left: 3px solid #3b82f6; }
+        .chat-item:hover { background-color: #f8fafc; }
     </style>
 </head>
 <body class="bg-gray-100 h-screen flex flex-col overflow-hidden font-sans">
 <div id="app" class="flex flex-col h-full">
-    <!-- ================= ВЕРХНЯЯ ПАНЕЛЬ: КОННЕКТОРЫ ================= -->
+    <!-- ВЕРХНЯЯ ПАНЕЛЬ: КОННЕКТОРЫ -->
     <div class="bg-white border-b border-gray-200 p-3 flex-shrink-0 shadow-sm">
         <div class="flex items-center justify-between gap-4">
             <h1 class="text-lg font-bold text-gray-800 flex items-center gap-2">
                 💬 SyndiDash
-                <span class="text-xs font-normal text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">
-                Multi-Platform Messenger
-            </span>
+                <span class="text-xs font-normal text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full">Multi-Platform</span>
             </h1>
-
-            <!-- Коннекторы -->
             <div class="flex gap-3 flex-wrap">
-                <!-- MAX -->
-                <div class="connector-status flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
-                    <div :class="['w-2 h-2 rounded-full', connectors.max.running ? 'bg-green-500 animate-pulse' : 'bg-gray-400']"></div>
-                    <span class="text-xs font-semibold text-gray-700">MAX</span>
-                    <span class="text-xs text-gray-500">ID: {{ connectors.max.myId || '—' }}</span>
-                    <button @click="toggleConnector('max')"
-                            :class="['text-xs px-2 py-1 rounded font-medium transition-colors',
-                                connectors.max.running ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200']">
-                        {{ connectors.max.running ? '⏹ Stop' : '▶ Start' }}
+                <div v-for="(conn, key) in connectors" :key="key" class="connector-status flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
+                    <div :class="['w-2 h-2 rounded-full', conn.running ? 'bg-green-500 animate-pulse' : 'bg-gray-400']"></div>
+                    <span class="text-xs font-semibold text-gray-700">{{ key.toUpperCase() }}</span>
+                    <span class="text-xs text-gray-500">ID: {{ conn.myId || '—' }}</span>
+                    <button @click="toggleConnector(key)"
+                            :class="['text-xs px-2 py-1 rounded font-medium', conn.running ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700']">
+                        {{ conn.running ? '⏹' : '▶' }}
                     </button>
-                    <button @click="scanConnector('max')"
-                            :disabled="connectors.max.scanning"
-                            class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        {{ connectors.max.scanning ? '⏳' : '🔄 Scan' }}
+                    <button @click="scanConnector(key)" :disabled="conn.scanning"
+                            class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 disabled:opacity-50">
+                        {{ conn.scanning ? '⏳' : '🔄' }}
                     </button>
-                </div>
-
-                <!-- VK -->
-                <div class="connector-status flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
-                    <div :class="['w-2 h-2 rounded-full', connectors.vk.running ? 'bg-green-500 animate-pulse' : 'bg-gray-400']"></div>
-                    <span class="text-xs font-semibold text-gray-700">VK</span>
-                    <span class="text-xs text-gray-500">ID: {{ connectors.vk.myId || '—' }}</span>
-                    <button @click="toggleConnector('vk')"
-                            :class="['text-xs px-2 py-1 rounded font-medium transition-colors',
-                                connectors.vk.running ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200']">
-                        {{ connectors.vk.running ? '⏹ Stop' : '▶ Start' }}
-                    </button>
-                    <button @click="scanConnector('vk')"
-                            :disabled="connectors.vk.scanning"
-                            class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        {{ connectors.vk.scanning ? '⏳' : '🔄 Scan' }}
-                    </button>
-                </div>
-
-                <!-- TG -->
-                <div class="connector-status flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200">
-                    <div :class="['w-2 h-2 rounded-full', connectors.tg.running ? 'bg-green-500 animate-pulse' : 'bg-gray-400']"></div>
-                    <span class="text-xs font-semibold text-gray-700">TG</span>
-                    <span class="text-xs text-gray-500">ID: {{ connectors.tg.myId || '—' }}</span>
-                    <button @click="toggleConnector('tg')"
-                            :class="['text-xs px-2 py-1 rounded font-medium transition-colors',
-                                connectors.tg.running ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200']">
-                        {{ connectors.tg.running ? '⏹ Stop' : '▶ Start' }}
-                    </button>
-                    <button @click="scanConnector('tg')"
-                            :disabled="connectors.tg.scanning"
-                            class="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        {{ connectors.tg.scanning ? '⏳' : '🔄 Scan' }}
-                    </button>
-                    <button @click="openConfigModal('tg')"
-                            class="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700 hover:bg-purple-200 font-medium transition-colors">
-                        ⚙️
-                    </button>
-                </div>
-            </div>
-
-            <!-- Кнопка настроек -->
-            <button @click="showSettings = !showSettings"
-                    class="text-xs px-3 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 font-medium transition-colors">
-                ⚙️ Настройки
-            </button>
-        </div>
-
-        <!-- Панель настроек (раскрывающаяся) -->
-        <div v-if="showSettings" class="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-            <h3 class="text-sm font-bold text-gray-800 mb-2">Глобальные настройки</h3>
-
-            <div class="grid grid-cols-3 gap-3">
-                <!-- MAX настройки -->
-                <div class="bg-white p-2 rounded border border-gray-200">
-                    <div class="text-xs font-semibold text-gray-700 mb-1">MAX</div>
-                    <label class="flex items-center gap-2 text-xs">
-                        <input type="checkbox" v-model="connectors.max.scanPersonal" @change="updateConfig('max')">
-                        <span>Личные чаты</span>
-                    </label>
-                    <label class="flex items-center gap-2 text-xs">
-                        <input type="checkbox" v-model="connectors.max.scanGroups" @change="updateConfig('max')">
-                        <span>Группы</span>
-                    </label>
-                </div>
-
-                <!-- VK настройки -->
-                <div class="bg-white p-2 rounded border border-gray-200">
-                    <div class="text-xs font-semibold text-gray-700 mb-1">VK</div>
-                    <label class="flex items-center gap-2 text-xs">
-                        <input type="checkbox" v-model="connectors.vk.scanPersonal" @change="updateConfig('vk')">
-                        <span>Личные чаты</span>
-                    </label>
-                    <label class="flex items-center gap-2 text-xs">
-                        <input type="checkbox" v-model="connectors.vk.scanGroups" @change="updateConfig('vk')">
-                        <span>Группы</span>
-                    </label>
-                </div>
-
-                <!-- TG настройки -->
-                <div class="bg-white p-2 rounded border border-gray-200">
-                    <div class="text-xs font-semibold text-gray-700 mb-1">TG</div>
-                    <label class="flex items-center gap-2 text-xs">
-                        <input type="checkbox" v-model="connectors.tg.scanPersonal" @change="updateConfig('tg')">
-                        <span>Личные чаты</span>
-                    </label>
-                    <label class="flex items-center gap-2 text-xs">
-                        <input type="checkbox" v-model="connectors.tg.scanGroups" @change="updateConfig('tg')">
-                        <span>Группы/Каналы</span>
-                    </label>
+                    <button v-if="key === 'tg'" @click="openConfigModal(key)"
+                            class="text-xs px-2 py-1 rounded bg-purple-100 text-purple-700">⚙️</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ================= ОСНОВНОЙ КОНТЕНТ ================= -->
+    <!-- ОСНОВНАЯ ОБЛАСТЬ -->
     <div class="flex flex-1 overflow-hidden">
-
-        <!-- ЛЕВАЯ ПАНЕЛЬ: СПИСОК ЧАТОВ -->
-        <div class="w-1/3 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
-            <div class="p-4 border-b border-gray-200 bg-gray-50">
-                <!-- Поиск -->
-                <input v-model="searchQuery" type="text" placeholder="Поиск по имени, группе или ID..."
-                       class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-shadow">
-
-                <!-- Фильтры -->
-                <div class="flex gap-2 mt-2">
-                    <select v-model="filterPlatform" class="flex-1 p-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700 cursor-pointer">
-                        <option v-for="p in availablePlatforms" :key="p" :value="p">
-                            {{ p === 'all' ? '🌐 Все платформы' : p.toUpperCase() }}
-                        </option>
-                    </select>
-
-                    <select v-model="filterTag" class="flex-1 p-2 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-700 cursor-pointer">
-                        <option v-for="t in availableTags" :key="t" :value="t">
-                            {{ t === 'all' ? '🏷️ Все теги' : t }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Фильтр "только мои сообщения" -->
-                <label class="flex items-center gap-2 mt-2 text-xs text-gray-600">
-                    <input type="checkbox" v-model="filterMyMessagesOnly">
-                    <span>Показывать только чаты с моими сообщениями</span>
-                </label>
+        <!-- СПИСОК ЧАТОВ -->
+        <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
+            <div class="p-3 border-b border-gray-200">
+                <input v-model="searchQuery" type="text" placeholder="Поиск чатов..."
+                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-
+            <div class="p-2 border-b border-gray-200 flex gap-2">
+                <button v-for="key in ['all', 'vk', 'tg', 'max']" :key="key"
+                        @click="platformFilter = key"
+                        :class="['text-xs px-2 py-1 rounded', platformFilter === key ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600']">
+                    {{ key === 'all' ? 'Все' : key.toUpperCase() }}
+                </button>
+            </div>
             <div class="flex-1 overflow-y-auto custom-scrollbar">
-                <div v-for="chat in filteredChats" :key="chat.chatId"
+                <div v-for="chat in filteredChats" :key="chat.id"
                      @click="selectChat(chat)"
-                     :class="['p-4 border-b border-gray-100 cursor-pointer hover:bg-blue-50 transition-colors',
-                          selectedChat?.chatId === chat.chatId ? 'bg-blue-100 border-l-4 border-l-blue-500' : '']">
-                    <div class="flex items-center gap-3">
-                        <!-- Аватарка -->
-                        <div :class="['w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-sm',
-                                  chat.isGroup ? 'bg-gradient-to-br from-purple-400 to-purple-600' : 'bg-gradient-to-br from-blue-400 to-blue-600']">
-                            <span v-if="chat.isGroup">👥</span>
-                            <span v-else>{{ getInitials(chat) }}</span>
+                     :class="['chat-item p-3 border-b border-gray-100 cursor-pointer', selectedChat?.id === chat.id ? 'active' : '']">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-600">
+                            {{ chat.name.charAt(0).toUpperCase() }}
                         </div>
-
-                        <!-- Инфо о чате -->
                         <div class="flex-1 min-w-0">
-                            <div class="font-semibold text-gray-800 truncate">
-                                {{ getChatDisplayName(chat) }}
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-semibold text-gray-800 truncate">{{ chat.name }}</h3>
+                                <span class="text-xs text-gray-400">{{ formatTime(chat.lastMessageTime) }}</span>
                             </div>
-                            <div class="text-xs text-gray-500 truncate">
-                                {{ chat.lastMessage || 'Нет сообщений' }}
+                            <p class="text-xs text-gray-500 truncate mt-1">{{ chat.lastMessage }}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span :class="['text-xs px-1.5 py-0.5 rounded',
+                                    chat.platform === 'vk' ? 'bg-blue-100 text-blue-700' :
+                                    chat.platform === 'tg' ? 'bg-cyan-100 text-cyan-700' : 'bg-orange-100 text-orange-700']">
+                                    {{ chat.platform.toUpperCase() }}
+                                </span>
+                                <span v-if="chat.unreadCount > 0" class="text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">{{ chat.unreadCount }}</span>
                             </div>
-                            <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-                                <span class="text-xs text-gray-400">ID: {{ chat.chatId }}</span>
-                                <span class="text-xs px-1.5 py-0.5 rounded font-medium"
-                                      :class="chat.source === 'vk' ? 'bg-blue-100 text-blue-700' :
-                                           chat.source === 'tg' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'">
-                                {{ chat.source.toUpperCase() }}
-                            </span>
-                                <span v-if="chat.isGroup" class="text-xs px-1.5 py-0.5 rounded bg-purple-100 text-purple-700 font-medium">
-                                Группа
-                            </span>
-                                <!-- Теги -->
-                                <span v-for="(tag, idx) in (chat.tags || []).slice(0, 2)" :key="idx"
-                                      class="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 font-medium">
-                                #{{ tag }}
-                            </span>
-                                <span v-if="(chat.tags || []).length > 2" class="text-xs text-gray-400">
-                                +{{ chat.tags.length - 2 }}
-                            </span>
-                            </div>
-                        </div>
-
-                        <!-- Время -->
-                        <div class="text-xs text-gray-400 flex-shrink-0">
-                            {{ formatTime(chat.timestamp) }}
                         </div>
                     </div>
                 </div>
-
-                <div v-if="filteredChats.length === 0" class="p-8 text-center text-gray-400">
-                    <div class="text-4xl mb-2">🔍</div>
-                    <div>Чаты не найдены</div>
+                <div v-if="filteredChats.length === 0" class="p-8 text-center text-gray-500 text-sm">
+                    Чаты не найдены. Нажмите 🔄 для сканирования.
                 </div>
             </div>
         </div>
 
-        <!-- ПРАВАЯ ПАНЕЛЬ: ЧАТ -->
-        <div class="flex-1 flex flex-col bg-gray-50 h-full overflow-hidden relative">
-
-            <!-- Плейсхолдер -->
-            <div v-if="!selectedChat" class="flex-1 flex flex-col items-center justify-center text-gray-400 bg-gradient-to-br from-gray-50 to-gray-100">
-                <div class="text-6xl mb-4">💬</div>
-                <div class="text-lg font-medium text-gray-600">Выберите чат слева</div>
-                <div class="text-sm mt-2 text-gray-400">Чтобы увидеть историю переписки</div>
-            </div>
-
-            <!-- Активный чат -->
-            <div v-else class="flex flex-col h-full overflow-hidden">
-
-                <!-- Шапка чата -->
-                <div class="p-4 bg-white border-b border-gray-200 flex flex-col gap-2 shadow-sm flex-shrink-0 z-10">
+        <!-- ОКНО ЧАТА -->
+        <div class="flex-1 flex flex-col bg-gray-50">
+            <div v-if="selectedChat" class="flex-1 flex flex-col">
+                <div class="bg-white border-b border-gray-200 p-3 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div :class="['w-12 h-12 rounded-full flex items-center justify-center text-white font-bold shadow-sm flex-shrink-0',
-                              selectedChat.isGroup ? 'bg-gradient-to-br from-purple-400 to-purple-600' : 'bg-gradient-to-br from-blue-400 to-blue-600']">
-                            <span v-if="selectedChat.isGroup">👥</span>
-                            <span v-else>{{ getInitials(selectedChat) }}</span>
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-600">
+                            {{ selectedChat.name.charAt(0).toUpperCase() }}
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="font-bold text-gray-800 truncate text-lg">
-                                {{ getChatDisplayName(selectedChat) }}
-                            </div>
-                            <div class="text-xs text-gray-500 truncate">
-                                ID: {{ selectedChat.chatId }} •
-                                <span class="uppercase font-semibold"
-                                      :class="selectedChat.source === 'vk' ? 'text-blue-600' :
-                                         selectedChat.source === 'tg' ? 'text-green-600' : 'text-orange-600'">
-                                {{ selectedChat.source }}
-                            </span>
-                                <span v-if="selectedChat.isGroup" class="ml-2 text-purple-600">• Группа ({{ participantsCount }} участников)</span>
-                            </div>
-                        </div>
-                        <div class="text-xs text-gray-400 flex-shrink-0 bg-gray-100 px-3 py-1.5 rounded-full">
-                            {{ messages.length }} сообщений
+                        <div>
+                            <h2 class="text-sm font-bold text-gray-800">{{ selectedChat.name }}</h2>
+                            <p class="text-xs text-gray-500">{{ selectedChat.platform.toUpperCase() }} • ID: {{ selectedChat.peerId }}</p>
                         </div>
                     </div>
-
-                    <!-- БЛОК ТЕГОВ (Только для личных чатов) -->
-                    <div v-if="!selectedChat.isGroup" class="flex flex-wrap items-center gap-2 mt-1 pl-14 pb-1">
-                    <span v-for="(tag, index) in selectedChat.tags" :key="index"
-                          class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 shadow-sm transition-all hover:bg-blue-200">
-                        {{ tag }}
-                        <button @click="removeTag(index)" class="ml-1.5 text-blue-600 hover:text-red-600 font-bold leading-none text-sm" title="Удалить тег">×</button>
-                    </span>
-
-                        <div class="flex items-center">
-                            <input v-model="newTagInput" @keyup.enter="addTag" type="text" placeholder="Новый тег..."
-                                   class="w-28 px-2.5 py-1 text-xs border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all focus:w-36 bg-white">
-                            <button @click="addTag" class="px-2.5 py-1 text-xs bg-blue-500 text-white rounded-r-md hover:bg-blue-600 transition-colors font-medium" title="Добавить тег">+</button>
+                    <button @click="closeChat" class="text-gray-400 hover:text-gray-600">✕</button>
+                </div>
+                <div ref="messagesContainer" class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3">
+                    <div v-for="msg in messages" :key="msg.id" :class="['flex', msg.isOwn ? 'justify-end' : 'justify-start']">
+                        <div :class="['max-w-[70%] rounded-lg p-3 shadow-sm', msg.isOwn ? 'my-message-highlight bg-white' : 'bg-white']">
+                            <p class="text-sm text-gray-800 whitespace-pre-wrap">{{ msg.text }}</p>
+                            <p class="text-xs text-gray-400 mt-1 text-right">{{ formatTime(msg.timestamp) }}</p>
                         </div>
-                    </div>
-
-                    <!-- Фильтр сообщений -->
-                    <div class="flex items-center gap-3 mt-2 pl-14">
-                        <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
-                            <input type="checkbox" v-model="hideMyMessages">
-                            <span>Скрыть мои сообщения</span>
-                        </label>
-                        <label class="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
-                            <input type="checkbox" v-model="highlightMyMessages">
-                            <span>Подсветить мои сообщения</span>
-                        </label>
-                        <span class="text-xs text-gray-400 ml-auto pr-1">💡 клик по сообщению — ответить на него</span>
                     </div>
                 </div>
-
-                <!-- Контейнер сообщений -->
-                <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar min-h-0 bg-gray-50/50">
-
-                    <div v-for="msg in filteredMessages" :key="msg.messageId"
-                         @click="setReplyTo(msg)"
-                         :class="['flex cursor-pointer', isMyMessage(msg) ? 'justify-end' : 'justify-start']">
-
-                        <div :class="['max-w-[75%] p-3.5 rounded-2xl break-words relative group transition-all duration-300',
-                                  isMyMessage(msg)
-                                    ? 'bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-700 text-white rounded-tr-none shadow-lg hover:shadow-xl hover:scale-[1.02]'
-                                    : 'bg-white text-gray-800 rounded-tl-none border border-gray-100 shadow-sm',
-                                  msg.pending ? 'pending-msg' : '',
-                                  replyTo && replyTo.messageId === msg.messageId ? 'ring-2 ring-blue-400' : '',
-                                  highlightMyMessages && isMyMessage(msg) ? 'ring-2 ring-yellow-400 ring-offset-2' : '']">
-
-                            <!-- Имя автора в группе -->
-                            <div v-if="!isMyMessage(msg) && selectedChat.isGroup" class="text-xs font-bold mb-1.5 text-purple-600">
-                                {{ msg.authorName || msg.firstName || 'Пользователь' }}
-                            </div>
-
-                            <!-- Индикатор "моё сообщение" -->
-                            <div v-if="isMyMessage(msg)" class="text-xs font-bold mb-1.5 text-purple-100 flex items-center gap-1">
-                                <span>👤</span>
-                                <span>{{ msg.pending ? 'Отправляется…' : 'Моё сообщение' }}</span>
-                            </div>
-
-                            <!-- Цитата при ответе -->
-                            <div v-if="msg.replyPreview" class="text-xs mb-2 px-2 py-1 rounded border-l-2 border-white/60 bg-white/10">
-                                ↩ {{ msg.replyPreview }}
-                            </div>
-
-                            <!-- Текст сообщения -->
-                            <p v-if="msg.text && msg.text !== '[Медиа]'" class="text-sm whitespace-pre-wrap mb-2 leading-relaxed">{{ msg.text }}</p>
-
-                            <!-- Локальные превью прикреплённых файлов (ещё не загружены) -->
-                            <div v-if="msg.localFiles && msg.localFiles.length" class="mt-2 flex flex-wrap gap-2">
-                                <div v-for="(f, i) in msg.localFiles" :key="i" class="text-xs bg-white/20 rounded-lg px-2 py-1.5 flex items-center gap-2">
-                                    <img v-if="f.previewUrl" :src="f.previewUrl" class="w-14 h-14 object-cover rounded">
-                                    <span class="max-w-[160px] truncate">{{ f.name }}</span>
-                                </div>
-                            </div>
-
-                            <!-- Медиа вложения -->
-                            <div v-if="msg.mediaUrl && msg.mediaUrl !== '[]' && msg.mediaUrl !== ''" class="mt-2 space-y-2">
-                                <div v-for="(url, index) in parseMediaUrls(msg.mediaUrl)" :key="index" class="rounded-lg overflow-hidden bg-white/20 backdrop-blur-sm">
-                                    <img v-if="isImage(url)"
-                                         :src="url"
-                                         class="max-w-full h-auto rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                                         @click.stop="openUrl(url)"
-                                         alt="Attachment"
-                                         loading="lazy">
-                                    <video v-else-if="isVideo(url)"
-                                           :src="url"
-                                           controls
-                                           class="max-w-full rounded-lg">
-                                        Ваш браузер не поддерживает видео.
-                                    </video>
-                                    <a v-else :href="url" target="_blank" class="flex items-center gap-2 p-3 text-xs text-white hover:bg-white/10 transition-colors rounded-lg break-all">
-                                        📎 Скачать файл
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Время -->
-                            <p :class="['text-[10px] mt-1.5 opacity-70 text-right flex items-center justify-end gap-1',
-                                    isMyMessage(msg) ? 'text-purple-200' : 'text-gray-500']">
-                                {{ formatTime(msg.timestamp) }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div v-if="filteredMessages.length === 0 && !isLoading" class="text-center text-gray-400 mt-10">
-                        <div class="text-4xl mb-2">🕊️</div>
-                        <div>Сообщения не найдены (возможно, скрыты фильтром)</div>
-                    </div>
-
-                    <div v-if="isLoading" class="text-center text-gray-400 mt-10">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                        <div>Загрузка...</div>
+                <div class="bg-white border-t border-gray-200 p-3">
+                    <div class="flex gap-2">
+                        <textarea id="msg-input" v-model="newMessage" @keydown.enter.exact.prevent="sendMessage"
+                                  placeholder="Введите сообщение..."
+                                  class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 custom-scrollbar"></textarea>
+                        <button @click="sendMessage" :disabled="!newMessage.trim()"
+                                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50">➤</button>
                     </div>
                 </div>
-
-                <!-- ================= 📤 ФОРМА ОТПРАВКИ (НОВОЕ) ================= -->
-                <div class="flex-shrink-0 border-t border-gray-200 bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
-
-                    <!-- Ошибка отправки -->
-                    <div v-if="sendError" class="px-4 py-2 bg-red-50 border-b border-red-100 text-xs text-red-700 flex items-center justify-between gap-2">
-                        <span>⚠️ {{ sendError }}</span>
-                        <button @click="sendError = ''" class="text-red-400 hover:text-red-600 font-bold">✕</button>
-                    </div>
-
-                    <!-- Ответ на сообщение -->
-                    <div v-if="replyTo" class="px-4 py-2 bg-blue-50 border-b border-blue-100 text-xs text-blue-800 flex items-center gap-2">
-                        <span class="font-semibold">↩ Ответ</span>
-                        <span class="truncate flex-1">{{ (replyTo.text || '[медиа]').slice(0, 90) }}</span>
-                        <button @click="replyTo = null" class="text-blue-400 hover:text-blue-700 font-bold">✕</button>
-                    </div>
-
-                    <!-- Прикреплённые файлы -->
-                    <div v-if="selectedFiles.length" class="px-4 pt-2 flex flex-wrap gap-2">
-                        <div v-for="(f, i) in selectedFiles" :key="i"
-                             class="flex items-center gap-2 bg-gray-100 border border-gray-200 rounded-lg px-2 py-1.5">
-                            <img v-if="f.previewUrl" :src="f.previewUrl" class="w-9 h-9 object-cover rounded">
-                            <span v-else class="w-9 h-9 flex items-center justify-center bg-gray-200 rounded text-sm">📎</span>
-                            <div class="leading-tight">
-                                <div class="text-xs text-gray-700 max-w-[160px] truncate">{{ f.name }}</div>
-                                <div class="text-[10px] text-gray-400">{{ formatSize(f.size) }}</div>
-                            </div>
-                            <button @click="removeAttachment(i)" class="text-gray-400 hover:text-red-500 font-bold text-sm">✕</button>
-                        </div>
-                    </div>
-
-                    <!-- Панель ввода -->
-                    <div class="p-3 flex items-end gap-2">
-                        <input type="file" ref="fileInput" multiple class="hidden" @change="onFilePick">
-
-                        <button @click="$refs.fileInput.click()"
-                                :disabled="isSending || !canSend"
-                                title="Прикрепить файл"
-                                class="w-10 h-10 flex items-center justify-center rounded-full text-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0 disabled:opacity-40 disabled:cursor-not-allowed">
-                            📎
-                        </button>
-
-                        <textarea id="msg-input"
-                                  v-model="newMessageText"
-                                  rows="1"
-                                  @keydown="sendKeydown"
-                                  @input="autoGrow"
-                                  :disabled="!canSend"
-                                  :placeholder="sendPlaceholder"
-                                  class="flex-1 p-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none bg-white text-gray-800 disabled:bg-gray-50 disabled:text-gray-400"></textarea>
-
-                        <label v-if="selectedChat && selectedChat.source === 'tg'"
-                               class="flex items-center gap-1 text-[11px] text-gray-500 px-1 cursor-pointer select-none"
-                               title="Парсить *жирный*, _курсив_, [ссылки](url)">
-                            <input type="checkbox" v-model="sendMarkdown" class="accent-purple-600">
-                            <span>MD</span>
-                        </label>
-
-                        <button @click="sendMessage"
-                                :disabled="isSending || !canSend || (!newMessageText.trim() && selectedFiles.length === 0)"
-                                class="h-10 px-4 rounded-xl text-sm font-semibold text-white flex items-center gap-2 flex-shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                                :class="selectedChat && selectedChat.source === 'tg'
-                                        ? 'bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
-                                        : selectedChat && selectedChat.source === 'vk'
-                                            ? 'bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800'
-                                            : 'bg-gradient-to-br from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700'">
-                            <span v-if="isSending" class="animate-spin">⏳</span>
-                            <span v-else>🚀</span>
-                            {{ isSending ? 'Отправка…' : 'Отправить' }}
-                        </button>
-                    </div>
+            </div>
+            <div v-else class="flex-1 flex items-center justify-center text-gray-400">
+                <div class="text-center">
+                    <div class="text-4xl mb-2">💬</div>
+                    <p class="text-sm">Выберите чат для общения</p>
                 </div>
-                <!-- ================= /ФОРМА ОТПРАВКИ ================= -->
             </div>
         </div>
     </div>
 
-    <!-- Всплывающее уведомление -->
-    <div v-if="toast" class="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-2xl text-sm font-medium text-white max-w-sm"
-         :class="toast.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'">
-        {{ toast.text }}
+    <!-- МОДАЛЬНОЕ ОКНО TG -->
+    <div v-if="configModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Настройки Telegram</h3>
+            <div class="space-y-3">
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" v-model="tgConfig.scanPersonal"> Сканировать личные чаты</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" v-model="tgConfig.scanGroups"> Сканировать группы</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" v-model="tgConfig.autoReply"> Автоответ</label>
+            </div>
+            <div class="mt-4 flex justify-end gap-2">
+                <button @click="configModalOpen = false" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded">Отмена</button>
+                <button @click="saveTgConfig" class="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">Сохранить</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    const { createApp, ref, computed, onMounted, onUnmounted, nextTick } = Vue;
-
-    // Единый адрес Java-бэкенда (VK/TG + прокси к MAX)
-    const API_BASE = 'http://localhost:8080';
-
+    const { createApp } = Vue;
     createApp({
-        setup() {
-            const chats = ref([]);
-            const messages = ref([]);
-            const selectedChat = ref(null);
-            const searchQuery = ref('');
-            const isLoading = ref(false);
-            const newTagInput = ref('');
-            const participantsCount = ref(0);
-            const showSettings = ref(false);
-
-            // --- ОТПРАВКА СООБЩЕНИЙ ---
-            const newMessageText = ref('');
-            const selectedFiles = ref([]);     // [{ file, name, size, previewUrl }]
-            const isSending = ref(false);
-            const sendError = ref('');
-            const sendMarkdown = ref(false);
-            const replyTo = ref(null);
-            const toast = ref(null);
-            const fileInput = ref(null);
-            let toastTimer = null;
-
-            // Фильтры
-            const filterPlatform = ref('all');
-            const filterTag = ref('all');
-            const filterMyMessagesOnly = ref(false);
-            const hideMyMessages = ref(false);
-            const highlightMyMessages = ref(true);
-
-            // Коннекторы
-            const connectors = ref({
-                max: { running: false, scanning: false, myId: null, canSend: true, scanPersonal: true, scanGroups: true },
-                vk:  { running: false, scanning: false, myId: null, canSend: true, scanPersonal: true, scanGroups: true },
-                tg:  { running: false, scanning: false, myId: null, canSend: true, scanPersonal: true, scanGroups: true }
-            });
-
-            // Ваши ID для определения "моих" сообщений
-            const myUsers = computed(() => ({
-                max: connectors.value.max.myId || 119690147,
-                vk:  connectors.value.vk.myId  || -223646324,
-                tg:  connectors.value.tg.myId  || 6466048170
-            }));
-
-            // --- ВЫЧИСЛЯЕМЫЕ СВОЙСТВА ---
-            const availablePlatforms = computed(() => {
-                const platforms = new Set(chats.value.map(c => c.source));
-                return ['all', ...Array.from(platforms).sort()];
-            });
-
-            const availableTags = computed(() => {
-                const tags = new Set();
-                chats.value.forEach(c => {
-                    if (Array.isArray(c.tags)) c.tags.forEach(t => tags.add(t));
-                });
-                return ['all', ...Array.from(tags).sort()];
-            });
-
-            const canSend = computed(() => {
-                if (!selectedChat.value) return false;
-                const conn = connectors.value[selectedChat.value.source];
-                return !!(conn && conn.canSend !== false && conn.running);
-            });
-
-            const sendPlaceholder = computed(() => {
-                if (!selectedChat.value) return 'Выберите чат…';
-                const src = selectedChat.value.source.toUpperCase();
-                if (!connectors.value[selectedChat.value.source]?.running) {
-                    return `${src}: коннектор не запущен — нажмите ▶ Start`;
-                }
-                if (!canSend.value) return `${src}: отправка недоступна`;
-                return `Сообщение в ${src}…  (Enter — отправить, Shift+Enter — новая строка)`;
-            });
-
-            const filteredChats = computed(() => {
-                const q = searchQuery.value.toLowerCase();
-                const pFilter = filterPlatform.value;
-                const tFilter = filterTag.value;
-
-                return chats.value.filter(c => {
-                    const name = getChatDisplayName(c).toLowerCase();
-                    const chatIdStr = String(c.chatId).toLowerCase();
-                    const matchesSearch = !q || name.includes(q) || chatIdStr.includes(q) ||
-                                          (Array.isArray(c.tags) && c.tags.some(tag => tag.toLowerCase().includes(q)));
-
-                    const matchesPlatform = pFilter === 'all' || c.source === pFilter;
-                    const matchesTag = tFilter === 'all' || (Array.isArray(c.tags) && c.tags.includes(tFilter));
-
-                    let matchesMyMessages = true;
-                    if (filterMyMessagesOnly.value) {
-                        const myId = myUsers.value[c.source] || 0;
-                        matchesMyMessages = messages.value.some(m =>
-                            m.chatId === c.chatId && String(m.authorId) === String(myId)
-                        );
-                    }
-
-                    return matchesSearch && matchesPlatform && matchesTag && matchesMyMessages;
-                });
-            });
-
-            const filteredMessages = computed(() => {
-                if (!hideMyMessages.value) return messages.value;
-                const myId = selectedChat.value ? myUsers.value[selectedChat.value.source] : 0;
-                return messages.value.filter(m => String(m.authorId) !== String(myId));
-            });
-
-            // --- ФУНКЦИИ ОТОБРАЖЕНИЯ ---
-            const getChatDisplayName = (chat) => {
-                if (!chat) return 'Неизвестно';
-                if (chat.chatTitle && String(chat.chatTitle).trim() !== '') return chat.chatTitle;
-                if (chat.isGroup) return `Группа ${chat.chatId}`;
-
-                const fullName = `${chat.firstName || ''} ${chat.lastName || ''}`.trim();
-                if (fullName && fullName !== '') return fullName;
-                if (chat.username) return `@${chat.username}`;
-                return `Пользователь ${chat.chatId}`;
-            };
-
-            const getInitials = (chat) => {
-                if (!chat) return '?';
-                if (chat.isGroup) return '👥';
-                if (chat.chatTitle && String(chat.chatTitle).trim() !== '') return chat.chatTitle.trim().charAt(0).toUpperCase();
-
-                const first = chat.firstName ? chat.firstName[0].toUpperCase() : '';
-                const last = chat.lastName ? chat.lastName[0].toUpperCase() : '';
-                return (first + last) || '?';
-            };
-
-            const isMyMessage = (msg) => {
-                if (msg.mine) return true;
-                const source = msg.source || selectedChat.value?.source || 'max';
-                const myId = myUsers.value[source] || 0;
-                return String(msg.authorId) === String(myId);
-            };
-
-            const parseMediaUrls = (mediaUrlStr) => {
-                if (!mediaUrlStr) return [];
-                try {
-                    const parsed = JSON.parse(mediaUrlStr);
-                    return Array.isArray(parsed) ? parsed : [parsed];
-                } catch {
-                    return mediaUrlStr.split(',').map(u => u.trim()).filter(u => u);
-                }
-            };
-
-            const isImage = (url) => {
-                return url.match(/\.(jpeg|jpg|gif|png|webp|heic|avif)$/i) != null ||
-                       url.includes('i.oneme.ru/i') || url.includes('iv.okcdn.ru') || url.includes('sun9-');
-            };
-
-            const isVideo = (url) => {
-                return url.match(/\.(mp4|webm|ogg|mov|mkv)$/i) != null || url.includes('player');
-            };
-
-            const formatTime = (timestamp) => {
-                if (!timestamp) return '';
-                return new Date(timestamp * 1000).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            };
-
-            const formatSize = (bytes) => {
-                if (!bytes) return '0 Б';
-                const units = ['Б', 'КБ', 'МБ', 'ГБ'];
-                let i = 0, v = bytes;
-                while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
-                return `${v.toFixed(v < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
-            };
-
-            const openUrl = (url) => window.open(url, '_blank');
-
-            const showToast = (text, type = 'ok') => {
-                toast.value = { text, type };
-                if (toastTimer) clearTimeout(toastTimer);
-                toastTimer = setTimeout(() => { toast.value = null; }, 3500);
-            };
-
-            const scrollToBottom = (smooth = true) => {
-                nextTick(() => {
-                    const container = document.getElementById('chat-container');
-                    if (container) container.scrollTo({ top: container.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
-                });
-            };
-
-            // --- СЕТЕВЫЕ ЗАПРОСЫ ---
-            const fetchChats = async () => {
-                try {
-                    const res = await fetch(`${API_BASE}/api/chats`);
-                    if (!res.ok) throw new Error('Network response was not ok');
-                    chats.value = await res.json();
-                } catch (e) {
-                    console.error('❌ Ошибка загрузки чатов:', e);
-                }
-            };
-
-            const fetchConnectorStatus = async () => {
-                try {
-                    // MAX
-                    const maxRes = await fetch('http://localhost:8081/api/max/status');
-                    if (maxRes.ok) {
-                        const d = await maxRes.json();
-                        connectors.value.max.running = d.listening || d.running || false;
-                        connectors.value.max.scanning = d.scanning || false;
-                        if (d.myUserId || d.my_id) connectors.value.max.myId = d.myUserId || d.my_id;
-                        if (d.canSend !== undefined) connectors.value.max.canSend = d.canSend;
-                    }
-
-                    // VK
-                    const vkRes = await fetch(`${API_BASE}/api/vk/status`);
-                    if (vkRes.ok) {
-                        const d = await vkRes.json();
-                        connectors.value.vk.running = d.running || d.listening || false;
-                        connectors.value.vk.scanning = d.scanning || false;
-                        if (d.myUserId || d.my_id) connectors.value.vk.myId = d.myUserId || d.my_id;
-                        if (d.canSend !== undefined) connectors.value.vk.canSend = d.canSend;
-                    }
-
-                    // TG
-                    const tgRes = await fetch(`${API_BASE}/api/tg/status`);
-                    if (tgRes.ok) {
-                        const d = await tgRes.json();
-                        connectors.value.tg.running = d.started || false;
-                        connectors.value.tg.scanning = d.scanning || false;
-                        // 👇 бэкенд теперь отдаёт myUserId и на верхнем уровне, и в config
-                        if (d.myUserId) connectors.value.tg.myId = d.myUserId;
-                        else if (d.config?.myUserId) connectors.value.tg.myId = d.config.myUserId;
-                        if (d.config?.scanPersonal !== undefined) connectors.value.tg.scanPersonal = d.config.scanPersonal;
-                        if (d.config?.scanGroups !== undefined) connectors.value.tg.scanGroups = d.config.scanGroups;
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Не удалось получить статус коннекторов:', e.message);
-                }
-            };
-
-            const toggleConnector = async (platform) => {
-                const conn = connectors.value[platform];
-                const wantStart = !conn.running;
-                try {
-                    let url;
-                    if (platform === 'max') {
-                        url = `http://localhost:8081/api/max/listen/${wantStart ? 'start' : 'stop'}`;
-                    } else if (platform === 'vk') {
-                        url = `${API_BASE}/api/vk/listen/${wantStart ? 'start' : 'stop'}`;
-                    } else if (platform === 'tg') {
-                        url = `${API_BASE}/api/tg/${wantStart ? 'start' : 'stop'}`;
-                    }
-                    await fetch(url, { method: 'POST' });
-                    setTimeout(fetchConnectorStatus, 1500);
-                } catch (e) {
-                    console.error(`❌ Toggle ${platform}:`, e);
-                }
-            };
-
-            const scanConnector = async (platform) => {
-                const conn = connectors.value[platform];
-                if (conn.scanning) return;
-
-                conn.scanning = true;
-                try {
-                    if (platform === 'max') {
-                        await fetch('http://localhost:8081/api/max/scan', { method: 'POST' });
-                    } else if (platform === 'vk') {
-                        await fetch(`${API_BASE}/api/vk/scan`, { method: 'POST' });
-                    } else if (platform === 'tg') {
-                        await fetch(`${API_BASE}/api/tg/scan`, { method: 'POST' });
-                    }
-                    setTimeout(fetchConnectorStatus, 2000);
-                } catch (e) {
-                    console.error(`❌ Ошибка сканирования ${platform}:`, e);
-                } finally {
-                    setTimeout(() => { conn.scanning = false; }, 3000);
-                }
-            };
-
-            const updateConfig = async (platform) => {
-                const conn = connectors.value[platform];
-                try {
-                    let url, body;
-                    if (platform === 'max') {
-                        url = 'http://localhost:8081/api/max/config';
-                        body = { scan_personal: conn.scanPersonal, scan_groups: conn.scanGroups };
-                    } else if (platform === 'vk') {
-                        url = `${API_BASE}/api/vk/config`;
-                        body = { scanPersonalMessages: conn.scanPersonal };
-                    } else if (platform === 'tg') {
-                        url = `${API_BASE}/api/tg/config`;
-                        body = { scanPersonal: conn.scanPersonal, scanGroups: conn.scanGroups };
-                    }
-                    await fetch(url, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(body)
-                    });
-                } catch (e) {
-                    console.error(`❌ Config ${platform}:`, e);
-                }
-            };
-
-            const openConfigModal = (platform) => {
-                // заглушка под ваше модальное окно настроек коннектора
-                showSettings.value = !showSettings.value;
-                console.log('⚙️ config modal for', platform);
-            };
-
-            const selectChat = async (chat) => {
-                selectedChat.value = { ...chat, tags: [] };
-                isLoading.value = true;
-                messages.value = [];
-                clearComposer();
-
-                try {
-                    const resMsg = await fetch(`${API_BASE}/api/messages/${chat.chatId}`);
-                    if (resMsg.ok) {
-                        const data = await resMsg.json();
-                        messages.value = Array.isArray(data) ? data.reverse() : [];
-                    }
-
-                    if (!chat.isGroup) {
-                        try {
-                            const targetUserId = chat.authorId || chat.chatId;
-                            const resTags = await fetch(`${API_BASE}/api/users/${chat.source}/${targetUserId}/tags`);
-                            if (resTags.ok) selectedChat.value.tags = await resTags.json();
-                        } catch (e) {
-                            console.warn('Не удалось загрузить теги:', e);
-                            selectedChat.value.tags = [];
-                        }
-                    }
-
-                    scrollToBottom(false);
-
-                    if (chat.isGroup) {
-                        participantsCount.value = new Set(messages.value.map(m => m.authorId)).size;
-                    }
-                } catch (e) {
-                    console.error('❌ Ошибка загрузки чата:', e);
-                } finally {
-                    isLoading.value = false;
-                }
-            };
-
-            // =====================================================================================
-            // 📤 ОТПРАВКА СООБЩЕНИЙ (единый эндпоинт /api/send для всех платформ)
-            // =====================================================================================
-
-            const clearComposer = () => {
-                newMessageText.value = '';
-                selectedFiles.value.forEach(f => f.previewUrl && URL.revokeObjectURL(f.previewUrl));
-                selectedFiles.value = [];
-                replyTo.value = null;
-                sendError.value = '';
-                if (fileInput.value) fileInput.value.value = '';
-            };
-
-            const onFilePick = (e) => {
-                const files = Array.from(e.target.files || []);
-                files.forEach(f => {
-                    selectedFiles.value.push({
-                        file: f,
-                        name: f.name,
-                        size: f.size,
-                        previewUrl: f.type.startsWith('image/') ? URL.createObjectURL(f) : null
-                    });
-                });
-                if (fileInput.value) fileInput.value.value = ''; // разрешаем выбрать тот же файл повторно
-            };
-
-            const removeAttachment = (index) => {
-                const f = selectedFiles.value[index];
-                if (f && f.previewUrl) URL.revokeObjectURL(f.previewUrl);
-                selectedFiles.value.splice(index, 1);
-            };
-
-            const autoGrow = (e) => {
-                const el = e.target;
-                el.style.height = 'auto';
-                el.style.height = Math.min(el.scrollHeight, 140) + 'px';
-            };
-
-            const sendKeydown = (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            };
-
-            const setReplyTo = (msg) => {
-                if (msg.pending) return;
-                replyTo.value = replyTo.value && replyTo.value.messageId === msg.messageId ? null : msg;
-            };
-
-            /** Оптимистично добавляем "своё" сообщение в ленту, пока сервер отвечает. */
-            const appendPendingMessage = (text, files, replyPreview) => {
-                const chat = selectedChat.value;
-                if (!chat) return null;
-                const pending = {
-                    messageId: 'pending-' + Date.now(),
-                    chatId: chat.chatId,
-                    source: chat.source,
-                    authorId: myUsers.value[chat.source],
-                    authorName: 'Вы',
-                    firstName: 'Вы',
-                    text: text || (files.length ? `[Файлов: ${files.length}]` : ''),
-                    mediaUrl: '',
-                    localFiles: files.map(f => ({ name: f.name, size: f.size, previewUrl: f.previewUrl })),
-                    timestamp: Math.floor(Date.now() / 1000),
-                    pending: true,
-                    mine: true,
-                    replyPreview
-                };
-                messages.value.push(pending);
-                scrollToBottom();
-                return pending;
-            };
-
-            const replacePending = (pending, ok, realMessageId) => {
-                if (!pending) return;
-                const idx = messages.value.findIndex(m => m.messageId === pending.messageId);
-                if (idx === -1) return;
-                if (ok) {
-                    messages.value[idx] = {
-                        ...pending,
-                        messageId: realMessageId || pending.messageId,
-                        pending: false,
-                        localFiles: []
-                    };
-                } else {
-                    messages.value[idx] = { ...pending, pending: false, failed: true };
-                }
-            };
-
-            const sendMessage = async () => {
-                const chat = selectedChat.value;
-                if (!chat || isSending.value) return;
-
-                const text = newMessageText.value.trim();
-                const files = [...selectedFiles.value];
-                if (!text && files.length === 0) {
-                    sendError.value = 'Введите текст или прикрепите файл';
-                    return;
-                }
-                if (!canSend.value) {
-                    sendError.value = `Коннектор ${chat.source.toUpperCase()} не запущен — нажмите ▶ Start`;
-                    return;
-                }
-
-                isSending.value = true;
-                sendError.value = '';
-
-                const replyPreview = replyTo.value
-                    ? `${replyTo.value.authorName || replyTo.value.firstName || ''}: ${(replyTo.value.text || '[медиа]').slice(0, 60)}`
-                    : null;
-                const pending = appendPendingMessage(text, files, replyPreview);
-
-                try {
-                    let res;
-                    if (files.length > 0) {
-                        // --- multipart: файлы + поля ---
-                        const fd = new FormData();
-                        fd.append('platform', chat.source);
-                        fd.append('chatId', String(chat.chatId));
-                        fd.append('text', text);
-                        fd.append('markdown', String(sendMarkdown.value));
-                        if (replyTo.value && replyTo.value.messageId) {
-                            fd.append('replyTo', String(replyTo.value.messageId));
-                        }
-                        files.forEach(f => fd.append('file', f.file, f.name));
-
-                        res = await fetch(`${API_BASE}/api/send/media`, { method: 'POST', body: fd });
-                    } else {
-                        // --- JSON: только текст ---
-                        res = await fetch(`${API_BASE}/api/send`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                platform: chat.source,
-                                chatId: chat.chatId,
-                                text,
-                                replyTo: (replyTo.value && String(replyTo.value.messageId).startsWith('pending-'))
-                                    ? null : (replyTo.value ? replyTo.value.messageId : null),
-                                markdown: sendMarkdown.value
-                            })
-                        });
-                    }
-
-                    const data = await res.json().catch(() => ({}));
-                    const ok = res.ok && (data.status === 'ok' || data.status === undefined);
-
-                    if (ok) {
-                        replacePending(pending, true, data.messageId);
-                        showToast(`✅ Отправлено в ${chat.source.toUpperCase()}`, 'ok');
-                        clearComposer();
-                        // сверяемся с БД: там уже лежит реальное сообщение (backend пишет его при отправке)
-                        setTimeout(() => selectChat(chat), 700);
-                    } else {
-                        replacePending(pending, false);
-                        sendError.value = data.message || `Ошибка отправки (HTTP ${res.status})`;
-                        showToast(`❌ ${sendError.value}`, 'error');
-                    }
-                } catch (e) {
-                    replacePending(pending, false);
-                    sendError.value = 'Сеть недоступна: ' + e.message;
-                    showToast(`❌ ${sendError.value}`, 'error');
-                    console.error('❌ Ошибка отправки:', e);
-                } finally {
-                    isSending.value = false;
-                    scrollToBottom();
-                }
-            };
-
-            // --- ФУНКЦИИ ТЕГОВ ---
-            const addTag = async () => {
-                const tag = newTagInput.value.trim();
-                if (!tag || !selectedChat.value || selectedChat.value.isGroup) return;
-
-                try {
-                    const targetUserId = selectedChat.value.authorId || selectedChat.value.chatId;
-                    const res = await fetch(`${API_BASE}/api/users/${selectedChat.value.source}/${targetUserId}/tags`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ tag })
-                    });
-                    if (res.ok) {
-                        if (!selectedChat.value.tags.includes(tag)) selectedChat.value.tags.push(tag);
-                        newTagInput.value = '';
-                    }
-                } catch (e) {
-                    console.error('❌ Ошибка добавления тега:', e);
-                }
-            };
-
-            const removeTag = async (index) => {
-                const tag = selectedChat.value.tags[index];
-                if (!tag || !selectedChat.value) return;
-
-                try {
-                    const targetUserId = selectedChat.value.authorId || selectedChat.value.chatId;
-                    const res = await fetch(`${API_BASE}/api/users/${selectedChat.value.source}/${targetUserId}/tags?tag=${encodeURIComponent(tag)}`, {
-                        method: 'DELETE'
-                    });
-                    if (res.ok) selectedChat.value.tags.splice(index, 1);
-                } catch (e) {
-                    console.error('❌ Ошибка удаления тега:', e);
-                }
-            };
-
-            // --- ЖИЗНЕННЫЙ ЦИКЛ ---
-            let statusInterval, chatsInterval;
-
-            onMounted(() => {
-                fetchChats();
-                fetchConnectorStatus();
-                statusInterval = setInterval(fetchConnectorStatus, 5000);
-                chatsInterval = setInterval(fetchChats, 10000);
-            });
-
-            onUnmounted(() => {
-                if (statusInterval) clearInterval(statusInterval);
-                if (chatsInterval) clearInterval(chatsInterval);
-                if (toastTimer) clearTimeout(toastTimer);
-            });
-
+        data() {
             return {
-                chats, messages, selectedChat, searchQuery, isLoading, newTagInput, participantsCount,
-                filterPlatform, filterTag, filterMyMessagesOnly, hideMyMessages, highlightMyMessages,
-                availablePlatforms, availableTags, filteredChats, filteredMessages,
-                connectors, showSettings, toast,
-                // отправка
-                newMessageText, selectedFiles, isSending, sendError, sendMarkdown, replyTo,
-                canSend, sendPlaceholder, fileInput,
-                sendMessage, onFilePick, removeAttachment, autoGrow, sendKeydown, setReplyTo, formatSize,
-                // прочее
-                selectChat, formatTime, getInitials, getChatDisplayName,
-                isMyMessage, parseMediaUrls, isImage, isVideo, addTag, removeTag, openUrl, openConfigModal,
-                toggleConnector, scanConnector, updateConfig
+                connectors: { vk: { running: false, scanning: false, myId: null }, tg: { running: false, scanning: false, myId: null }, max: { running: false, scanning: false, myId: null } },
+                chats: [], selectedChat: null, messages: [], newMessage: '', searchQuery: '', platformFilter: 'all',
+                configModalOpen: false, tgConfig: { scanPersonal: true, scanGroups: true, autoReply: false }
             };
+        },
+        computed: {
+            filteredChats() {
+                let r = this.chats;
+                if (this.platformFilter !== 'all') r = r.filter(c => c.platform === this.platformFilter);
+                if (this.searchQuery) { const q = this.searchQuery.toLowerCase(); r = r.filter(c => c.name.toLowerCase().includes(q)); }
+                return r;
+            }
+        },
+        mounted() { this.loadConnectorsStatus(); this.loadChats(); setInterval(() => this.loadConnectorsStatus(), 5000); },
+        methods: {
+            async loadConnectorsStatus() { try { const res = await fetch('/api/v2/connectors/status'); if (res.ok) this.connectors = await res.json(); } catch(e) {} },
+            async toggleConnector(key) { try { const res = await fetch(`/api/v2/connectors/${key}/toggle`, {method:'POST'}); if(res.ok) this.loadConnectorsStatus(); } catch(e) {} },
+            async scanConnector(key) { this.connectors[key].scanning=true; try { await fetch(`/api/v2/connectors/${key}/scan`, {method:'POST'}); await this.loadChats(); } catch(e) {} finally { this.connectors[key].scanning=false; } },
+            async loadChats() { try { const res = await fetch('/api/v2/chats'); if(res.ok) this.chats = await res.json(); } catch(e) {} },
+            selectChat(chat) { this.selectedChat = chat; this.loadMessages(chat.id); },
+            closeChat() { this.selectedChat = null; this.messages = []; },
+            async loadMessages(chatId) { try { const res = await fetch(`/api/v2/chats/${chatId}/messages`); if(res.ok) { this.messages = await res.json(); this.$nextTick(()=>this.scrollToBottom()); } } catch(e) {} },
+            async sendMessage() { if(!this.newMessage.trim()||!this.selectedChat) return; const t=this.newMessage; this.newMessage=''; this.messages.push({id:Date.now(),text:t,isOwn:true,timestamp:new Date().toISOString()}); this.scrollToBottom(); try { await fetch('/api/v2/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:this.selectedChat.platform,peerId:this.selectedChat.peerId,message:t})}); } catch(e) {} },
+            scrollToBottom() { const c=this.$refs.messagesContainer; if(c) c.scrollTop=c.scrollHeight; },
+            formatTime(s) { if(!s) return ''; const d=new Date(s); return d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}); },
+            openConfigModal() { this.configModalOpen=true; },
+            async saveTgConfig() { try { await fetch('/api/v2/connectors/tg/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(this.tgConfig)}); this.configModalOpen=false; } catch(e) {} }
         }
     }).mount('#app');
 </script>
