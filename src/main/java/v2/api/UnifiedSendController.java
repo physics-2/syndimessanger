@@ -7,8 +7,12 @@ import v2.dto.ApiResponse;
 import v2.dto.BroadcastRequest;
 import v2.dto.BroadcastResponse;
 import v2.dto.SendMessageRequest;
+import v2.entity.Chat;
 import v2.services.BroadcastService;
+import v2.services.ChatService;
 import v2.services.UnifiedSendService;
+
+import java.util.List;
 
 
 @RestController
@@ -32,6 +36,8 @@ public class UnifiedSendController {
                 request.getReplyTo()
         );
     }
+
+
 
     @PostMapping("/broadcast")
     public ApiResponse<BroadcastResponse> sendBroadcast(@RequestBody BroadcastRequest request) {

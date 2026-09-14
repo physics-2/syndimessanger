@@ -15,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tg")
+@CrossOrigin(origins = "*")
 public class TgApiController implements BaseApiConnector {
 
     private final TgConnector tgConnector;
@@ -107,9 +108,7 @@ public class TgApiController implements BaseApiConnector {
             if (body.containsKey("scanPersonal")) {
                 config.scanPersonal=((Boolean) body.get("scanPersonal"));
             }
-            if (body.containsKey("scanSavedMessages")) {
-                config.scanPersonal=((Boolean) body.get("scanSavedMessages"));
-            }
+
             if (body.containsKey("downloadMedia")) {
                 config.downloadMedia =((Boolean) body.get("downloadMedia"));
             }
@@ -140,7 +139,6 @@ public class TgApiController implements BaseApiConnector {
 
         response.put("scanGroups", config.scanGroups);
         response.put("scanPersonal", config.scanPersonal);
-        response.put("scanSavedMessages", config.scanPersonal);
         response.put("downloadMedia", config.downloadMedia);
         response.put("whitelistGroupIds", config.whitelist);
         response.put("success", true);
@@ -158,7 +156,7 @@ public class TgApiController implements BaseApiConnector {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            List<Map<String, Object>> groups = tgConnector.getAllGroupsForWhitelist();
+            List<Map<String, Object>> groups = tgConnector.getAllGroups();
 
             response.put("success", true);
             response.put("count", groups.size());

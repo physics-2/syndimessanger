@@ -28,32 +28,50 @@ public class BroadcastService {
     }
 
     public BroadcastResponse sendBroadcast(BroadcastRequest request) {
-        String type = request.getConnectorType().toLowerCase();
-        BaseConnector connector = connectors.get(type);
+        int totalSuccess = 0;
+        int totalFailed = 0;
+        Map<String, String> allErrors = new HashMap<>();
 
-        if (connector == null) {
-            throw new IllegalArgumentException("Неизвестный тип коннектора: " + request.getConnectorType());
-        }
-
-        List<Long> recipientIds = userTagRepository.findUserIdsByTags(request.getTags());
-
-        int total = recipientIds.size();
-        int success = 0;
-        int failed = 0;
-        Map<String, String> errors = new HashMap<>();
-
-        for (Long userId : recipientIds) {
-            try {
-                Long peerId = resolvePeerId(userId, type);
-                connector.sendMessage(String.valueOf(peerId), request.getMessage(), request.getAttachments(), null);
-                success++;
-            } catch (Exception e) {
-                failed++;
-                errors.put(String.valueOf(userId), e.getMessage());
+        // Определяем, какие коннекторы использовать
+        List<String> targetConnectors;
+        if (request.isSendToAllConnectors()) {
+            // Рассылка по всем доступным коннекторам
+            targetConnectors = connectors.keySet().stream().toList();
+        } else {
+            // Только указанный коннектор
+            String type = request.getConnectorType().toLowerCase();
+            if (!connectors.containsKey(type)) {
+                throw new IllegalArgumentException("Неизвестный тип коннектора: " + request.getConnectorType());
             }
+            targetConnectors = List.of(type);
         }
 
-        return new BroadcastResponse(total, success, failed, errors);
+        // Получаем список пользователей по тегам
+        List<Long> recipientIds = userTagRepository.findUserIdsByTags(request.getTags());
+        int totalRecipients = recipientIds.size();
+
+        for (String connectorType : targetConnectors) {
+            BaseConnector connector = connectors.get(connectorType);
+
+            int success = 0;
+            int failed = 0;
+
+            for (Long userId : recipientIds) {
+                try {
+                    Long peerId = resolvePeerId(userId, connectorType);
+                    connector.sendMessage(String.valueOf(peerId), request.getMessage(), request.getAttachments(), null);
+                    success++;
+                } catch (Exception e) {
+                    failed++;
+                    allErrors.put(connectorType + "_user_" + userId, e.getMessage());
+                }
+            }
+
+            totalSuccess += success;
+            totalFailed += failed;
+        }
+
+        return new BroadcastResponse(totalRecipients * targetConnectors.size(), totalSuccess, totalFailed, allErrors);
     }
 
     private Long resolvePeerId(Long userId, String type) {

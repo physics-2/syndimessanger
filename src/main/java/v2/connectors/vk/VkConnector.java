@@ -39,7 +39,6 @@ public class VkConnector implements BaseConnector {
     private static final String API_VERSION = "5.199";
     private static final Duration TIMEOUT = Duration.ofSeconds(60);
     private static final int VK_TEXT_LIMIT = 9000;
-    private static final int VK_MAX_ATTACHMENTS = 10;
 
     private final ConnectorConfig config = new ConnectorConfig();
 
@@ -47,7 +46,7 @@ public class VkConnector implements BaseConnector {
     private volatile boolean isListening = false;
     private volatile boolean isScanning = false;
     private volatile boolean isStarted = false;
-    private Long myUserId = null;
+    private final Long myUserId = null;
 
     // Кэши
     private final ConcurrentHashMap<Long, VkChatMeta> chatCache = new ConcurrentHashMap<>();
@@ -87,7 +86,6 @@ public class VkConnector implements BaseConnector {
             return ConnectorResult.ok("VK уже запущен");
         }
         try {
-            // Проверяем токен
             String token = Config.getVkToken();
             if (token == null || token.isBlank()) {
                 return ConnectorResult.fail("Токен VK не найден в конфигурации");
@@ -103,6 +101,7 @@ public class VkConnector implements BaseConnector {
     public ConnectorResult stop() {
         isListening = false;
         isStarted = false;
+
         return ConnectorResult.ok("VK остановлен");
     }
 
@@ -142,8 +141,7 @@ public class VkConnector implements BaseConnector {
             List<Long> chatIds = options.chatIds();
             Integer limit = options.limitPerChat() != null ? options.limitPerChat() : config.limitPerChat;
 
-            // Если chatIds не указаны - сканируем все доступные диалоги
-            if (chatIds == null || chatIds.isEmpty()) {
+            if (chatIds.isEmpty()) {
                 chatIds = getDialogsFromVK(limit);
             }
 
@@ -154,17 +152,16 @@ public class VkConnector implements BaseConnector {
                     VkChatMeta meta = fetchChatMeta(peerId);
                     if (meta == null) continue;
 
-                    // Проверяем фильтр
                     if (!isChatAllowed(meta)) continue;
 
-                    // Сохраняем чат
+
                     Chat chat = new Chat("vk", meta.id(), meta.title(), meta.isGroup());
                     chatService.saveOrUpdate(chat);
 
-                    // Сканируем историю сообщений
+
                     List<Message> messages = fetchMessages(peerId, limit);
                     for (Message msg : messages) {
-                        // Сохраняем только если автор найден
+
                         try {
                             User author = getOrFetchUser(msg.getAuthorId());
                             if (author != null) {
@@ -172,13 +169,13 @@ public class VkConnector implements BaseConnector {
                                 messageRepository.save(msg);
                             }
                         } catch (Exception e) {
-                            // Пропускаем сообщения с ненайденным автором - не пишем мусор в БД
+                            System.out.println(e.getMessage());
                         }
                     }
 
-                    Thread.sleep(500); // Пауза между чатами
+                    Thread.sleep(500);
                 } catch (Exception e) {
-                    // Пропускаем ошибочные чаты
+                    System.out.println(e.getMessage());
                 }
             }
         } finally {
@@ -376,10 +373,6 @@ public class VkConnector implements BaseConnector {
         }
     }
 
-    private SendResult sendMessage(long peerId, String text, long replyTo) {
-        return sendMessage(peerId, text, null, replyTo);
-    }
-
     public SendResult sendMessage(long peerId, String text, String attachments, long replyTo) {
         long peer = toPeerId(peerId);
         if (text == null || text.isBlank()) {
@@ -421,7 +414,7 @@ public class VkConnector implements BaseConnector {
             if (isImage(file.getFileName().toString(), mimeType)) {
                 attachment = uploadPhoto(peer, file);
             } else {
-                attachment = uploadDoc(peer, file, caption);
+                attachment = uploadDoc(peer, file);
             }
             return sendMessage(peer, caption, attachment, replyTo);
         } catch (Exception e) {
@@ -464,7 +457,7 @@ public class VkConnector implements BaseConnector {
         return "photo" + first.path("owner_id").asLong() + "_" + first.path("id").asLong();
     }
 
-    private String uploadDoc(long peer, Path file, String caption) throws Exception {
+    private String uploadDoc(long peer, Path file) throws Exception {
         Map<String, String> params = new LinkedHashMap<>();
         params.put("peer_id", String.valueOf(peer));
         params.put("type", "doc");
@@ -622,14 +615,5 @@ public class VkConnector implements BaseConnector {
     // Вложенный класс для метаданных чата
     private record VkChatMeta(long id, String title, boolean isGroup) {}
 
-    // Класс результата отправки
-    public record SendResult(boolean success, String platform, long peerId, long messageId, String text, String error) {
-        public static SendResult ok(String platform, long peerId, long messageId, String text) {
-            return new SendResult(true, platform, peerId, messageId, text, null);
-        }
 
-        public static SendResult fail(String platform, long peerId, String error) {
-            return new SendResult(false, platform, 0, 0, null, error);
-        }
-    }
 }

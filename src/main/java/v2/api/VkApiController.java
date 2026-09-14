@@ -2,10 +2,7 @@ package v2.api;
 
 import org.springframework.web.bind.annotation.*;
 import v2.api.base.BaseApiConnector;
-import v2.connectors.base.ConnectorConfig;
-import v2.connectors.base.ConnectorResult;
-import v2.connectors.base.ConnectorStatus;
-import v2.connectors.base.ScanOptions;
+import v2.connectors.base.*;
 import v2.connectors.vk.VkConnector;
 
 import java.util.*;
@@ -16,6 +13,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/vk")
+@CrossOrigin(origins = "*")
 public class VkApiController implements BaseApiConnector {
 
     private final VkConnector vkConnector;
@@ -222,7 +220,7 @@ public class VkApiController implements BaseApiConnector {
                 return response;
             }
 
-            VkConnector.SendResult result = vkConnector.sendMessage(peerId, text,"", replyTo != null ? replyTo : 0);
+            SendResult result = vkConnector.sendMessage(peerId, text,"", replyTo != null ? replyTo : 0);
 
             if (result.success()) {
                 response.put("success", true);
@@ -268,7 +266,7 @@ public class VkApiController implements BaseApiConnector {
                 return response;
             }
 
-            VkConnector.SendResult result = vkConnector.sendFile(peerId, caption, filePath, null, replyTo != null ? replyTo : 0);
+            SendResult result = vkConnector.sendFile(peerId, caption, filePath, null, replyTo != null ? replyTo : 0);
 
             if (result.success()) {
                 response.put("success", true);

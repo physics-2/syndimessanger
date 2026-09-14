@@ -78,7 +78,7 @@ public class TgConnector implements BaseConnector {
     }
 
     public synchronized String startClient() {
-        if (client != null) return "Клиент уже запущен";
+        if (client != null) return "Client already started";
 
         try {
             Init.init();
@@ -97,10 +97,9 @@ public class TgConnector implements BaseConnector {
             builder.addUpdateHandler(TdApi.UpdateUser.class, this::onUpdateUser);
 
             client = builder.build(AuthenticationSupplier.user(phoneNumber));
-            isListening = true;
 
             // Инициализация компонентов
-            mediaDownloader = new TgMediaDownloader(client, downloadMedia);
+            mediaDownloader = new TgMediaDownloader(downloadMedia);
             mapper = new TgMessageMapper(myUserId, mediaDownloader);
             scanner = new TgHistoryScanner(client, mapper, userService, chatService, messageService);
 
@@ -115,7 +114,7 @@ public class TgConnector implements BaseConnector {
 
     private void onUpdateUser(TdApi.UpdateUser update) {
         if (update.user == null) return;
-        String avatar = mediaDownloader != null ? mediaDownloader.downloadUserAvatar(update.user) : "";
+        String avatar = mediaDownloader.downloadUserAvatar(update.user);
         User info = mapper.toDomainUser(update.user, avatar);
         userCache.put(update.user.id, info);
     }
@@ -131,7 +130,7 @@ public class TgConnector implements BaseConnector {
 
     private void onUpdateAuthorizationState(TdApi.UpdateAuthorizationState update) {
         TdApi.AuthorizationState state = update.authorizationState;
-
+        System.out.println("Current auth state: "+state);
         if (state instanceof TdApi.AuthorizationStateReady) {
             System.out.println("✅ [TG] Авторизация успешна!");
             client.getMeAsync().whenComplete((me, err) -> {
@@ -153,19 +152,18 @@ public class TgConnector implements BaseConnector {
     private void onUpdateNewMessage(TdApi.UpdateNewMessage update) {
         if (!isListening) return;
         try {
-            // Если чат не найден - упадет здесь, сообщение не сохранится
+
             ChatMeta meta = chatCache.computeIfAbsent(update.message.chatId, this::fetchChatMeta);
             if (!isChatAllowed(meta)) return;
 
             long senderId = extractSenderId(update.message);
-            if (senderId > 0) {
-                // Если юзер не найден - упадет здесь, сообщение не сохранится
+            if (update.message.senderId instanceof TdApi.MessageSenderUser) {
                 User user = getOrFetchUser(senderId);
                 userService.saveOrUpdate(user);
             }
 
             chatService.saveOrUpdate(mapper.toDomainChat(meta));
-            messageService.saveMessage(mapper.toDomainMessage(update.message, meta));
+            messageService.saveMessage(mapper.toDomainMessage(update.message));
 
         } catch (Exception e) {
             // Логируем ошибку, но НЕ пишем кривые данные в БД
@@ -178,15 +176,16 @@ public class TgConnector implements BaseConnector {
 
     private long extractSenderId(TdApi.Message msg) {
         if (msg.senderId instanceof TdApi.MessageSenderUser u) return u.userId;
-        if (msg.senderId instanceof TdApi.MessageSenderChat c) return -c.chatId;
+        if (msg.senderId instanceof TdApi.MessageSenderChat c) return c.chatId;
         return 0;
     }
 
     private void initializeUserConfig() {
         List<String> tgIdsToSave = new ArrayList<>();
-        if (myUserId > 0) tgIdsToSave.add(String.valueOf(myUserId));
+        if (myUserId != 0) tgIdsToSave.add(String.valueOf(myUserId));
         if (!tgIdsToSave.isEmpty()) {
-            configRepository.saveOrUpdate(new v2.entity.Config(new ArrayList<>(), tgIdsToSave, new ArrayList<>()));
+            v2.entity.Config config = configRepository.get();
+            configRepository.saveOrUpdate(new v2.entity.Config(config.getVk_ids(), tgIdsToSave,config.getMax_ids()));
         }
     }
 
@@ -202,11 +201,6 @@ public class TgConnector implements BaseConnector {
 
     private void runScan() {
         try {
-            System.out.println("🔄 [TG] Ожидание заполнения кэша чатов...");
-            for (int i = 0; i < 15; i++) {
-                Thread.sleep(2000);
-                if (chatCache.size() > 50 && i > 5) break;
-            }
 
             List<ChatMeta> allowed = chatCache.values().stream()
                     .filter(this::isChatAllowed)
@@ -234,26 +228,23 @@ public class TgConnector implements BaseConnector {
             TdApi.Chat chat = client.send(new TdApi.GetChat(chatId)).get(30, TimeUnit.SECONDS);
             return mapper.toChatMeta(chat);
         } catch (Exception e) {
-            // Никаких фейковых "Чат 123". Только хардкор.
             throw new RuntimeException("Не удалось получить метаданные чата " + chatId, e);
         }
     }
 
     private User getOrFetchUser(long userId) {
-        // 1. Проверяем кэш успешных
         User cached = userCache.get(userId);
         if (cached != null) return cached;
 
-        // 2. Проверяем список "битых" пользователей
         if (failedIds.contains(userId)) {
             throw new RuntimeException("Пользователь " + userId + " уже помечен как недоступный");
         }
 
-        // 3. Пробуем получить
+
         try {
             TdApi.User u = client.send(new TdApi.GetUser(userId)).get(5, TimeUnit.SECONDS);
 
-            // 👇 КРИТИЧНО: Если TDLib вернул null, значит пользователя не существует
+
             if (u == null) {
                 failedIds.add(userId);
                 throw new RuntimeException("TDLib вернул null для пользователя " + userId);
@@ -265,7 +256,6 @@ public class TgConnector implements BaseConnector {
             return info;
 
         } catch (Exception e) {
-            // Запоминаем пользователя как "битого"
             failedIds.add(userId);
             throw new RuntimeException("Не удалось получить пользователя " + userId + ": " + e.getMessage());
         }
@@ -279,10 +269,8 @@ public class TgConnector implements BaseConnector {
         return true;
     }
 
-    /**
-     * Получить список всех групп/каналов из кэша (для формирования вайтлиста)
-     */
-    public List<Map<String, Object>> getAllGroupsForWhitelist() {
+
+    public List<Map<String, Object>> getAllGroups() {
         List<Map<String, Object>> groups = new ArrayList<>();
 
         for (ChatMeta meta : chatCache.values()) {
@@ -296,7 +284,7 @@ public class TgConnector implements BaseConnector {
             }
         }
 
-        // Сортировка по названию для удобства
+
         groups.sort((a, b) -> {
             String titleA = (String) a.get("title");
             String titleB = (String) b.get("title");
@@ -340,11 +328,6 @@ public class TgConnector implements BaseConnector {
             return ConnectorResult.fail("Конфигурация не может быть null");
         }
 
-        // Обновляем настройки сканирования из переданной конфигурации
-
-
-
-            // Настройки сканирования
 
         this.scanGroups = c.scanGroups;
         this.scanPersonal = c.scanPersonal;
@@ -375,16 +358,12 @@ public class TgConnector implements BaseConnector {
             }
 
             long chatId = Long.parseLong(peer);
-            boolean markdown = false; // По умолчанию markdown выключен
 
-            // Если есть вложения - отправляем как файл с подписью
             if (attachments != null && !attachments.isEmpty()) {
-                // В Telegram вложения обрабатываются отдельно через upload
-                // Для простоты пока отправляем текст с упоминанием вложений
-                log.warn("Attachments not fully supported in TG yet, sending as text reference: {}", attachments);
-                return TgSendSupport.sendText(client, chatId, text + "\n\n[Вложения: " + attachments + "]", replyTo != null ? replyTo : 0, markdown);
+                //TODO:fix tis
+                return TgSendSupport.sendText(client, chatId, text + "\n\n[Вложения: " + attachments + "]", replyTo != null ? replyTo : 0);
             } else {
-                return TgSendSupport.sendText(client, chatId, text, replyTo != null ? replyTo : 0, markdown);
+                return TgSendSupport.sendText(client, chatId, text, replyTo != null ? replyTo : 0);
             }
 
         } catch (NumberFormatException e) {

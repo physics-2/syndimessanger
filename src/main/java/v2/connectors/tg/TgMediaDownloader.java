@@ -5,46 +5,39 @@ import it.tdlight.jni.TdApi;
 import java.util.concurrent.TimeUnit;
 
 public class TgMediaDownloader {
-    private final SimpleTelegramClient client;
-    private final boolean downloadEnabled;
+    private boolean downloadEnabled;
 
-    public TgMediaDownloader(SimpleTelegramClient client, boolean downloadEnabled) {
-        this.client = client;
+    public TgMediaDownloader(boolean downloadEnabled) {
         this.downloadEnabled = downloadEnabled;
     }
 
     public String extractMediaLocalPath(TdApi.MessageContent c) {
         if (!downloadEnabled) return "";
-        int fileId = extractFileId(c);
-        return (fileId > 0) ? downloadFileToLocal(fileId) : "";
+        return extractFileId(c);
     }
 
     public String downloadUserAvatar(TdApi.User u) {
         if (!downloadEnabled || u.profilePhoto == null) return "";
-        return downloadFileToLocal(u.profilePhoto.small.id);
+        return u.profilePhoto.big.local.path;
     }
 
-    private int extractFileId(TdApi.MessageContent c) {
+    private String extractFileId(TdApi.MessageContent c) {
         if (c instanceof TdApi.MessagePhoto p && p.photo != null && p.photo.sizes.length > 0) {
-            return p.photo.sizes[p.photo.sizes.length - 1].photo.id;
+            return p.photo.sizes[p.photo.sizes.length - 1].photo.local.path;
         } else if (c instanceof TdApi.MessageVideo v && v.video != null) {
-            return v.video.video.id;
+            return v.video.video.local.path;
         } else if (c instanceof TdApi.MessageDocument d && d.document != null) {
-            return d.document.document.id;
-        }
-        return -1;
-    }
-
-    private String downloadFileToLocal(int fileId) {
-        try {
-            TdApi.File file = client.send(new TdApi.DownloadFile(fileId, 1, 0, 0, true))
-                    .get(60, TimeUnit.SECONDS);
-            if (file.local != null && file.local.isDownloadingCompleted) {
-                return file.local.path;
-            }
-        } catch (Exception e) {
-            System.err.println("⚠️ [TG] Ошибка скачивания файла " + fileId + ": " + e.getMessage());
+            return d.document.document.local.path;
         }
         return "";
+    }
+
+
+    public boolean isDownloadEnabled() {
+        return downloadEnabled;
+    }
+
+    public void setDownloadEnabled(boolean downloadEnabled) {
+        this.downloadEnabled = downloadEnabled;
     }
 }

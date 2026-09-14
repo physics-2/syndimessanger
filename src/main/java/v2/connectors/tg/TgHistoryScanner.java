@@ -21,6 +21,7 @@ public class TgHistoryScanner {
 
     private static final int HISTORY_PAGE = 100;
     private static final int MAX_PAGES_PER_CHAT = 20;
+    private static final int DELAY_BETWEEN_CALLS = 500;
 
     public TgHistoryScanner(SimpleTelegramClient client, TgMessageMapper mapper,
                             UserService userService, ChatService chatService, MessageService messageService) {
@@ -30,6 +31,8 @@ public class TgHistoryScanner {
         this.chatService = chatService;
         this.messageService = messageService;
     }
+
+    public void doMediaDownload(boolean Do){mapper.doMediaDownload(Do);}
 
     public void setUserResolver(Function<Long, User> userResolver) {
         this.userResolver = userResolver;
@@ -43,18 +46,17 @@ public class TgHistoryScanner {
 
         while (pages++ < MAX_PAGES_PER_CHAT) {
             try {
-                TdApi.Messages msgs = client.send(new TdApi.GetChatHistory(
+                TdApi.Messages messages = client.send(new TdApi.GetChatHistory(
                                 meta.id(), fromMessageId, 0, HISTORY_PAGE, false))
                         .get(60, TimeUnit.SECONDS);
 
-                if (msgs.messages == null || msgs.messages.length == 0) break;
+                if (messages.messages == null || messages.messages.length == 0) break;
 
-                for (int i = msgs.messages.length - 1; i >= 0; i--) {
-                    TdApi.Message tgMsg = msgs.messages[i];
+                for (int i = messages.messages.length - 1; i >= 0; i--) {
+                    TdApi.Message tgMsg = messages.messages[i];
 
-                    // 👇 РЕШЕНИЕ ПРОБЛЕМЫ 1: Сохраняем автора перед сохранением сообщения
                     long senderId = extractSenderId(tgMsg);
-                    if (senderId > 0 && userResolver != null) {
+                    if (tgMsg.senderId instanceof TdApi.MessageSenderUser && userResolver != null) {
                         try {
                             User user = userResolver.apply(senderId);
                             if (user != null) {
@@ -65,11 +67,11 @@ public class TgHistoryScanner {
                         }
                     }
 
-                    messageService.saveMessage(mapper.toDomainMessage(tgMsg, meta));
+                    messageService.saveMessage(mapper.toDomainMessage(tgMsg));
                 }
 
-                fromMessageId = msgs.messages[msgs.messages.length - 1].id;
-                Thread.sleep(500);
+                fromMessageId = messages.messages[messages.messages.length - 1].id;
+                Thread.sleep(DELAY_BETWEEN_CALLS);
             } catch (Exception e) {
                 System.err.println("⚠️ [TG] Ошибка истории чата " + meta.id() + ": " + e.getMessage());
                 break;
@@ -79,7 +81,7 @@ public class TgHistoryScanner {
 
     private long extractSenderId(TdApi.Message msg) {
         if (msg.senderId instanceof TdApi.MessageSenderUser u) return u.userId;
-        if (msg.senderId instanceof TdApi.MessageSenderChat c) return -c.chatId;
+        if (msg.senderId instanceof TdApi.MessageSenderChat c) return c.chatId;
         return 0;
     }
 }

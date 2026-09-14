@@ -2,10 +2,7 @@ package v2.api;
 
 import org.springframework.web.bind.annotation.*;
 import v2.api.base.BaseApiConnector;
-import v2.connectors.base.ConnectorConfig;
-import v2.connectors.base.ConnectorResult;
-import v2.connectors.base.ConnectorStatus;
-import v2.connectors.base.ScanOptions;
+import v2.connectors.base.*;
 import v2.connectors.max.MaxConnector;
 
 import java.util.*;
@@ -16,6 +13,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/api/max")
+@CrossOrigin(origins = "*")
 public class MaxApiController implements BaseApiConnector {
 
     private final MaxConnector maxConnector;
@@ -172,7 +170,7 @@ public class MaxApiController implements BaseApiConnector {
                 return response;
             }
 
-            MaxConnector.SendResult result = maxConnector.sendText(chatId, text, replyTo != null ? replyTo : 0, notify != null && notify);
+            SendResult result = maxConnector.sendText(chatId, text, replyTo != null ? replyTo : 0, notify != null && notify);
 
             if (result.success()) {
                 response.put("success", true);
@@ -219,7 +217,7 @@ public class MaxApiController implements BaseApiConnector {
                 return response;
             }
 
-            MaxConnector.SendResult result = maxConnector.sendFile(chatId, caption, filePath, null, replyTo != null ? replyTo : 0, notify != null && notify);
+            SendResult result = maxConnector.sendFile(chatId, caption, filePath, null, replyTo != null ? replyTo : 0, notify != null && notify);
 
             if (result.success()) {
                 response.put("success", true);
@@ -263,4 +261,6 @@ public class MaxApiController implements BaseApiConnector {
         }
         return null;
     }
+
+
 }

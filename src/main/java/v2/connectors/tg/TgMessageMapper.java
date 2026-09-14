@@ -25,7 +25,7 @@ public class TgMessageMapper {
         this.myUserId = myUserId;
     }
 
-    public Message toDomainMessage(TdApi.Message tgMsg, ChatMeta meta) {
+    public Message toDomainMessage(TdApi.Message tgMsg) {
         long senderId = extractSenderId(tgMsg);
         String text = contentToText(tgMsg.content);
         String mediaUrl = mediaDownloader.extractMediaLocalPath(tgMsg.content);
@@ -33,11 +33,16 @@ public class TgMessageMapper {
         return new Message("tg", tgMsg.id, tgMsg.chatId, senderId, text, mediaUrl);
     }
 
-    public User toDomainUser(TdApi.User u, String avatar) {
-        String username = (u.usernames != null && u.usernames.activeUsernames.length > 0)
-                ? u.usernames.activeUsernames[0] : "";
-        return new User("tg", u.id, nvl(u.firstName), nvl(u.lastName),
-                username, avatar, nvl(u.phoneNumber), new ArrayList<>());
+    public User toDomainUser(TdApi.User user, String avatar) {
+        String username = "";
+        if(user.usernames != null){
+             username = user.usernames.activeUsernames[0];
+        }
+
+
+
+        return new User("tg", user.id, user.firstName, nvl(user.lastName),
+                username, avatar, nvl(user.phoneNumber), new ArrayList<>());
     }
 
     public ChatMeta toChatMeta(TdApi.Chat chat) {
@@ -53,26 +58,8 @@ public class TgMessageMapper {
             isChannel = sg.isChannel;
         } else if (chat.type instanceof TdApi.ChatTypePrivate p) {
             isSavedMessages = (p.userId == myUserId);
-
-            // 👇 РЕШЕНИЕ ПРОБЛЕМЫ 2: Если title пустой, берем имя из профиля юзера
-            if ((title == null || title.trim().isEmpty()) && userResolver != null && !isSavedMessages) {
-                try {
-                    User user = userResolver.apply(p.userId);
-                    if (user != null) {
-                        String fullName = (nvl(user.getFirstName()) + " " + nvl(user.getLastName())).trim();
-                        if (!fullName.isEmpty()) {
-                            title = fullName;
-                        } else if (user.getUsername() != null && !user.getUsername().isEmpty()) {
-                            title = "@" + user.getUsername();
-                        }
-                    }
-                } catch (Exception e) {
-                    // Если юзер не найден, title останется пустым (честные данные)
-                }
-            }
         }
 
-        // Если title все еще null (аномалия API), бросаем исключение, а не пишем "Чат 123"
         if (title == null) {
             throw new IllegalArgumentException("TDLib вернул null title для чата " + chat.id);
         }
@@ -86,16 +73,20 @@ public class TgMessageMapper {
 
     private long extractSenderId(TdApi.Message msg) {
         if (msg.senderId instanceof TdApi.MessageSenderUser u) return u.userId;
-        if (msg.senderId instanceof TdApi.MessageSenderChat c) return -c.chatId;
+        if (msg.senderId instanceof TdApi.MessageSenderChat c) return c.chatId;
         return 0;
     }
 
     private String contentToText(TdApi.MessageContent c) {
-        // ... (оставляем ваш предыдущий код без изменений)
-        if (c instanceof TdApi.MessageText t) return (t.text != null) ? t.text.text : "";
-        if (c instanceof TdApi.MessagePhoto) return "[Фото]";
-        if (c instanceof TdApi.MessageVideo) return "[Видео]";
-        return "[Вложение]";
+        if (c instanceof TdApi.MessageText t) return t.text.text;
+        if (c instanceof TdApi.MessagePhoto photo) return photo.caption.text;
+        if (c instanceof TdApi.MessageVideo video) return video.caption.text;
+        if(c instanceof TdApi.MessageDocument doc) return doc.caption.text;
+        return "[Anything]";
+    }
+
+    public void  doMediaDownload(boolean Do){
+        mediaDownloader.setDownloadEnabled(Do);
     }
 
     private String nvl(String s) { return (s != null) ? s : ""; }
