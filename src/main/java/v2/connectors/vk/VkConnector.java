@@ -91,6 +91,47 @@ public class VkConnector implements BaseConnector {
     private volatile long lpEventsTotal = 0;
     private volatile long lpSavedTotal = 0;
     private volatile long lpLastEventAt = 0;
+    /** Сколько событий отброшено вайтлистом прослушки. */
+    private volatile long lpFilteredTotal = 0;
+    /** Сколько сырых кортежей уже вывели в лог (для диагностики раскладки). */
+    private volatile int lpRawDumped = 0;
+    /**
+     * Версия User LongPoll. По официальной документации VK актуальная — 3:
+     * «version — Версия. Актуальная версия: 3».
+     *
+     * С version=3 события приходят кодами 4/5/6/7… и КЛАССИЧЕСКОЙ раскладкой кортежа:
+     *   [4, message_id, flags, peer_id, timestamp, text, additional{title,from}, attachments{attach1_*}, random_id?]
+     * Именно её показывает пример ответа в доках (8 элементов, 9-й — random_id при mode & 128).
+     *
+     * Если VK когда-нибудь ответит {failed:4, min_version, max_version} — возьмём его
+     * max_version и повторим (см. longPollLoop).
+     */
+    private volatile int lpVersion = 3;
+    private volatile long lpPts = 0;
+    /**
+     * mode — битовая маска ФОРМАТА ответа (не фильтр!):
+     * 2 = вложения, 8 = расширенные события, 32 = pts, 128 = random_id.
+     * Бит 128 важен: с ним в кортеже v21 гарантированно присутствует randomId, а следом messageId —
+     * без него индексы «плывут» и в БД уехал бы conversationMessageId вместо message_id.
+     */
+    private static final int LONGPOLL_MODE = 2 | 8 | 32 | 128;   // = 138
+
+    /**
+     * Негативный кэш для прослушки: peer_id, уже отброшенный вайтлистом.
+     * Без него на каждое сообщение из неразрешённой беседы приходился бы запрос
+     * messages.getConversationsById к VK. Чистится при изменении конфига.
+     */
+    private final ConcurrentHashMap<Long, VkChatMeta> blockedPeers = new ConcurrentHashMap<>();
+
+    /**
+     * Применять ли вайтлист/фильтры сканирования к ЖИВЫМ событиям LongPoll.
+     * true (по умолчанию) — в БД попадают только разрешённые диалоги;
+     * false — пишется всё, фильтры влияют только на выкачку истории.
+     *
+     * Берётся из ConnectorConfig.listenWhitelist, если вы добавите туда такое поле
+     * (публичное, как scanGroups). Пока поля нет — действует значение по умолчанию.
+     */
+    private volatile boolean listenWhitelist = true;
     /** Защита от второго параллельного цикла после быстрого stop → start. */
     private final java.util.concurrent.atomic.AtomicBoolean lpRunning =
             new java.util.concurrent.atomic.AtomicBoolean(false);
@@ -192,17 +233,26 @@ public class VkConnector implements BaseConnector {
     }
 
     // =========================================================================================
-    // 👂 LONGPOLL — прослушка входящих в реальном времени
+    // 👂 USER LONGPOLL — прослушка входящих в реальном времени
     //
-    // Схема (Bots LongPoll на пользовательском токене):
-    //   1) messages.getLongPollServer → { server, key, ts }
-    //   2) GET https://{server}?act=a_check&key={key}&ts={ts}&wait=25&v=5.199&mode=2&version=3
-    //      → соединение висит до 25 с, пока не придут события
-    //   3) { ts, updates:[...] } — ts из ответа подставляем в следующий запрос
-    //   4) { failed: 1|2|3, ts } — история событий утеряна/протухла: берём новый ts (или сервер)
+    // По официальной документации VK «User Long Poll API» (актуальная версия — 3):
+    //   1) messages.getLongPollServer?lp_version=3 → { server, key, ts }
+    //      (server «начинается с https://», но по факту VK отдаёт и хост без схемы —
+    //       см. normalizeLongPollServer)
+    //   2) {server}?act=a_check&key={key}&ts={ts}&wait=25&mode={mode}&version={version}
+    //      → соединение висит до wait секунд, пока не придут события
+    //   3) { "ts": 1820350874, "updates": [ [4, 1619489, 561, 123456, 1464958914, "hello",
+    //                                        {"title":"…"}, {"attach1_type":"photo", …}] ] }
+    //      ts из ответа подставляем в следующий запрос
+    //   4) { failed: 1, ts }  — история утеряна, работаем с новым ts
+    //      { failed: 2 }      — key инвалидировался → новый messages.getLongPollServer
+    //      { failed: 4, min_version, max_version } — неверная версия → берём max_version
     //
-    // mode=2 — прикладывать media_url к вложениям (нужно для Message.mediaUrl)
-    // version=3 — формат событий message_new с полем object (а не object.message, как у ботов)
+    // wait=25 — рекомендация VK: «некоторые прокси-серверы обрывают соединение после 30 секунд»
+    //
+    // mode — сумма кодов (это ФОРМАТ ответа, не фильтр):
+    //    2 = вложения, 8 = расширенный набор событий, 32 = pts (нужен для getLongPollHistory),
+    //   64 = extra в событии 8, 128 = поле random_id
     // =========================================================================================
 
     @Override
@@ -223,7 +273,11 @@ public class VkConnector implements BaseConnector {
                     lpRunning.set(false);
                 }
             });
-            log.info("[VK] Прослушка включена");
+            log.info("[VK] Прослушка включена: version={}, mode={}, фильтр={}",
+                    lpVersion, LONGPOLL_MODE, listenWhitelist
+                            ? ("scanPersonal=" + config.scanPersonal + ", scanGroups=" + config.scanGroups
+                            + ", whitelist=" + (config.whitelist.isEmpty() ? "пуст (= все беседы)" : config.whitelist))
+                            : "ВЫКЛЮЧЕН (пишем все диалоги)");
         } else {
             log.info("[VK] Прослушка включена (цикл уже работает)");
         }
@@ -237,8 +291,8 @@ public class VkConnector implements BaseConnector {
         boolean was = isListening;
         isListening = false;
         if (was) {
-            log.info("[VK] Прослушка выключена (обработано событий: {}, сохранено сообщений: {})",
-                    lpEventsTotal, lpSavedTotal);
+            log.info("[VK] Прослушка выключена (событий: {}, сохранено: {}, отфильтровано вайтлистом: {})",
+                    lpEventsTotal, lpSavedTotal, lpFilteredTotal);
         }
         return ConnectorResult.ok("VK прослушка выключена");
     }
@@ -247,8 +301,8 @@ public class VkConnector implements BaseConnector {
     private boolean refreshLongPollServer() {
         try {
             Map<String, String> params = new LinkedHashMap<>();
-            params.put("need_pts", "1");
-            params.put("lp_version", "3");
+            params.put("need_pts", "1");           // pts нужен для messages.getLongPollHistory
+            params.put("lp_version", String.valueOf(lpVersion));
 
             JsonNode resp = vkApi("messages.getLongPollServer", params);
             if (resp.has("error")) {
@@ -264,11 +318,15 @@ public class VkConnector implements BaseConnector {
                 log.error("[VK] messages.getLongPollServer вернул неполные данные: {}", r);
                 return false;
             }
-            lpServer = normalizeLongPollServer(server);
+            String normalized = normalizeLongPollServer(server);
+            if (!normalized.equals(server)) {
+                log.info("[VK] LongPoll: server от VK «{}» → нормализован в «{}»", server, normalized);
+            }
+            lpServer = normalized;
             lpKey = key;
             lpTs = ts;
             lpNeedServer = false;
-            log.info("[VK] LongPoll сервер получен: {}, ts={}", lpServer, ts);
+            log.info("[VK] LongPoll сервер получен: {}, ts={}, lp_version={}", lpServer, ts, lpVersion);
             return true;
         } catch (Exception e) {
             log.error("[VK] Не удалось получить LongPoll сервер: {}", describe(e));
@@ -277,24 +335,55 @@ public class VkConnector implements BaseConnector {
     }
 
     /**
-     * VK отдаёт server в разных видах: "im.vk.me", "https://im.vk.me", "/lp123456".
+     * VK отдаёт server в РАЗНЫХ видах — все три встречаются в проде:
+     *   "https://api.vk.com/gim837611773"   — уже абсолютный URL (новые версии API)
+     *   "api.vk.com/gim837611773"           — хост + путь БЕЗ схемы   ← ваш случай
+     *   "im.vk.me"                          — голый хост без схемы
+     *   "/lp123456"                         — только путь (тогда базовый хост im.vk.me)
+     *
      * HttpRequest.newBuilder(URI) требует абсолютный URI со схемой, иначе
      * IllegalArgumentException: URI with undefined scheme.
+     *
+     * ⚠️ Прежняя версия метода считала «хост без схемы» относительным путём и клеила его
+     *    к https://im.vk.me — получалось https://im.vk.me/api.vk.com/gim… и TLS падал с
+     *    «PKIX path building failed» (сертификата на такой хост не существует).
      */
     static String normalizeLongPollServer(String server) {
         String s = server == null ? "" : server.trim();
         if (s.isEmpty()) {
             return "";
         }
+        // параметры добавляем сами — хвостовой query от VK не нужен
+        int q = s.indexOf('?');
+        if (q >= 0) {
+            s = s.substring(0, q).trim();
+        }
         String lower = s.toLowerCase(Locale.ROOT);
+
         if (lower.startsWith("http://") || lower.startsWith("https://")) {
-            // уже абсолютный — не трогаем
+            // уже абсолютный — ничего не трогаем
         } else if (s.startsWith("/")) {
-            s = "https://im.vk.me" + s;      // только путь → базовый хост im.vk.me
+            // только путь: по документации VK базовый сервер — im.vk.me
+            s = "https://im.vk.me" + s;
         } else {
-            s = "https://" + s;              // "api.vk.com/gim…" или "im.vk.me" → просто добавляем схему
+            // "api.vk.com/gim…" или "im.vk.me" — хост (возможно с путём), схемы не хватает
+            s = "https://" + s;
+        }
+
+        while (s.endsWith("/")) {
+            s = s.substring(0, s.length() - 1);
         }
         return s;
+    }
+
+    /** Хост из URL — для понятных сообщений об ошибках. */
+    private static String safeHost(String url) {
+        try {
+            String h = URI.create(url).getHost();
+            return h != null ? h : String.valueOf(url);
+        } catch (Exception e) {
+            return String.valueOf(url);
+        }
     }
 
     /** Проверка, что из server вообще можно построить URI — иначе перевыпустим сервер. */
@@ -326,8 +415,8 @@ public class VkConnector implements BaseConnector {
                         + "&ts=" + lpTs
                         + "&wait=" + LONGPOLL_WAIT
                         + "&v=" + API_VERSION
-                        + "&mode=2"
-                        + "&version=3";
+                        + "&mode=" + LONGPOLL_MODE
+                        + "&version=" + lpVersion;
 
                 HttpRequest req = HttpRequest.newBuilder(URI.create(url))
                         .timeout(LONGPOLL_TIMEOUT)
@@ -361,7 +450,14 @@ public class VkConnector implements BaseConnector {
                         case 1 -> {                 // история утеряна — работаем с новым ts
                             if (newTs > 0) lpTs = newTs;
                         }
-                        case 2, 3 -> {              // ключ/сервер протухли
+                        case 2, 3 -> {              // ключ/сервер протухли (key живёт ~час и привязан к IP)
+                            lpNeedServer = true;
+                        }
+                        case 4 -> {                 // неверная версия лонгполла — берём разрешённую
+                            int maxV = json.path("max_version").asInt(0);
+                            int minV = json.path("min_version").asInt(0);
+                            lpVersion = maxV > 0 ? maxV : Math.max(minV, 3);
+                            log.warn("[VK] LongPoll: версия не поддержана, переключаюсь на {}", lpVersion);
                             lpNeedServer = true;
                         }
                         default -> lpNeedServer = true;
@@ -373,6 +469,10 @@ public class VkConnector implements BaseConnector {
                 if (ts > 0) {
                     lpTs = ts;
                 }
+                long pts = json.path("pts").asLong(0);
+                if (pts > 0) {
+                    lpPts = pts;      // для messages.getLongPollHistory, если понадобится догнать пропуски
+                }
 
                 JsonNode updates = json.path("updates");
                 if (!updates.isArray() || updates.isEmpty()) {
@@ -382,6 +482,11 @@ public class VkConnector implements BaseConnector {
                 for (JsonNode upd : updates) {
                     lpEventsTotal++;
                     lpLastEventAt = System.currentTimeMillis();
+                    if (lpRawDumped < 3 && upd.isArray()) {
+                        lpRawDumped++;
+                        log.info("[VK] LongPoll: пример сырого кортежа #{} (длина {}): {}",
+                                lpRawDumped, upd.size(), truncate(upd.toString(), 400));
+                    }
                     try {
                         handleUpdate(upd);
                     } catch (Exception e) {
@@ -393,6 +498,14 @@ public class VkConnector implements BaseConnector {
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
+            } catch (javax.net.ssl.SSLException e) {
+                // сертификат/рукопожатие: почти всегда прокси, антивирус с MITM или кривой server
+                log.error("[VK] LongPoll TLS-ошибка на хосте {}: {}. "
+                                + "Если server нормализован верно — проверьте корпоративный прокси/антивирус "
+                                + "(нужен их root-сертификат в cacerts) и -Djavax.net.ssl.trustStore",
+                        safeHost(lpServer), describe(e));
+                lpNeedServer = true;
+                sleep(LONGPOLL_BACKOFF_MS * 2);
             } catch (java.io.IOException e) {
                 log.warn("[VK] LongPoll: сетевая ошибка ({}), пауза {} мс", describe(e), LONGPOLL_BACKOFF_MS);
                 sleep(LONGPOLL_BACKOFF_MS);
@@ -407,72 +520,468 @@ public class VkConnector implements BaseConnector {
                 sleep(LONGPOLL_BACKOFF_MS);
             }
         }
-        log.info("[VK] LongPoll: цикл завершён (всего событий: {}, сохранено: {})", lpEventsTotal, lpSavedTotal);
+        log.info("[VK] LongPoll: цикл завершён (событий: {}, сохранено: {}, отфильтровано вайтлистом: {})",
+                lpEventsTotal, lpSavedTotal, lpFilteredTotal);
     }
 
-    /** Разбор одного события LongPoll. */
+    // =========================================================================================
+    // 📨 РАЗБОР СОБЫТИЙ
+    //
+    //  VK отдаёт updates в ОДНОМ ИЗ ТРЁХ форматов — зависит от версии лонгполла и от того,
+    //  какой сервер выдали (в вашем логе был https://api.vk.com/gim<uid>, то есть «gim»).
+    //  Поэтому формат определяем по факту, а не угадываем:
+    //
+    //   A) ОБЪЕКТ {type:"message_new", object:{...}}   — bots-подобный формат
+    //   B) КОРТЕЖ [10004, cmid, flags, peerId, ts, text, additional, attachments, randomId, messageId, updTs]
+    //                                                   — User LongPoll v21 (актуальный)
+    //   C) КОРТЕЖ [4, message_id, flags, peer_id, ts, text, attachments{...}, ...]
+    //                                                   — классический старый формат
+    //
+    //  ⚠️ В B) индекс 1 — это conversationMessageId (нумерация ВНУТРИ беседы), а глобальный
+    //     message_id лежит в конце кортежа. Перепутаешь — и антидубликат по уникальному
+    //     индексу (source, message_id) перестанет работать.
+    // =========================================================================================
+
+    /** Разбор одного события LongPoll (любого из трёх форматов). */
     private void handleUpdate(JsonNode upd) {
-        String type = upd.path("type").asText("");
-        JsonNode obj = upd.path("object");
-        switch (type) {
-            case "message_new" -> onIncomingMessage(obj);
-            // своё же сообщение, отправленное из официального клиента/веба — тоже сохраняем
-            case "message_reply" -> onIncomingMessage(obj);
-            case "message_edit" -> {
-                // правка сообщения: в Message нет флага edited, поэтому только логируем
-                log.debug("[VK] message_edit id={}", obj.path("id").asLong(0));
-            }
-            case "message_del", "message_restore" ->
-                    log.info("[VK] {}: message_id={}", type, obj.path("id").asLong(0));
-            case "messages.delete", "messages.restore" ->
-                    log.info("[VK] {}: {}", type, obj);
-            case "read_history_incoming", "read_history_outgoing",
-                 "message_typing_state", "user_typing", "user_online", "user_offline",
-                 "messages.edit", "messages.read" -> {
-                // служебные — игнорируем, но считаем
-            }
-            default -> log.debug("[VK] необработанное событие: {}", type);
+        if (upd == null || upd.isNull() || upd.isMissingNode()) {
+            return;
+        }
+        if (upd.isObject()) {
+            handleBotsFormat(upd);
+        } else if (upd.isArray()) {
+            handleTupleFormat(upd);
+        } else {
+            log.debug("[VK] непонятный формат события: {}", upd);
         }
     }
 
-    /**
-     * message_new / message_reply → Message в БД.
-     *
-     * @param m для message_new это объект сообщения; для message_reply — тоже сообщение
-     *          (но у него нет client_info/бывает меньше полей, поэтому всё читаем через path())
-     */
-    private void onIncomingMessage(JsonNode m) {
+    // ---------- A) объектовый (bots-подобный) формат ----------
+
+    private void handleBotsFormat(JsonNode upd) {
+        String type = upd.path("type").asText("");
+        JsonNode obj = upd.path("object");
+        switch (type) {
+            case "message_new", "message_reply" ->
+                    saveFromMessageObject(obj.path("message").isMissingNode() ? obj : obj.path("message"));
+            case "message_edit" -> log.debug("[VK] message_edit id={}", obj.path("id").asLong(0));
+            case "message_del", "message_restore" ->
+                    log.info("[VK] {}: message_id={}", type, obj.path("id").asLong(0));
+            case "read_history_incoming", "read_history_outgoing", "message_typing_state",
+                 "user_typing", "user_online", "user_offline", "messages.edit", "messages.read" -> {
+                // служебные — считаем, но не обрабатываем
+            }
+            default -> log.debug("[VK] необработанное событие (объект): {}", type);
+        }
+    }
+
+    /** object из message_new: {id, peer_id, from_id, text, date(сек), attachments[]} */
+    private void saveFromMessageObject(JsonNode m) {
         if (m == null || m.isMissingNode()) {
             return;
         }
         long messageId = m.path("id").asLong(0);
         long peerId = m.path("peer_id").asLong(0);
         long fromId = m.path("from_id").asLong(0);
-        if (messageId == 0 || peerId == 0) {
-            log.warn("[VK] message_new без id/peer_id: {}", m);
+        if (peerId == 0) {
+            log.warn("[VK] message_new без peer_id: {}", m);
+            return;
+        }
+        long dateSec = m.path("date").asLong(0);
+        saveLiveMessage(peerId, messageId, messageId,
+                fromId == 0 ? peerId : fromId,
+                m.path("text").asText(""),
+                dateSec > 0 ? dateSec * 1000L : System.currentTimeMillis(),
+                extractMediaUrl(m.path("attachments")),
+                "объект");
+    }
+
+    // ---------- B/C) кортежный формат ----------
+
+    private void handleTupleFormat(JsonNode arr) {
+        if (arr.size() < 2) {
+            return;
+        }
+        int code = arr.path(0).asInt(0);
+        switch (code) {
+            case 4, 10004 -> parseNewMessageTuple(arr, code);
+            case 5, 10005, 10018 -> log.debug("[VK] событие {} (правка/обновление сообщения)", code);
+            case 10002, 10003, 10019 -> log.debug("[VK] служебное событие {} (флаги сообщения)", code);
+            case 10006, 10007 -> log.debug("[VK] прочтение: peer={} cmid={} count={}",
+                    arr.path(1).asLong(0), arr.path(2).asLong(0), arr.path(3).asLong(0));
+            case 51, 52 -> {
+                // изменились данные беседы (название/аватарка) — сбрасываем кэш меты,
+                // чтобы следующее событие подтянуло свежий title
+                long peerId = code == 51 ? arr.path(1).asLong(0) : arr.path(2).asLong(0);
+                if (peerId != 0) {
+                    chatCache.remove(peerId);
+                    blockedPeers.remove(peerId);
+                }
+                log.info("[VK] событие {}: обновлены данные беседы peer={}", code, peerId);
+            }
+            case 61, 62, 63, 64, 65, 66, 67, 68 -> {
+                // «печатает…», запись голосового, загрузка медиа — можно вывести в UI позже
+            }
+            case 80 -> log.debug("[VK] непрочитанных диалогов: {}", arr.path(1).asInt(0));
+            case 8, 9, 10, 12, 20, 21, 50, 81, 90, 91, 114, 115, 119,
+                 501, 502, 503, 504, 505, 506, 507, 601, 602, 10013 -> {
+                // известные служебные события — игнорируем
+            }
+            default -> log.debug("[VK] необработанное событие (кортеж), code={}", code);
+        }
+    }
+
+    // =========================================================================================
+    //  ⚠️ ДВЕ РАСКЛАДКИ КОРТЕЖА — и код события НЕ является надёжным признаком
+    //
+    //  Документация v21 описывает:
+    //    [10004, cmid, flags, peerId, timestamp, text, additional{from,…}, attachments{…},
+    //            randomId, messageId, updateTimestamp]
+    //
+    //  Фактически VK присылает и такой вариант (подтверждено на живом аккаунте):
+    //    [10004, message_id, flags, peer_id, timestamp, text, attachments{…}]
+    //  то есть НОВЫЙ код события со СТАРОЙ раскладкой, где индекс 1 — это уже глобальный
+    //  message_id, а не conversationMessageId.
+    //
+    //  Если их перепутать, в БД уезжает message_id=25 вместо 1619489, а в text — число
+    //  1789464697 (это timestamp). Дедупликация по (source, message_id) после этого ломается:
+    //  разные сообщения с маленькими id начинают collide между беседами.
+    //
+    //  Поэтому раскладку ОПРЕДЕЛЯЕМ ПО СОДЕРЖИМОМУ, а не по коду.
+    // =========================================================================================
+
+    /** Единая точка разбора «нового сообщения» для кодов 4 и 10004. */
+    private void parseNewMessageTuple(JsonNode arr, int code) {
+        if (arr.size() < 6) {
+            log.warn("[VK] событие {} слишком короткое ({} элементов): {}", code, arr.size(), arr);
             return;
         }
 
-        // Свои сообщения, отправленные через ЭТОТ коннектор, уже сохранены sendMessage().
-        // Но отправленное с телефона/веба тем же аккаунтом надо забрать — поэтому проверяем
-        // дубликат через MessageService, а не отбрасываем всё от себя.
-        String text = m.path("text").asText("");
-        long date = m.path("date").asLong(0);
-        String mediaUrl = extractMediaUrl(m.path("attachments"));
+        int flags = arr.path(2).asInt(0);
+        long peerId = arr.path(3).asLong(0);
+        long tsSec = arr.path(4).asLong(0);
+        if (peerId == 0) {
+            log.warn("[VK] событие {} без peer_id: {}", code, arr);
+            return;
+        }
 
-        Message msg = new Message("vk", messageId, peerId, fromId == 0 ? peerId : fromId, text, mediaUrl);
-        msg.setTimestamp(date > 0 ? date * 1000L : System.currentTimeMillis());   // VK отдаёт СЕКУНДЫ
+        long messageId;
+        long cmid;
+        String text;
+        JsonNode atts;
+        long fromId;
 
-        // --- 1) сохраняем/обновляем чат (фильтры сканирования тут НЕ применяются) ---
+        if (isV21Layout(arr)) {
+            // [10004, cmid, flags, peerId, ts, text, additional, attachments, randomId, messageId, updTs?]
+            //     0     1     2      3      4    5        6            7            8         9        10
+            cmid = arr.path(1).asLong(0);
+            text = decodeVkText(arr.path(5).asText(""));
+            JsonNode additional = arr.path(6);
+            atts = arr.path(7);
+            messageId = arr.path(10).asLong(0);         // если хвост длиннее (с updateTimestamp)
+            if (messageId <= 0) {
+                messageId = arr.path(9).asLong(0);      // штатная позиция messageId
+            }
+            if (messageId <= 0) {
+                messageId = arr.path(8).asLong(0);      // вариант без randomId
+            }
+            if (messageId == 0) {
+                messageId = resolveMessageId(peerId, cmid);
+            }
+            fromId = additional.path("from").asLong(0);
+            if (fromId == 0) {
+                fromId = classicFromId(peerId, flags, additional, atts);
+            }
+        } else {
+            // КЛАССИЧЕСКАЯ раскладка из официальной документации (version=3):
+            // [4, message_id, flags, peer_id, timestamp, text, additional{title,from}, attachments{attach1_*}, random_id?]
+            messageId = arr.path(1).asLong(0);
+            cmid = messageId;                          // в классике отдельного cmid нет
+            text = decodeVkText(arr.path(5).asText(""));
+            atts = arr.path(7);                        // вложения — индекс 7, не 6!
+            JsonNode additional = arr.path(6);         // {title, from, …}
+            fromId = classicFromId(peerId, flags, additional, atts);
+        }
+
+        if (messageId <= 0) {
+            log.warn("[VK] событие {} peer={}: не удалось определить message_id — сообщение НЕ сохранено. "
+                    + "Сырой кортеж: {}", code, peerId, arr);
+            return;
+        }
+
+        // страховка от перепутанных индексов: текст не должен выглядеть как unix-timestamp
+        if (text.matches("1\\d{9}")) {
+            log.error("[VK] ПОДОЗРЕНИЕ НА СМЕЩЕНИЕ ИНДЕКСОВ: text=\"{}\" похож на unix-timestamp, peer={}. "
+                            + "Сырой кортеж: {} — если это воспроизводится, пришлите этот лог, поправим раскладку.",
+                    text, peerId, arr);
+        }
+        if (tsSec <= 0 || tsSec < 1_000_000_000L || tsSec > 4_000_000_000L) {
+            log.warn("[VK] событие {} peer={}: странный timestamp={} (ожиданы секунды ~1.7e9), берём текущее время",
+                    code, peerId, tsSec);
+            tsSec = System.currentTimeMillis() / 1000L;
+        }
+
+        String media = isV21Layout(arr) ? extractMediaUrlFromV21(atts) : extractMediaUrlFromClassic(atts);
+        boolean v21 = isV21Layout(arr);
+        saveLiveMessage(peerId, messageId, cmid, fromId, text, tsSec * 1000L, media,
+                "кортеж-" + code + (v21 ? "/v21" : "/classic,len=" + arr.size()));
+    }
+
+    /**
+     * Похож ли кортеж на раскладку «cmid в начале, messageId в хвосте» (неофициальные версии
+     * лонгполла с кодами событий 10002…10019).
+     *
+     * ⚠️ ПОРОГ — РОВНО 11 ЭЛЕМЕНТОВ, и вот почему.
+     * Классический кортеж из официальной документации (version=3) выглядит так:
+     *   [4, message_id, flags, peer_id, timestamp, text, additional, attachments, random_id]
+     *    0      1          2        3         4         5       6          7            8
+     * — это 8 элементов, а с random_id (бит 128 в mode) — 9, и ПОСЛЕДНИЙ ЭЛЕМЕНТ ЧИСЛО.
+     * Прежняя версия метода считала v21 всё, что имеет size >= 9 и число в хвосте,
+     * то есть ложно срабатывала на обычном классическом кортеже: message_id читался
+     * с позиции 10 (пусто), text — с позиции 5 (а там timestamp), и в лог уходило
+     * «id=11 cmid=11 peer=26 «1789466530»».
+     *
+     * Раскладка с messageId в хвосте (неофициальные версии лонгполла) выглядит так:
+     *   [10004, cmid, flags, peerId, ts, text, additional, attachments, randomId, messageId, updateTs?]
+     *      0      1     2      3      4    5       6            7           8         9        10
+     * → messageId на позиции 9, длина 10–11.
+     *
+     * Классический кортеж из документации (version=3) имеет длину 8–9, и его ПОСЛЕДНИЙ элемент —
+     * число (random_id). Поэтому порога «size >= 9» недостаточно: нужно требовать
+     * size >= 10 И валидный messageId на позиции 9 ИЛИ 10.
+     */
+    private boolean isV21Layout(JsonNode arr) {
+        if (arr.size() < 10) {
+            return false;                      // классика (8–9 элементов) — точно не она
+        }
+        JsonNode mid = arr.path(6);
+        boolean additionalLooksRight = mid.isObject() && !mid.has("attach1_type");
+        long tailMessageId = Math.max(arr.path(9).asLong(0), arr.path(10).asLong(0));
+        return additionalLooksRight && tailMessageId > 0;
+    }
+
+    /**
+     * Автор сообщения в классической раскладке.
+     *
+     * По документации VK поле `from` (id автора) приходит в объекте additional — «Вложения
+     * и дополнительные данные (title, from) приходят в отдельных объектах». На всякий случай
+     * смотрим и additional, и attachments: в старых версиях `from` мог лежать во вложениях.
+     *
+     * Личный диалог (0 < peer_id < 2e9): собеседник = peer_id.
+     * Исходящее (флаг OUTBOX = бит 2): автор — мы.
+     */
+    private long classicFromId(long peerId, int flags, JsonNode additional, JsonNode atts) {
+        boolean outbox = (flags & 2) != 0;
+        for (JsonNode src : new JsonNode[]{additional, atts}) {
+            if (src == null || src.isMissingNode()) {
+                continue;
+            }
+            String from = src.path("from").asText("");
+            if (!from.isBlank()) {
+                try {
+                    long id = Long.parseLong(from.trim());
+                    if (id != 0) {
+                        return id;
+                    }
+                } catch (NumberFormatException ignored) {
+                    // fallthrough
+                }
+            }
+        }
+        boolean isDialog = peerId > 0 && peerId < 2_000_000_000L;
+        if (isDialog && !outbox) {
+            return peerId;
+        }
+        return (outbox && myUserId != null) ? myUserId : peerId;
+    }
+
+    /** conversationMessageId → глобальный message_id (нужен для unique-индекса в БД). */
+    private long resolveMessageId(long peerId, long cmid) {
+        if (cmid <= 0) {
+            return 0;
+        }
+        try {
+            Map<String, String> params = new LinkedHashMap<>();
+            params.put("peer_id", String.valueOf(peerId));
+            params.put("conversation_message_ids", String.valueOf(cmid));
+            JsonNode resp = vkApi("messages.getByConversationMessageId", params);
+            if (resp.has("error")) {
+                log.debug("[VK] getByConversationMessageId peer={} cmid={}: {}", peerId, cmid, vkError(resp));
+                return 0;
+            }
+            return resp.path("response").path("items").path(0).path("id").asLong(0);
+        } catch (Exception e) {
+            log.debug("[VK] getByConversationMessageId не удался: {}", describe(e));
+            return 0;
+        }
+    }
+
+    /** VK в лонгполле отдаёт текст с <br> и экранированием & " < > — раскрываем обратно. */
+    private static String decodeVkText(String text) {
+        if (text == null || text.isEmpty()) {
+            return "";
+        }
+        return text.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
+                .replace("&lt;", "<").replace("&gt;", ">")
+                .replace("&quot;", "\"").replace("&amp;", "&");
+    }
+
+    /**
+     * Первая подходящая ссылка из массива вложений VK API → Message.mediaUrl.
+     * Для фото берём максимальный размер из sizes[].
+     */
+    private String extractMediaUrl(JsonNode attachments) {
+        if (attachments == null || !attachments.isArray() || attachments.isEmpty()) {
+            return null;
+        }
+        for (JsonNode a : attachments) {
+            String t = a.path("type").asText("");
+            JsonNode payload = a.path(t.isEmpty() ? "photo" : t);
+            if (payload.isMissingNode()) {
+                continue;
+            }
+            if ("photo".equals(t)) {
+                String best = null;
+                long bestW = -1;
+                for (JsonNode sz : payload.path("sizes")) {
+                    long w = sz.path("width").asLong(0);
+                    if (w >= bestW) {
+                        bestW = w;
+                        best = sz.path("url").asText(null);
+                    }
+                }
+                if (best != null && !best.isBlank()) {
+                    return best;
+                }
+            }
+            for (String f : new String[]{"url", "preview_url", "uri"}) {
+                String u = payload.path(f).asText("");
+                if (!u.isBlank()) {
+                    return u;
+                }
+            }
+            String mu = a.path("media_url").asText("");
+            if (!mu.isBlank()) {
+                return mu;
+            }
+        }
+        return null;
+    }
+
+    /** Вложения v21: объект { attachments_count, attachments:"JSON-строка", attach1_type, … } */
+    private String extractMediaUrlFromV21(JsonNode atts) {
+        if (atts == null || atts.isMissingNode() || atts.isNull()) {
+            return null;
+        }
+        String raw = atts.path("attachments").asText("");
+        if (!raw.isBlank()) {
+            try {
+                String url = extractMediaUrl(mapper.readTree(raw));
+                if (url != null) {
+                    return url;
+                }
+            } catch (Exception e) {
+                log.debug("[VK] не распарсен attachments-JSON: {}", describe(e));
+            }
+        }
+        return extractFromFlatAttachFields(atts);
+    }
+
+    /** Вложения классического формата: { attach1_type:"photo", attach1_photo:"123_456", attach1_url?:… } */
+    private String extractMediaUrlFromClassic(JsonNode atts) {
+        if (atts == null || !atts.isObject()) {
+            return null;
+        }
+        return extractFromFlatAttachFields(atts);
+    }
+
+    /** Плоские поля attach{N}_url — единственное, что даёт реальную ссылку для Message.mediaUrl. */
+    private String extractFromFlatAttachFields(JsonNode atts) {
+        for (int i = 1; i <= 10; i++) {
+            String type = atts.path("attach" + i + "_type").asText("");
+            if (type.isBlank()) {
+                continue;
+            }
+            String url = atts.path("attach" + i + "_url").asText("");
+            if (!url.isBlank()) {
+                return url;
+            }
+        }
+        return null;
+    }
+
+    // =========================================================================================
+    // 🚦 ВАЙТЛИСТ ДЛЯ ПРОСЛУШКИ
+    //
+    //  Серверной фильтрации по peer_id у VK НЕТ:
+    //   - messages.getLongPollServer принимает только use_ssl, need_pts, lp_version, group_id;
+    //   - filter_id (битовая маска) есть ТОЛЬКО в Bots LongPoll для ключа сообщества
+    //     и фильтрует ТИПЫ событий (message_new, photo_new…), а не диалоги;
+    //   - mode у пользовательского лонгполла — маска ФОРМАТА ответа, а не отбора.
+    //  Поэтому вайтлист применяется на клиенте — здесь.
+    // =========================================================================================
+
+    /**
+     * Пускать ли peer_id в прослушку. Правила те же, что в isChatAllowed():
+     *   личный диалог     → config.scanPersonal
+     *   беседа/сообщество → config.scanGroups + (whitelist пуст ИЛИ содержит peer_id/chat_id)
+     *
+     * Отрицательный результат кешируется в blockedPeers: иначе на каждое сообщение из
+     * неразрешённой беседы приходился бы запрос messages.getConversationsById к VK.
+     */
+    private boolean isPeerAllowed(long peerId) {
+        if (!listenWhitelist) {
+            return true;                       // фильтр выключен — пишем всё
+        }
+        if (blockedPeers.containsKey(peerId)) {
+            return false;                      // уже решали, что нельзя — VK не спрашиваем
+        }
+        VkChatMeta meta = chatCache.get(peerId);
+        if (meta == null) {
+            meta = fetchChatMeta(peerId);
+            if (meta == null) {
+                log.debug("[VK] peer={} — мету получить не удалось, событие пропущено", peerId);
+                return false;
+            }
+        }
+        if (isChatAllowed(meta)) {
+            chatCache.put(peerId, meta);
+            return true;
+        }
+        blockedPeers.put(peerId, meta);
+        lpFilteredTotal++;
+        log.debug("[VK] peer={} «{}» вне вайтлиста прослушки — пропуск", peerId, meta.title());
+        return false;
+    }
+
+    // =========================================================================================
+    // 💾 ЕДИНАЯ ТОЧКА СОХРАНЕНИЯ ЖИВОГО СООБЩЕНИЯ
+    // =========================================================================================
+
+    /**
+     * @param messageId глобальный message_id — по нему работает антидубликат (source, message_id)
+     * @param cmid      conversationMessageId, только для логов
+     * @param fmt       откуда пришло событие (для логов)
+     */
+    private void saveLiveMessage(long peerId, long messageId, long cmid, long fromId,
+                                 String text, long tsMillis, String mediaUrl, String fmt) {
+        if (messageId <= 0) {
+            log.warn("[VK] {} peer={}: message_id={} — не сохраняем (иначе сломается антидубликат)",
+                    fmt, peerId, messageId);
+            return;
+        }
+        if (!isPeerAllowed(peerId)) {
+            return;                            // вайтлист прослушки
+        }
+
         VkChatMeta meta = ensureChat(peerId, false);
         if (meta == null) {
-            log.warn("[VK] не удалось определить чат peer_id={} — сообщение id={} не сохранено", peerId, messageId);
+            log.warn("[VK] не удалось определить чат peer={} — сообщение id={} не сохранено", peerId, messageId);
             return;
         }
 
-        // --- 2) автор (если это не мы) ---
         boolean mine = myUserId != null && fromId == myUserId;
-        if (!mine && fromId != 0) {
+        if (!mine && fromId > 0) {
             try {
                 User author = getOrFetchUser(fromId);
                 if (author != null) {
@@ -485,62 +994,18 @@ public class VkConnector implements BaseConnector {
             }
         }
 
-        // --- 3) сообщение (с проверкой дубликата) ---
         try {
-            messageService.saveMessage(msg);
+            Message msg = new Message("vk", messageId, peerId, fromId, text == null ? "" : text, mediaUrl);
+            msg.setTimestamp(tsMillis > 0 ? tsMillis : System.currentTimeMillis());
+            messageService.saveMessage(msg);   // дубликат отсеется по (source, messageId)
             lpSavedTotal++;
-            log.info("[VK] {} {} id={} peer={} «{}»{}",
+            log.info("[VK] {} {} id={} cmid={} peer={} «{}»{}",
                     mine ? "← исходящее" : "→ входящее",
-                    meta.isGroup() ? "[группа]" : "[лс]",
-                    messageId, peerId, truncate(text, 60), mediaUrl != null ? " +media" : "");
+                    meta.isGroup() ? "[беседа]" : "[лс]",
+                    messageId, cmid, peerId, truncate(text, 60), mediaUrl != null ? " +media" : "");
         } catch (Exception e) {
             log.error("[VK] не удалось сохранить сообщение id={}: {}", messageId, describe(e));
         }
-    }
-
-    /**
-     * Первое вложение с URL → Message.mediaUrl.
-     * mode=2 в LongPoll прикладывает media_url, но надёжнее дочитать photo/doc явно.
-     */
-    private String extractMediaUrl(JsonNode attachments) {
-        if (attachments == null || !attachments.isArray() || attachments.isEmpty()) {
-            return null;
-        }
-        for (JsonNode a : attachments) {
-            String t = a.path("type").asText("");
-            JsonNode payload = a.path(t.isEmpty() ? "photo" : t);
-            if (payload.isMissingNode()) {
-                continue;
-            }
-            // фото: максимальный размер из sizes[]
-            if ("photo".equals(t)) {
-                String best = null;
-                long bestW = -1;
-                for (JsonNode s : payload.path("sizes")) {
-                    long w = s.path("width").asLong(0);
-                    if (w >= bestW) {
-                        bestW = w;
-                        best = s.path("url").asText(null);
-                    }
-                }
-                if (best != null) {
-                    return best;
-                }
-            }
-            // документ/аудио/видео: готовые url-поля
-            for (String f : new String[]{"url", "preview_url", "uri"}) {
-                String u = payload.path(f).asText("");
-                if (!u.isBlank()) {
-                    return u;
-                }
-            }
-            // media_url от mode=2
-            String mu = a.path("media_url").asText("");
-            if (!mu.isBlank()) {
-                return mu;
-            }
-        }
-        return null;
     }
 
     /** Проверяет фильтры сканирования (scanPersonal / scanGroups / whitelist). */
@@ -553,8 +1018,9 @@ public class VkConnector implements BaseConnector {
      *
      * @param applyScanFilters true — для сканирования истории: чат вне настроек сканирования
      *                         возвращает null и НЕ сохраняется.
-     *                         false — для LongPoll и для отправки: живой диалог сохраняется
-     *                         всегда, иначе человек вам написал, а в UI этого чата нет.
+     *                         false — для LongPoll и для отправки: живой диалог сохраняется всегда
+     *                         (иначе человек вам написал, а чата в UI нет). Фильтрацию прослушки
+     *                         делает отдельный isPeerAllowed().
      */
     private VkChatMeta ensureChat(long peerId, boolean applyScanFilters) {
         VkChatMeta meta = chatCache.get(peerId);
@@ -912,9 +1378,33 @@ public class VkConnector implements BaseConnector {
         this.config.whitelist = newConfig.whitelist != null ? newConfig.whitelist : new ArrayList<>();
         this.config.limitPerChat = newConfig.limitPerChat;
         this.config.downloadMedia = newConfig.downloadMedia;
-        log.info("[VK] Конфиг обновлён: scanPersonal={}, scanGroups={}, whitelist={}, limitPerChat={}, downloadMedia={}",
-                config.scanPersonal, config.scanGroups, config.whitelist.size(), config.limitPerChat, config.downloadMedia);
-        return ConnectorResult.ok("Конфигурация VK обновлена");
+
+        // Вайтлист/фильтры изменились — прежние решения о блокировке peer_id больше недействительны.
+        // Без очистки диалог, который только что добавили в вайтлист, молчал бы до перезапуска.
+        int dropped = blockedPeers.size();
+        blockedPeers.clear();
+        lpFilteredTotal = 0;
+
+        // Если добавите в ConnectorConfig публичное поле `listenWhitelist` (как scanGroups) —
+        // подхватится автоматически. Пока поля нет, работает значение по умолчанию (true).
+        try {
+            java.lang.reflect.Field f = newConfig.getClass().getField("listenWhitelist");
+            Object v = f.get(newConfig);
+            if (v instanceof Boolean b) {
+                this.listenWhitelist = b;
+            }
+        } catch (NoSuchFieldException ignored) {
+            // поля ещё нет — не ошибка
+        } catch (Exception e) {
+            log.debug("[VK] не удалось прочитать listenWhitelist из конфига: {}", describe(e));
+        }
+
+        log.info("[VK] Конфиг обновлён: scanPersonal={}, scanGroups={}, whitelist={}, limitPerChat={}, "
+                        + "downloadMedia={}, listenWhitelist={} (сброшено заблокированных peer: {})",
+                config.scanPersonal, config.scanGroups, config.whitelist.size(), config.limitPerChat,
+                config.downloadMedia, listenWhitelist, dropped);
+        return ConnectorResult.ok("Конфигурация VK обновлена"
+                + (dropped > 0 ? " (переоценено заблокированных диалогов: " + dropped + ")" : ""));
     }
 
     // =========================================================================================
@@ -1290,19 +1780,30 @@ public class VkConnector implements BaseConnector {
         }
 
         // LongPoll
-        JsonNode lp = callQuietly("messages.getLongPollServer", Map.of("need_pts", "1", "lp_version", "3"));
+        JsonNode lp = callQuietly("messages.getLongPollServer",
+                Map.of("need_pts", "1", "lp_version", String.valueOf(lpVersion)));
         if (lp.has("error")) {
             report.put("longpoll", "❌ " + vkError(lp));
             report.put("longpoll.hint", hintFor(lp.path("error").path("error_code").asInt()));
         } else {
             report.put("longpoll", "✅ сервер получен, ts=" + lp.path("response").path("ts").asLong(0));
         }
-        report.put("longpoll.state", Map.of(
-                "isListening", isListening,
-                "eventsTotal", lpEventsTotal,
-                "savedTotal", lpSavedTotal,
-                "lastEventAt", lpLastEventAt == 0 ? "ещё не было" : new Date(lpLastEventAt).toString(),
-                "myUserId", String.valueOf(myUserId)));
+        Map<String, Object> lpState = new LinkedHashMap<>();
+        lpState.put("isListening", isListening);
+        lpState.put("lpVersion", lpVersion);
+        lpState.put("mode", LONGPOLL_MODE);
+        lpState.put("server", String.valueOf(lpServer));
+        lpState.put("eventsTotal", lpEventsTotal);
+        lpState.put("savedTotal", lpSavedTotal);
+        lpState.put("filteredByWhitelist", lpFilteredTotal);
+        lpState.put("blockedPeersCached", blockedPeers.size());
+        lpState.put("lastEventAt", lpLastEventAt == 0 ? "ещё не было" : new Date(lpLastEventAt).toString());
+        lpState.put("myUserId", String.valueOf(myUserId));
+        lpState.put("filter", listenWhitelist
+                ? "scanPersonal=" + config.scanPersonal + ", scanGroups=" + config.scanGroups
+                + ", whitelist=" + config.whitelist
+                : "ВЫКЛЮЧЕН — сохраняются все диалоги");
+        report.put("longpoll.state", lpState);
 
         boolean photoOk = String.valueOf(report.getOrDefault("photos.upload_url", "")).startsWith("✅");
         boolean docsOk = String.valueOf(report.getOrDefault("docs.upload_url", "")).startsWith("✅");
