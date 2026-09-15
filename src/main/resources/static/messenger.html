@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -8,22 +9,22 @@
     <style>
         /* ==================== ТОКЕНЫ ТЕМЫ ==================== */
         :root{
-          --bg:#0b0f16; --bg2:#0f1521; --panel:#131a26; --panel2:#182130; --panel3:#1e2939;
-          --line:#222c3d; --line2:#2c3a50;
-          --txt:#e8edf5; --txt2:#9aa8bd; --txt3:#67748a;
-          --acc:#4c8dff; --acc2:#2f6fe0; --acc-soft:rgba(76,141,255,.14);
-          --out:#2b5cad; --ok:#3ddc97; --warn:#ffb454; --err:#ff6b6b;
+          --bg:#0a0a0c; --bg2:#0f0f12; --panel:#141417; --panel2:#1b1b20; --panel3:#24242b;
+          --line:#26262d; --line2:#34343d;
+          --txt:#f2ede4; --txt2:#a8a29a; --txt3:#726c63;
+          --acc:#ff7a1a; --acc2:#ef5f00; --acc-soft:rgba(255,122,26,.14);
+          --out:#3b2a15; --ok:#4ade80; --warn:#fbbf24; --err:#f87171;
           --tg:#37aee2; --vk:#5181b8; --max:#8b5cf6;
           --r:12px; --rs:8px;
           --sb-w:288px; --nav-w:56px; --info-w:300px;
-          --shadow:0 10px 34px rgba(0,0,0,.5);
+          --shadow:0 10px 34px rgba(0,0,0,.55);
         }
         [data-theme="light"]{
-          --bg:#eef1f6; --bg2:#f6f8fb; --panel:#ffffff; --panel2:#f2f5fa; --panel3:#e8edf5;
-          --line:#dfe5ee; --line2:#cdd6e4;
-          --txt:#131a26; --txt2:#5a6a80; --txt3:#8a97ab;
-          --acc:#2f6fe0; --acc2:#1f5bd0; --acc-soft:rgba(47,111,224,.12);
-          --out:#d6e6ff; --shadow:0 10px 30px rgba(20,40,80,.14);
+          --bg:#f7f4ef; --bg2:#fcfaf6; --panel:#ffffff; --panel2:#f4f1ea; --panel3:#e9e4d9;
+          --line:#e4ded2; --line2:#d5ccba;
+          --txt:#1c1813; --txt2:#6d6659; --txt3:#9a917f;
+          --acc:#e8590c; --acc2:#c94f0c; --acc-soft:rgba(232,89,12,.12);
+          --out:#ffe7cf; --shadow:0 10px 30px rgba(60,40,10,.14);
         }
         *{box-sizing:border-box}
         html,body{height:100%}
@@ -53,8 +54,8 @@
           border-right:1px solid var(--line);display:flex;flex-direction:column;
           align-items:center;padding:8px 0;gap:4px;z-index:5;
         }
-        .nav .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,var(--acc),#8b5cf6);
-          display:grid;place-items:center;font-weight:800;color:#fff;margin-bottom:10px;font-size:15px}
+        .nav .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(140deg,#ff9a3d,#ff5e00);
+          display:grid;place-items:center;font-weight:800;color:#fff;margin-bottom:10px;font-size:15px;box-shadow:0 2px 10px rgba(255,122,26,.35)}
         .nav button{
           width:40px;height:40px;border-radius:11px;display:grid;place-items:center;
           color:var(--txt3);transition:.15s;position:relative;
@@ -94,8 +95,10 @@
         .av img{width:100%;height:100%;object-fit:cover}
         .av.sm{width:30px;height:30px;font-size:12px}
         .av.xs{width:22px;height:22px;font-size:10px}
-        .av .pl{position:absolute;right:-2px;bottom:-2px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:8px;font-weight:800;color:#fff;box-shadow:0 0 0 2px var(--panel)}
-        .pl-tg{background:var(--tg)}.pl-vk{background:var(--vk)}.pl-max{background:var(--max)}.pl-unknown{background:var(--txt3)}
+        .pl-tg{background:linear-gradient(140deg,#5bcdf2,#1e98d1)}
+        .pl-vk{background:linear-gradient(140deg,#82a9e6,#4a76b8)}
+        .pl-max{background:linear-gradient(140deg,#b39dfa,#7c3aed)}
+        .pl-unknown{background:var(--txt3)}
         .ci-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
         .ci-top{display:flex;align-items:baseline;gap:6px}
         .ci-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
@@ -104,8 +107,7 @@
         .ci-last{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;color:var(--txt2)}
         .badge{background:var(--acc);color:#fff;border-radius:999px;min-width:19px;height:19px;padding:0 6px;font-size:11px;font-weight:700;display:grid;place-items:center;flex:0 0 auto}
         .badge.muted-b{background:var(--panel3);color:var(--txt2)}
-        .ci-actions{position:absolute;right:6px;top:6px;display:none;gap:2px}
-        .chat-item:hover .ci-actions{display:flex}
+        .cli-pill{background:var(--acc-soft);color:var(--acc);border:1px solid rgba(255,122,26,.4);font-size:9.5px;line-height:14px;padding:0 5px;border-radius:999px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;flex:0 0 auto}
         .icon-btn{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:var(--txt3);transition:.12s}
         .icon-btn:hover{background:var(--panel3);color:var(--txt)}
         .icon-btn svg{width:15px;height:15px}
@@ -147,11 +149,15 @@
         .chat-head{flex:0 0 56px;display:flex;align-items:center;gap:10px;padding:0 12px;border-bottom:1px solid var(--line);background:var(--panel);min-width:0}
         .ch-title{font-weight:650;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         .ch-sub{font-size:11.5px;color:var(--txt2);display:flex;gap:6px;align-items:center}
-        .pill{padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;color:#fff;letter-spacing:.3px}
-        .pill.tg{background:var(--tg)}.pill.vk{background:var(--vk)}.pill.max{background:var(--max)}.pill.unknown{background:var(--txt3)}
+        .pill{padding:1.5px 8px;border-radius:999px;font-size:10px;font-weight:750;color:#fff;letter-spacing:.5px;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 1px 3px rgba(0,0,0,.35)}
+        .pill.tg{background:linear-gradient(140deg,#5bcdf2,#1e98d1)}
+        .pill.vk{background:linear-gradient(140deg,#82a9e6,#4a76b8)}
+        .pill.max{background:linear-gradient(140deg,#b39dfa,#7c3aed)}
+        .pill.unknown{background:var(--txt3)}
+        .pill.sm{font-size:9px;padding:1px 6px;letter-spacing:.4px;flex:0 0 auto;box-shadow:inset 0 1px 0 rgba(255,255,255,.2)}
 
         .msgs{flex:1;overflow-y:auto;padding:14px 16px 8px;display:flex;flex-direction:column;gap:2px;min-height:0;
-          background-image:radial-gradient(circle at 20% 10%,rgba(76,141,255,.05),transparent 45%),radial-gradient(circle at 85% 80%,rgba(139,92,246,.05),transparent 45%)}
+          background-image:radial-gradient(circle at 20% 10%,rgba(255,122,26,.05),transparent 45%),radial-gradient(circle at 85% 80%,rgba(255,160,60,.04),transparent 45%)}
         .msgs-loading{padding:20px;text-align:center;color:var(--txt3)}
         .day-sep{align-self:center;background:var(--panel2);color:var(--txt2);font-size:11px;padding:3px 11px;border-radius:999px;margin:12px 0 8px;font-weight:600}
         .msg{display:flex;gap:8px;max-width:min(76%,720px);margin-top:2px;animation:pop .16s ease}
@@ -162,8 +168,8 @@
         .msg.cont .m-head{display:none}
         .m-av{flex:0 0 32px;margin-top:auto}
         .bubble{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:6px 10px 7px;min-width:0;position:relative;box-shadow:0 1px 1px rgba(0,0,0,.14)}
-        .msg.out .bubble{background:var(--out);border-color:transparent}
-        [data-theme="dark"] .msg.out .bubble,[data-theme=""] .msg.out .bubble{background:#1d3f6e;border-color:#26507f}
+        .msg.out .bubble{background:var(--out);border-color:#4d361b}
+        [data-theme="light"] .msg.out .bubble{border-color:#f0cfab}
         .bubble:hover{border-color:var(--line2)}
         .m-head{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
         .m-author{font-weight:650;font-size:12.5px;color:var(--acc)}
@@ -207,7 +213,7 @@
         .input-row{display:flex;align-items:flex-end;gap:8px}
         .ta-wrap{flex:1;background:var(--panel2);border:1px solid transparent;border-radius:14px;padding:2px 4px 2px 12px;display:flex;align-items:flex-end;gap:6px;transition:.15s;min-width:0}
         .ta-wrap:focus-within{border-color:var(--acc);background:var(--bg2)}
-        #msgInput,.popup-input textarea{flex:1;background:none;border:0;outline:0;resize:none;max-height:160px;min-height:36px;padding:8px 0;line-height:1.45;width:100%}
+        .ta-wrap textarea{flex:1;background:none;border:0;outline:0;resize:none;max-height:160px;min-height:36px;padding:8px 0;line-height:1.45;width:100%}
         .send-btn{width:40px;height:40px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;flex:0 0 40px;transition:.15s}
         .send-btn:hover{background:var(--acc2);transform:scale(1.05)}
         .send-btn:disabled{background:var(--panel3);color:var(--txt3);transform:none;cursor:not-allowed}
@@ -238,6 +244,15 @@
         .tag button{color:inherit;opacity:.6;display:grid;place-items:center}
         .tag button:hover{opacity:1}
         .tag-add{display:inline-flex;align-items:center;background:var(--panel2);border:1px dashed var(--line2);color:var(--txt2);border-radius:999px;padding:3px 9px;font-size:12px}
+        .qtag{padding:6px 11px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2);color:var(--txt2);font-size:12.5px;transition:.14s;white-space:nowrap;font-weight:500}
+        .qtag:hover{color:var(--txt);border-color:var(--acc);background:var(--acc-soft)}
+        .qtag.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:650}
+        .qtag.busy{opacity:.5;pointer-events:none}
+        .qtag-row{display:flex;flex-wrap:wrap;gap:6px}
+        .head-tags{display:flex;gap:5px;align-items:center;overflow-x:auto;scrollbar-width:none;flex:0 1 auto;padding:2px 0}
+        .head-tags::-webkit-scrollbar{height:0}
+        .qtag.head{padding:4px 9px;font-size:11.5px;border-radius:999px}
+        .qtag.disabled,.qtag:disabled{opacity:.35;pointer-events:none;filter:grayscale(.4)}
         .tag-add:hover{color:var(--txt);border-color:var(--acc)}
 
         /* ==================== АДМИН-РАЗДЕЛЫ ==================== */
@@ -303,13 +318,13 @@
         .led.on{background:var(--ok);box-shadow:0 0 7px var(--ok)}
         .led.warn{background:var(--warn);box-shadow:0 0 7px var(--warn)}
         .led.err{background:var(--err);box-shadow:0 0 7px var(--err)}
-        .log{background:#080b11;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.65;max-height:230px;overflow-y:auto;color:#9fd0a0;white-space:pre-wrap;word-break:break-all}
-        .log .l-err{color:#ff9a9a}.log .l-warn{color:#ffd08a}.log .l-info{color:#8fb8ff}.log .l-dim{color:#5f6b7d}
+        .log{background:#0c0c0e;border:1px solid var(--line);border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.65;max-height:230px;overflow-y:auto;color:#e0b287;white-space:pre-wrap;word-break:break-all}
+        .log .l-err{color:#ff9a9a}.log .l-warn{color:#ffd08a}.log .l-info{color:#ffb46b}.log .l-dim{color:#7d736a}
         .progress{height:26px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;overflow:hidden;display:flex}
-        .progress .seg{height:100%;display:grid;place-items:center;font-size:10.5px;font-weight:700;color:#0b0f16;min-width:22px;transition:width .3s}
+        .progress .seg{height:100%;display:grid;place-items:center;font-size:10.5px;font-weight:700;color:#0a0a0c;min-width:22px;transition:width .3s}
         .seg.ok{background:var(--ok)}.seg.err{background:var(--err)}.seg.skip{background:var(--line2);color:var(--txt2)}
         .kbd{background:var(--panel3);border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:1px 5px;font-size:11px;font-family:ui-monospace,Menlo,monospace}
-        .note{background:var(--acc-soft);border:1px solid rgba(76,141,255,.28);border-radius:10px;padding:9px 11px;font-size:12.5px;color:var(--txt);line-height:1.55;margin-bottom:12px}
+        .note{background:var(--acc-soft);border:1px solid rgba(255,122,26,.3);border-radius:10px;padding:9px 11px;font-size:12.5px;color:var(--txt);line-height:1.55;margin-bottom:12px}
         .note b{color:var(--acc)}
         .note.warn{background:rgba(255,180,84,.1);border-color:rgba(255,180,84,.3)}
         .note.warn b{color:var(--warn)}
@@ -334,17 +349,36 @@
         .spin{width:15px;height:15px;border:2px solid var(--line2);border-top-color:var(--acc);border-radius:50%;animation:sp .7s linear infinite;flex:0 0 15px}
         @keyframes sp{to{transform:rotate(360deg)}}
 
-        /* ==================== РЕЖИМ ОТДЕЛЬНОГО ОКНА ==================== */
-        body.popup{background:var(--bg)}
-        body.popup .app{display:none}
-        .popup-wrap{display:none;height:100vh;flex-direction:column}
-        body.popup .popup-wrap{display:flex}
-        .popup-head{flex:0 0 52px;display:flex;align-items:center;gap:10px;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--line)}
-        .popup-wrap .composer{position:relative}
-        .popup-wrap .cv{flex:1;min-height:0}
-        .popup-wrap .cv > .msgs{display:none}
-        .popup-wrap .cv > .jump-bottom{display:none}
-        .popup-wrap .cv > [data-emojipop] .emoji-pop{bottom:auto;top:6px;left:auto;right:6px}
+        /* ==================== ВХОД ПО КЛЮЧУ ==================== */
+        .auth-gate{position:fixed;inset:0;z-index:500;background:rgba(5,5,7,.9);backdrop-filter:blur(7px);display:grid;place-items:center;padding:20px}
+        .auth-card{width:100%;max-width:350px;background:var(--panel);border:1px solid var(--line2);border-radius:18px;padding:30px 26px 22px;text-align:center;box-shadow:var(--shadow),0 0 70px rgba(255,122,26,.09);animation:rise .22s cubic-bezier(.2,.9,.3,1.2)}
+        .auth-logo{width:58px;height:58px;margin:0 auto 14px;border-radius:17px;background:linear-gradient(140deg,#ff9a3d,#ff5e00);display:grid;place-items:center;font-weight:800;font-size:25px;color:#fff;box-shadow:0 4px 20px rgba(255,122,26,.45)}
+        .auth-card h2{margin:0 0 4px;font-size:18px;letter-spacing:.2px}
+        .auth-card .inp{margin:16px 0 10px;text-align:center;font-size:14px}
+        .auth-card .btn.primary{width:100%;height:40px;justify-content:center;font-weight:650}
+        .auth-error{color:var(--err);margin-top:10px;min-height:15px}
+        .auth-alt{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+
+        /* ==================== ОТЛАДКА: ПОДВКЛАДКИ ==================== */
+        .dbg-tabs{display:flex;gap:6px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap;flex:0 0 auto}
+        .dbg-tab{padding:6px 13px;border-radius:999px;color:var(--txt2);font-size:12.5px;border:1px solid transparent;transition:.14s;white-space:nowrap}
+        .dbg-tab:hover{background:var(--panel2);color:var(--txt)}
+        .dbg-tab.active{background:var(--acc-soft);color:var(--acc);border-color:rgba(255,122,26,.35);font-weight:650}
+
+        /* ==================== РАССЫЛКА (попап) ==================== */
+        .bc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+        @media (max-width:760px){ .bc-grid{grid-template-columns:1fr} }
+        .bc-grid h4{margin:0 0 8px;font-size:13px;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px}
+        .bc-tags{display:flex;flex-wrap:wrap;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px;min-height:52px;max-height:170px;overflow-y:auto}
+        .bc-pls{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+        .bc-pl{padding:7px 14px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2);color:var(--txt2);font-size:12.5px;font-weight:600;transition:.14s}
+        .bc-pl:hover{color:var(--txt);border-color:var(--acc)}
+        .bc-pl.on{background:var(--acc);border-color:var(--acc);color:#fff}
+
+        /* ==================== СПИСОК ГРУПП (СКАН) ==================== */
+        .grp-toolbar{display:flex;gap:6px;align-items:center;margin-bottom:7px;flex-wrap:wrap}
+        .grp-search{flex:1;min-width:140px;height:32px}
+        .grp-meta{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}
 
         @media (max-width:1100px){ .info-panel{display:none} }
         @media (max-width:860px){
@@ -364,27 +398,18 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.9 8.9 0 0 1-4-.9L3 21l1.9-4.4A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z"/></svg>
             <span class="dot off" id="navDot"></span>
         </button>
-        <button data-view="connectors" title="Коннекторы (Alt+2)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0z"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+        <button data-view="scan" title="Сканирование и вайтлист (Alt+2)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
         </button>
-        <button data-view="broadcast" title="Рассылки (Alt+3)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l18-7-7 18-2.5-7.5L3 11z"/></svg>
-        </button>
-        <button data-view="config" title="Конфигурация ID (Alt+4)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2" fill="var(--panel)"/><circle cx="15" cy="12" r="2" fill="var(--panel)"/><circle cx="7" cy="18" r="2" fill="var(--panel)"/></svg>
-        </button>
-        <button data-view="users" title="Пользователи и теги (Alt+5)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg>
-        </button>
-        <button data-view="settings" title="Настройки (Alt+6)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 8.9 19a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 5 8.9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9.5a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        <button data-view="debug" title="Отладка — журнал, коннекторы, конфиг, пользователи, настройки (Alt+3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 3l1.5 2.5M16 3l-1.5 2.5"/><rect x="7" y="6" width="10" height="13" rx="5"/><path d="M12 9v10M7 11H3M21 11h-4M7 16H4M20 16h-3"/></svg>
         </button>
         <div class="spacer"></div>
         <button id="themeBtn" title="Сменить тему">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         </button>
-        <button id="popoutBtn" title="Открыть активный чат в отдельном окне">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 3h7v7M21 3l-9 9M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        <button id="logoutBtn" class="hidden" title="Выйти — удалить токен доступа">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
         </button>
     </nav>
 
@@ -396,11 +421,11 @@
                 <div class="sb-head">
                     <div class="sb-title">
                         <h2 class="grow">Чаты</h2>
+                        <button class="btn icon sm ghost" id="bcBtn" title="Рассылка по тегам">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l18-7-7 18-2.5-7.5L3 11z"/></svg>
+                        </button>
                         <button class="btn icon sm ghost" id="refreshChatsBtn" title="Обновить список">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>
-                        </button>
-                        <button class="btn icon sm primary" id="newChatBtn" title="Новое сообщение">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
                         </button>
                     </div>
                     <div class="search">
@@ -410,6 +435,7 @@
                     <div class="filters" id="chatFilters">
                         <button class="chip active" data-f="all">Все <span class="n" id="cntAll">0</span></button>
                         <button class="chip" data-f="unread">Непрочит. <span class="n" id="cntUnread">0</span></button>
+                        <button class="chip" data-f="client" title="Только чаты с тегом «клиент»">Клиенты <span class="n" id="cntClient">0</span></button>
                         <button class="chip" data-f="tg">TG</button>
                         <button class="chip" data-f="vk">VK</button>
                         <button class="chip" data-f="max">MAX</button>
@@ -434,9 +460,6 @@
                             <button class="btn icon ghost" id="infoToggle" title="Информация о чате">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
                             </button>
-                            <button class="btn icon ghost" id="detachBtn" title="Открыть в отдельном окне">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 3h7v7M21 3l-9 9M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-                            </button>
                         </div>
                     </div>
 
@@ -453,109 +476,124 @@
             </section>
         </div>
 
-        <!-- ВЬЮ: КОННЕКТОРЫ -->
-        <div class="view hidden" id="view-connectors" style="flex-direction:column;flex:1;min-height:0">
+        <!-- ВЬЮ: СКАНИРОВАНИЕ + ВАЙТЛИСТ (все мессенджеры) -->
+        <div class="view hidden" id="view-scan" style="flex-direction:column;flex:1;min-height:0">
             <div class="view-scroll">
                 <div class="view-head">
                     <div class="grow">
-                        <h1>Коннекторы</h1>
-                        <p>Управление клиентами VK / Telegram / MAX: запуск, прослушка, сканирование, конфигурация, вайтлист</p>
+                        <h1>Сканирование</h1>
+                        <p>Выкачка истории по всем мессенджерам и настройка вайтлиста — какие группы и беседы сохранять</p>
                     </div>
-                    <button class="btn ghost" id="refreshConnBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg> Обновить статусы
+                    <button class="btn ghost" id="scanReload">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg> Обновить списки
                     </button>
                 </div>
-                <div class="grid c3" id="connectorCards"></div>
-                <div class="card" style="margin-top:14px">
-                    <div class="card-head">
-                        <div class="grow"><h3>Журнал действий</h3><p>Логи запросов к API и операций коннекторов</p></div>
-                        <button class="btn sm ghost" id="clearLogBtn">Очистить</button>
-                    </div>
-                    <div class="log" id="apiLog"></div>
-                </div>
+                <div class="note" id="scanHint"></div>
+                <div class="grid c3" id="scanCards"></div>
             </div>
         </div>
 
-        <!-- ВЬЮ: РАССЫЛКИ -->
-        <div class="view hidden" id="view-broadcast" style="flex-direction:column;flex:1;min-height:0">
-            <div class="view-scroll">
+        <!-- ВЬЮ: ОТЛАДКА (журнал · коннекторы · конфиг · пользователи · настройки) -->
+        <div class="view hidden" id="view-debug" style="flex-direction:column;flex:1;min-height:0">
+            <div class="dbg-tabs" id="dbgTabs">
+                <button class="dbg-tab active" data-sec="log">Журнал и проверка</button>
+                <button class="dbg-tab" data-sec="connectors">Коннекторы</button>
+                <button class="dbg-tab" data-sec="config">Конфиг ID</button>
+                <button class="dbg-tab" data-sec="users">Пользователи</button>
+                <button class="dbg-tab" data-sec="settings">Настройки</button>
+            </div>
+            <div class="dbg-sec view-scroll" data-sec="log">
                 <div class="view-head">
-                    <div class="grow"><h1>Рассылки</h1><p>POST /api/v2/broadcast — получатели выбираются <b>по тегам</b> (UserRepository.findUserIdsByTags)</p></div>
+                    <div class="grow">
+                        <h1>Отладка</h1>
+                        <p>Журнал запросов, проверка эндпоинтов, сырые ответы — всё, что нужно при разработке и не нужно в проде</p>
+                    </div>
+                    <button class="btn ghost" id="clearLogBtn">Очистить журнал</button>
                 </div>
+
                 <div class="grid c2">
                     <div class="card">
-                        <h3>Новая рассылка</h3>
-                        <p class="sub">BroadcastRequest: connectorType, tags[], message, attachments, sendToAllConnectors</p>
-
-                        <div class="field">
-                            <label>Коннектор (connectorType)</label>
-                            <select class="inp" id="bcConnector">
-                                <option value="tg">Telegram — "tg"</option>
-                                <option value="vk">VK — "vk"</option>
-                                <option value="max">MAX — "max"</option>
-                            </select>
+                        <h3>Журнал запросов</h3>
+                        <p class="sub">Последние 200 обращений к API: метод, путь, результат, время</p>
+                        <div class="row" style="gap:6px;margin-bottom:10px;flex-wrap:wrap">
+                            <button class="btn sm ghost" id="logFilterAll">Все</button>
+                            <button class="btn sm ghost" id="logFilterFail">Только ошибки</button>
+                            <button class="btn sm ghost" id="logCopy">Скопировать</button>
+                            <span class="tiny grow" id="logCount"></span>
                         </div>
-
-                        <div class="switch-row" style="margin:2px 0 12px">
-                            <div class="lbl">sendToAllConnectors
-                                <small>true — игнорирует connectorType и шлёт через все подключённые коннекторы</small></div>
-                            <button class="sw" id="bcAll"></button>
-                        </div>
-
-                        <div class="field">
-                            <label>Теги получателей (tags) — через запятую</label>
-                            <input class="inp mono" id="bcTags" list="bcTagsList" placeholder="vip, клиент" autocomplete="off">
-                            <datalist id="bcTagsList"></datalist>
-                            <div class="row" style="margin-top:6px">
-                                <button class="btn sm ghost" id="bcLoadTags">Подсказать теги из базы</button>
-                                <span class="tiny grow" id="bcCount">тегов: 0</span>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label>Текст сообщения (message)</label>
-                            <textarea class="inp" id="bcMessage" placeholder="Текст рассылки…"></textarea>
-                        </div>
-
-                        <div class="field">
-                            <label>Вложения (attachments) — <b>строка</b>, не массив</label>
-                            <input class="inp mono" id="bcAttachments" placeholder="photo123_456789,doc789_123  ·  или URL для TG">
-                            <div class="tiny" style="margin-top:4px">Формат строки — как в VK API; для TG это URL. Пусто → поле не отправляется.</div>
-                        </div>
-
-                        <div class="note warn" id="bcShapeNote"></div>
-
-                        <div class="acts">
-                            <button class="btn primary" id="bcSend">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l18-7-7 18-2.5-7.5L3 11z"/></svg> Отправить рассылку
-                            </button>
-                            <button class="btn ghost" id="bcDryRun">Показать JSON запроса</button>
-                        </div>
+                        <div class="log" id="apiLog" style="max-height:340px"></div>
                     </div>
 
                     <div class="card">
-                        <h3>Результат</h3>
-                        <p class="sub">BroadcastResponse: totalRecipients, successCount, failedCount, errors</p>
-                        <div class="stat-grid" id="bcStats" style="margin-bottom:12px">
-                            <div class="stat"><div class="s-k">Всего</div><div class="s-v" id="bcTotal">—</div></div>
-                            <div class="stat"><div class="s-k">Успешно</div><div class="s-v on" id="bcOk">—</div></div>
-                            <div class="stat"><div class="s-k">Ошибок</div><div class="s-v off" id="bcFail">—</div></div>
+                        <h3>Проверка эндпоинтов</h3>
+                        <p class="sub">Дёргает ключевые методы и показывает сырой ответ — быстрый способ найти 404 и CORS</p>
+                        <div class="acts" style="margin-bottom:10px">
+                            <button class="btn sm" data-ping="chats">GET /api/v2/chats</button>
+                            <button class="btn sm" data-ping="messages">GET …/messages</button>
+                            <button class="btn sm" data-ping="status">GET /api/{pl}/status</button>
+                            <button class="btn sm" data-ping="lpping">GET /api/v2/messages/ping</button>
+                            <button class="btn sm" data-ping="cfg">GET /api/v2/config/ids</button>
+                            <button class="btn sm" data-ping="users">GET /api/v2/users/search</button>
+                            <button class="btn sm primary" data-ping="all">Прогнать все</button>
                         </div>
-                        <div id="bcProgress"></div>
-                        <div id="bcErrors" style="margin-top:10px"></div>
-                        <div id="bcResult" class="log" style="color:var(--txt2);margin-top:10px;max-height:190px">—</div>
-                        <div style="margin-top:14px">
-                            <h3 style="font-size:13.5px;margin:0 0 8px">История (локально)</h3>
-                            <div class="scroll-list" id="bcHistory" style="max-height:240px"></div>
+                        <div class="scroll-list" id="pingResult" style="max-height:300px"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Состояние приложения</h3>
+                        <p class="sub">Что накоплено локально — полезно при жалобах «не сохраняются настройки»</p>
+                        <div id="appState" class="log" style="color:var(--txt2);max-height:260px"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Демо-режим и сброс</h3>
+                        <p class="sub">Демо-данные генерируются в браузере в тех же формах DTO — бэкенд не нужен</p>
+                        <div class="switch-row"><div class="lbl">Демо-режим (mock)<small>Заменяет реальные запросы локальной генерацией</small></div>
+                            <button class="sw" id="dbgMock"></button></div>
+                        <div class="acts" style="margin-top:12px">
+                            <button class="btn ghost danger" id="dbgResetCache">Сбросить кэш сообщений</button>
+                            <button class="btn ghost danger" id="dbgResetAll">Сбросить все локальные данные</button>
                         </div>
+                        <div class="tiny" style="margin-top:10px">Настройки хранятся в <span class="mono">localStorage</span>
+                            (<span id="dbgStorage">…</span>).</div>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="dbg-sec view-scroll hidden" data-sec="connectors">
+                <div class="view-head">
+                    <div class="grow">
+                        <h1>Коннекторы</h1>
+                        <p>Клиенты запускаются и включаются на прослушку <b>автоматически</b>. Здесь — статус и ручное управление.</p>
+                    </div>
+                    <button class="btn ghost" id="refreshConnBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg> Обновить
+                    </button>
+                </div>
 
-        <!-- ВЬЮ: КОНФИГУРАЦИЯ -->
-        <div class="view hidden" id="view-config" style="flex-direction:column;flex:1;min-height:0">
-            <div class="view-scroll">
+                <div class="card" style="margin-bottom:14px">
+                    <div class="row" style="gap:12px;flex-wrap:wrap">
+                        <span class="led" id="autoLed"></span>
+                        <div class="grow" style="min-width:200px">
+                            <div style="font-weight:650;font-size:13.5px" id="autoTitle">Автозапуск…</div>
+                            <div class="tiny" id="autoText">проверка состояния коннекторов</div>
+                        </div>
+                        <div class="switch-row" style="border:0;padding:0;flex:0 0 auto">
+                            <div class="lbl" style="text-align:right">Автозапуск<small>start + startListening при загрузке и каждые 30 с, если упало</small></div>
+                            <button class="sw on" id="swAutoStart"></button>
+                        </div>
+                        <button class="btn primary sm" id="autoStartNow">Запустить сейчас</button>
+                    </div>
+                    <div id="autoLog" class="tiny" style="margin-top:10px;line-height:1.7"></div>
+                </div>
+
+                <div class="grid c3" id="connectorCards"></div>
+
+                <div class="note" style="margin-top:14px">
+                    Сканирование истории и настройка вайтлиста — во вкладке <b>«Скан»</b>. Журнал запросов и диагностика —
+                    здесь, в <b>«Отладке»</b>, на подвкладке «Журнал и проверка».
+                </div>
+            </div>
+            <div class="dbg-sec view-scroll hidden" data-sec="config">
                 <div class="view-head">
                     <div class="grow"><h1>Конфигурация</h1><p>Синхронизация ID мессенджеров — /api/v2/config</p></div>
                     <button class="btn ghost" id="cfgReload">
@@ -569,11 +607,7 @@
                     <div class="log" id="cfgFull" style="color:var(--txt2);max-height:340px">—</div>
                 </div>
             </div>
-        </div>
-
-        <!-- ВЬЮ: ПОЛЬЗОВАТЕЛИ -->
-        <div class="view hidden" id="view-users" style="flex-direction:column;flex:1;min-height:0">
-            <div class="view-scroll">
+            <div class="dbg-sec view-scroll hidden" data-sec="users">
                 <div class="view-head">
                     <div class="grow"><h1>Пользователи и теги</h1><p>Поиск, теги, быстрые действия — /api/v2/users</p></div>
                 </div>
@@ -604,12 +638,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- ВЬЮ: НАСТРОЙКИ -->
-        <div class="view hidden" id="view-settings" style="flex-direction:column;flex:1;min-height:0">
-            <div class="view-scroll">
-                <div class="view-head"><div class="grow"><h1>Настройки</h1><p>Подключение к API, поведение интерфейса, отдельные окна</p></div></div>
+            <div class="dbg-sec view-scroll hidden" data-sec="settings">
+                <div class="view-head"><div class="grow"><h1>Настройки</h1><p>Подключение к API, поведение интерфейса</p></div></div>
                 <div class="grid c2">
                     <div class="card">
                         <h3>API</h3><p class="sub">Базовый адрес бэкенда и режим работы</p>
@@ -634,8 +664,9 @@
                                 <option value="platform">Платформенный — POST /api/{platform}/send/message</option>
                             </select>
                         </div>
+                        <div class="switch-row"><div class="lbl">Автозапуск коннекторов<small>start + startListening при загрузке и каждые 30 с, если упало</small></div><button class="sw on" id="setAutoStart"></button></div>
                         <div class="switch-row"><div class="lbl">Автообновление списка чатов<small>Поллинг /api/v2/chats</small></div><button class="sw" id="swPoll"></button></div>
-                        <div class="switch-row"><div class="lbl">Автообновление открытых чатов<small>Подтягивать новые сообщения в активных вкладках</small></div><button class="sw" id="swPollMsgs"></button></div>
+                        <div class="switch-row"><div class="lbl">Автообновление открытых чатов<small>Подтягивать новые сообщения в активном диалоге; если выключить — диалог всё равно освежится при переключении вкладки и возврате на страницу</small></div><button class="sw" id="swPollMsgs"></button></div>
                         <div class="field" style="margin-top:10px"><label>Интервал поллинга, сек</label><input class="inp mono" id="setPollMs" type="number" min="2" max="120" value="5"></div>
                         <div class="switch-row"><div class="lbl">Демо-режим (mock)<small>Работает без бэкенда, с имитацией входящих</small></div><button class="sw" id="swMock"></button></div>
                         <div class="acts" style="margin-top:12px">
@@ -644,24 +675,21 @@
                         </div>
                     </div>
                     <div class="card">
-                        <h3>Интерфейс</h3><p class="sub">Внешний вид и отдельные окна</p>
+                        <h3>Интерфейс</h3><p class="sub">Внешний вид и поведение</p>
                         <div class="field"><label>Тема</label>
                             <select class="inp" id="setTheme"><option value="dark">Тёмная</option><option value="light">Светлая</option></select>
                         </div>
-                        <div class="field"><label>Размер отдельного окна</label>
-                            <div class="row"><input class="inp mono" id="setPopW" type="number" min="360" max="1600" value="480">
-                                <span class="muted">&times;</span><input class="inp mono" id="setPopH" type="number" min="400" max="1200" value="720"></div>
-                        </div>
-                        <div class="field"><label>Позиция первого окна</label>
-                            <div class="row"><input class="inp mono" id="setPopX" type="number" value="120"><span class="muted">/</span>
-                                <input class="inp mono" id="setPopY" type="number" value="80"></div>
-                        </div>
-                        <div class="switch-row"><div class="lbl">Каскад окон<small>Каждое следующее окно со сдвигом</small></div><button class="sw on" id="swCascade"></button></div>
+                        <div class="field"><label>Быстрые теги в чате — через запятую</label>
+                            <input class="inp" id="setQuickTags" placeholder="ликтрос, т-паз, клиент, личное">
+                            <div class="tiny" style="margin-top:4px">Кнопки появляются в шапке личного чата (рядом с названием) и в панели
+                                информации; ставят тег через <span class="mono">POST /api/v2/users/{source}/{userId}/tags</span>.</div></div>
+                        <div class="field"><label>limitPerChat по умолчанию для сканирования</label>
+                            <input class="inp mono" id="setScanLimit" type="number" min="1" max="5000" value="200"></div>
                         <div class="switch-row"><div class="lbl">Уведомления о входящих<small>Всплывающие тосты при новых сообщениях в неактивных чатах</small></div><button class="sw on" id="swNotify"></button></div>
                         <div class="switch-row"><div class="lbl">Звук<small>Короткий сигнал при входящем</small></div><button class="sw" id="swSound"></button></div>
                         <div class="note" style="margin-top:12px">
                             <b>Горячие клавиши.</b><br>
-                            <span class="kbd">Alt</span>+<span class="kbd">1…6</span> — разделы ·
+                            <span class="kbd">Alt</span>+<span class="kbd">1…3</span> — вкладки (чаты · скан · отладка) ·
                             <span class="kbd">Ctrl</span>+<span class="kbd">K</span> — поиск ·
                             <span class="kbd">Enter</span> — отправить ·
                             <span class="kbd">Shift</span>+<span class="kbd">Enter</span> — перенос ·
@@ -675,53 +703,20 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
-<!-- ==================== ОТДЕЛЬНОЕ ОКНО ЧАТА ==================== -->
-<div class="popup-wrap" id="popupWrap">
-    <div class="popup-head">
-        <div class="ci-av" id="popAv"></div>
-        <div class="grow" style="min-width:0">
-            <div class="ch-title" id="popTitle">Чат</div>
-            <div class="ch-sub" id="popSub"></div>
-        </div>
-        <button class="btn icon sm ghost" id="popToMain" title="Открыть в главном окне">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9V5a2 2 0 0 1 2-2h4M21 9V5a2 2 0 0 0-2-2h-4M3 15v4a2 2 0 0 0 2 2h4M21 15v4a2 2 0 0 1-2 2h-4"/></svg>
-        </button>
-        <button class="btn icon sm ghost" id="popRefresh" title="Обновить">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>
-        </button>
-    </div>
-    <div style="position:relative;flex:1;display:flex;min-height:0">
-        <div class="msgs" id="popMsgs" style="flex:1"></div>
-        <button class="jump-bottom hidden" id="popJump" title="Вниз">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-        </button>
-        <div id="popEmojiPop"></div>
-    </div>
-    <div class="composer popup-input">
-        <div id="popReply"></div>
-        <div id="popAttach" class="attach-row hidden"></div>
-        <div class="input-row">
-            <div class="ta-wrap">
-                <button class="btn icon ghost" id="popEmoji" title="Эмодзи">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0M9 9.5h.01M15 9.5h.01"/></svg>
-                </button>
-                <textarea id="popInput" rows="1" placeholder="Сообщение…"></textarea>
-                <button class="btn icon ghost" id="popFile" title="Отправить файл (путь на сервере)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.4 11.05l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>
-                </button>
-            </div>
-            <button class="send-btn" id="popSend" title="Отправить (Enter)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            </button>
-        </div>
-        <div class="composer-hint">
-            <span><span class="kbd">Enter</span> — отправить</span>
-            <span><span class="kbd">Shift+Enter</span> — строка</span>
-            <span><span class="kbd">Esc</span> — отменить ответ</span>
-        </div>
+<!-- ==================== ВХОД ПО КЛЮЧУ ДОСТУПА ==================== -->
+<div id="authGate" class="auth-gate hidden">
+    <div class="auth-card">
+        <div class="auth-logo">M</div>
+        <h2>Multi Messenger</h2>
+        <div class="tiny">Введите ключ доступа, чтобы продолжить</div>
+        <input type="password" class="inp" id="authKey" placeholder="Ключ доступа" autocomplete="current-password">
+        <button class="btn primary" id="authSubmit">Войти</button>
+        <div class="auth-error tiny" id="authError"></div>
+        <div class="auth-alt"><button class="btn sm ghost" id="authDemo">Демо-режим без сервера</button></div>
     </div>
 </div>
 
@@ -738,8 +733,6 @@
     /* ==================== 1. УТИЛИТЫ ==================== */
     const $  = (s, r = document) => r.querySelector(s);
     const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-    const IS_POPUP = new URLSearchParams(location.search).has('chat');
-    const POPUP_CHAT = new URLSearchParams(location.search).get('chat');
 
     const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
@@ -876,13 +869,39 @@
       searchPath: '/api/v2/messages/search',
       sendMode: 'unified',
       poll: true, pollMsgs: true, pollMs: 5,
-      mock: false, notify: true, sound: false, cascade: true,
-      popW: 480, popH: 720, popX: 120, popY: 80,
+      mock: false, notify: true, sound: false,
       theme: 'dark', showInfo: true, lastView: 'chats',
       myIds: { tg: '', vk: '', max: '' },   // мои userId в соцсетях (для определения исходящих)
+      autoStart: true,                      // start + startListening при загрузке и при падении
+      autoStartListen: true,
+      quickTags: ['ликтрос', 'т-паз', 'клиент', 'личное'],   // кнопки быстрых тегов в чате
+      scanLimit: 200,                       // limitPerChat по умолчанию для сканирования
     };
     const settings = Object.assign({}, DEFAULTS, LS.get('mm.settings', {}));
     function saveSettings(){ LS.set('mm.settings', settings); Bus.post({ t: 'settings', settings }); }
+
+    /*
+      Пути к истории сообщений. Основной — из настроек, остальные пробуем по очереди при 404.
+      Все они ведут на один обработчик MessagesController, так что достаточно, чтобы поднялся любой.
+    */
+    const MSG_PATHS = [
+      '/api/v2/chats/{id}/messages',      // ваш основной (ChatDto.chatId)
+      '/api/v2/messages/chat/{id}',       // запасной, без вложенности
+      '/api/v2/messages?chatId={id}',     // запасной, chatId параметром
+    ];
+    function msgPathFor(id){
+      return String(settings.msgPath || MSG_PATHS[0]).replace('{id}', encodeURIComponent(id));
+    }
+    function msgPathCandidates(id){
+      const list = [settings.msgPath || MSG_PATHS[0]].concat(MSG_PATHS.filter(p => p !== settings.msgPath));
+      return Array.from(new Set(list)).map(p => p.replace('{id}', encodeURIComponent(id)));
+    }
+    /** Запоминаем рабочий путь, чтобы дальше не перебирать заново */
+    function adoptMsgPath(template){
+      if (!template || template === settings.msgPath) return;
+      settings.msgPath = template; saveSettings();
+      toast('Путь истории подобран автоматически', template + ' — сохранён в настройках', 'ok', 5000);
+    }
 
     const ui = Object.assign({ tabs: [], active: null, filter: 'all', query: '', infoChat: null, tagUser: null },
                              LS.get('mm.ui', {}));
@@ -899,6 +918,7 @@
       return s.slice(0, 12);
     }
     const PL_NAME = { tg: 'Telegram', vk: 'VK', max: 'MAX', unknown: '—' };
+    const PL_SHORT = { tg: 'TG', vk: 'VK', max: 'MAX', unknown: '—' };
 
     /* ==================== 3. СОСТОЯНИЕ ==================== */
     const S = {
@@ -917,8 +937,10 @@
       apiLog: [],
       online: false,
       sending: new Set(),
-      popups: new Map(),    // chatKey → window
+      tagsByKey: new Map(),   // chatKey → [теги] — известные теги пользователя чата
+      clientKeys: new Set(),  // chatKey чатов с тегом «клиент» — для фильтра списка
     };
+    const CLIENT_TAG = 'клиент';
     const subs = new Map();
     function on(evt, fn){ if (!subs.has(evt)) subs.set(evt, new Set()); subs.get(evt).add(fn); return () => subs.get(evt)?.delete(fn); }
     function emit(evt, payload){ subs.get(evt)?.forEach(f => { try { f(payload); } catch(e){ console.error(e); } }); }
@@ -992,6 +1014,11 @@
       const authorName = pick(raw, ['authorName','author_name','senderName'], '') || '';
       const mediaUrl = pick(m, ['mediaUrl','media_url','mediaURL'], null);
       const text = pick(m, ['text','message','body','content'], '') || '';
+      // Порядок должен быть правильным, даже если бэкенд забыл timestamp (например,
+      // TgMessageMapper не заполнил поле): тогда сортируем по id сообщения в соцсети —
+      // у TG они последовательные, то есть хронологические.
+      const tsReal = toTs(pick(m, ['timestamp','date','createdAt']));
+      const ordId = Number(pick(m, ['messageId','message_id'], null) ?? pick(m, ['id'], null) ?? 0) || 0;
       return {
         raw, i,
         id: pick(m, ['id'], null) ?? ('i' + i),      // PK таблицы messages — уникален, используем как ключ
@@ -999,7 +1026,8 @@
         source: platform,
         chatId: pick(m, ['chatId','chat_id'], chat?.id ?? null),
         text,
-        ts: toTs(pick(m, ['timestamp','date','createdAt'])) || Date.now(),
+        ts: tsReal || Date.now(),
+        _ord: tsReal || ordId,                        // ключ сортировки: реальный ts либо id сообщения
         authorId,
         authorName: authorName || (outgoing ? 'Вы' : 'Участник'),
         authorAvatar: pick(raw, ['authorAvatar','author_avatar','authorPhoto'], '') || '',
@@ -1011,6 +1039,9 @@
         edited: false,
       };
     }
+    /** Сортировка истории: сначала по настоящему timestamp; у сообщений без timestamp —
+        по id в соцсети (хронология TG); последнее звено — порядок в ответе сервера. */
+    const msgCmp = (a, b) => ((a._ord ?? a.ts) - (b._ord ?? b.ts)) || (a.ts - b.ts) || ((a.i ?? 0) - (b.i ?? 0));
     function normAttachments(a){
       if (!a) return [];
       let arr = a;
@@ -1062,16 +1093,26 @@
         }
         const url = Api.base() + path;
         try {
+          const headers = {};
+          if (body !== undefined) headers['Content-Type'] = 'application/json';
+          const tok = (typeof Auth !== 'undefined') ? Auth.token : null;
+          // токен прикладываем ВСЕГДА, когда он есть (в т.ч. к /auth/check — иначе проверка
+          // после входа уходила без заголовка, получала 401 и снова показывала экран входа).
+          // opts.noAuth отключает только авто-показ экрана входа при 401 (вызывающий обрабатывает сам).
+          if (tok) headers['Authorization'] = 'Bearer ' + tok;
           const res = await fetch(url, {
             method,
-            headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+            headers: Object.keys(headers).length ? headers : undefined,
             body: body !== undefined ? JSON.stringify(body) : undefined,
           });
           const ct = res.headers.get('content-type') || '';
           const data = ct.includes('json') ? await res.json() : await res.text();
           const ms = Math.round(performance.now() - t0);
           Api.log(method, path, res.ok, ms, res.status);
-          if (!res.ok) throw Object.assign(new Error(`HTTP ${res.status}`), { status: res.status, data });
+          if (!res.ok){
+            if (res.status === 401 && !opts.noAuth && typeof Auth !== 'undefined') Auth.onUnauthorized();
+            throw Object.assign(new Error(`HTTP ${res.status}`), { status: res.status, data });
+          }
           return data;
         } catch (err){
           Api.log(method, path, false, Math.round(performance.now() - t0), err.message);
@@ -1085,21 +1126,38 @@
 
       /* --- чаты и сообщения --- */
       chats(){ return Api.get(settings.chatsPath || '/api/v2/chats'); },
-      messages(chat, opts = {}){
-        const path = (settings.msgPath || '/api/v2/chats/{id}/messages')
-          .replace('{id}', encodeURIComponent(chat.id))
-          .replace('{limit}', opts.limit ?? '')
-          .replace('{before}', opts.before ?? '');
+      async messages(chat, opts = {}){
         const qs = [];
         if (opts.limit != null) qs.push('limit=' + opts.limit);
         if (opts.before != null) qs.push('before=' + opts.before);
-        return Api.get(path + (qs.length ? (path.includes('?') ? '&' : '?') + qs.join('&') : ''));
+        const suffix = qs.length ? qs.join('&') : '';
+        const cands = msgPathCandidates(chat.id);
+        let lastErr;
+        for (let i = 0; i < cands.length; i++){
+          let url = cands[i];
+          if (suffix) url += (url.includes('?') ? '&' : '?') + suffix;
+          try {
+            const r = await Api.get(url);
+            if (i > 0) adoptMsgPath(MSG_PATHS.find(p => cands[i].startsWith(p.replace('{id}', ''))) || cands[i]);
+            return r;
+          } catch (e){
+            lastErr = e;
+            if (e && e.status !== 404) throw e;   // 404 → пробуем следующий путь, остальное → наружу
+          }
+        }
+        throw lastErr;
       },
       searchMessages(q){ return Api.get((settings.searchPath || '/api/v2/messages/search') + '?query=' + encodeURIComponent(q)); },
-      /** GET /api/v2/chats/{chatId}/messages/search?query=… — серверный поиск внутри чата */
-      searchInChat(chat, q){
-        const path = (settings.msgPath || '/api/v2/chats/{id}/messages').replace('{id}', encodeURIComponent(chat.id));
-        return Api.get(path + '/search?query=' + encodeURIComponent(q));
+      /** Серверный поиск внутри чата: перебираем варианты пути, 404 не критичен */
+      async searchInChat(chat, q){
+        const cands = msgPathCandidates(chat.id).map(p => p + '/search?query=' + encodeURIComponent(q))
+          .concat(['/api/v2/messages/chat/' + encodeURIComponent(chat.id) + '/search?query=' + encodeURIComponent(q)]);
+        let lastErr;
+        for (const url of Array.from(new Set(cands))){
+          try { return await Api.get(url); }
+          catch (e){ lastErr = e; if (e && e.status !== 404) throw e; }
+        }
+        throw lastErr;
       },
 
       /* --- отправка ---
@@ -1168,6 +1226,9 @@
           groups:  () => Api.get(`/api/${pl}/groups`),
         };
       },
+      /** Единый эндпоинт: все группы/беседы со всех коннекторов одним запросом (до сканирования).
+          Ответ: { success, count, groups: { tg:[{id,title,type,membersCount}], vk:[…], max:[…] }, errors:{pl:msg} } */
+      groupsAll(){ return Api.get('/api/v2/groups'); },
 
       /* --- конфиг ID --- */
       cfgIds(){ return Api.get('/api/v2/config/ids'); },
@@ -1176,6 +1237,8 @@
 
       /* --- пользователи --- */
       searchUsers(q){ return Api.get('/api/v2/users/search?query=' + encodeURIComponent(q)); },
+      /** GET /api/v2/users/tags/all → { success, tags:[...] } (UserRepository.findAllTags) */
+      allTags(){ return Api.get('/api/v2/users/tags/all'); },
       tags(source, userId){ return Api.get(`/api/v2/users/${encodeURIComponent(source)}/${encodeURIComponent(userId)}/tags`); },
       addTag(source, userId, tag){ return Api.post(`/api/v2/users/${encodeURIComponent(source)}/${encodeURIComponent(userId)}/tags`, { tag }); },
       delTag(source, userId, tag){ return Api.del(`/api/v2/users/${encodeURIComponent(source)}/${encodeURIComponent(userId)}/tags?tag=${encodeURIComponent(tag)}`); },
@@ -1270,6 +1333,22 @@
           tags: i % 3 === 0 ? ['vip','клиент'] : (i % 3 === 1 ? ['новый'] : ['рассылка','партнёр']),
           updated_at: String(Date.now()),
         }));
+        // демо-пользователи для личных чатов — чтобы кнопки быстрых тегов и фильтр «Клиенты» работали без бэкенда
+        let pi = 0;
+        chats.forEach(c => {
+          if (c.group) return;
+          const parts = String(c.title).split(' ');
+          const tags = [];
+          if (pi % 2 === 0) tags.push('клиент');
+          if (pi % 3 === 1) tags.push('ликтрос');
+          if (pi % 4 === 2) tags.push('т-паз');
+          if (pi % 5 === 3) tags.push('личное');
+          users.push({ id: 1000 + users.length + 1, source: c.source, userId: c.chatId,
+            firstName: parts[0] || 'Пользователь', lastName: parts.slice(1).join(' '),
+            username: 'user' + pi, photo_url: '', phone_number: null,
+            tags, updated_at: String(Date.now()) });
+          pi++;
+        });
       }
 
       function incoming(){
@@ -1372,6 +1451,14 @@
             return { success: true, message: method + ' ' + P + ' — выполнено (mock)' };
           if (P === '/api/tg/groups')
             return { success: true, count: GROUPS.length, groups: GROUPS.map((g, i) => ({ id: -100100000 - i * 13, title: g, membersCount: 100 + i * 431, type: i % 2 ? 'channel' : 'group' })) };
+          if (P === '/api/v2/groups'){
+            // демо-ответ единого эндпоинта: TG — из справочника, VK — беседы из сгенерированных чатов
+            // (обратите внимание: ключ chatId, а не id — фронт обязан понимать оба), MAX — пусто (фолбэк на базу)
+            const tg = GROUPS.map((g, i) => ({ id: -100100000 - i * 13, title: g, membersCount: 100 + i * 431, type: i % 2 ? 'Канал' : 'Группа' }));
+            const vk = chats.filter(c => c.source === 'vk' && c.group)
+              .map(c => ({ chatId: c.chatId, title: c.title, type: 'беседа', membersCount: 3 + (Math.abs(c.chatId) % 40) }));
+            return { success: true, count: tg.length + vk.length, groups: { tg, vk, max: [] } };
+          }
 
           /* ---- конфиг ID ---- */
           if (P === '/api/v2/config/ids') return { success: true, vkIds: ['200000001'], tgIds: ['777001'], maxIds: ['900001'] };
@@ -1379,6 +1466,12 @@
           if (/^\/api\/v2\/config\/(vk|telegram|max)$/.test(P)) return { success: true, message: 'Обновлено (mock)' };
 
           /* ---- пользователи ---- */
+          if (P === '/api/v2/users/tags/all'){
+            const set = new Set();
+            users.forEach(u => (u.tags || []).forEach(t => set.add(t)));
+            (settings.quickTags || []).forEach(t => set.add(t));
+            return { success: true, tags: Array.from(set) };
+          }
           if (P === '/api/v2/users/search'){
             const q = (Q.get('query') || '').toLowerCase();
             const found = q ? users.filter(u => ((u.firstName + ' ' + u.lastName + ' ' + u.username).toLowerCase().includes(q))) : users;
@@ -1502,6 +1595,90 @@
       });
     }
 
+    /* ==================== 8.5 АВТОРИЗАЦИЯ ПО КЛЮЧУ ====================
+       Без аккаунтов и регистраций: на бэкенде задан секретный ключ (app.auth.key),
+       фронт обменивает его на подписанный HMAC-токен (POST /api/v2/auth/login) и
+       прикладывает ко всем запросам как Authorization: Bearer <токен>.
+       Любой ответ 401 → токен очищается и снова показывается экран входа.
+       Старый бэкенд без auth-эндпоинтов продолжает работать: GET /api/v2/auth/check
+       вернёт 404, и фронт не будет требовать ключ. Демо-режим — тоже без ключа. */
+    const Auth = {
+      token: LS.get('mm.token', null),
+      expiresAt: LS.get('mm.tokenExp', null),
+      gateShown: false,
+      setToken(t, exp){
+        Auth.token = t || null; Auth.expiresAt = exp || null;
+        LS.set('mm.token', Auth.token); LS.set('mm.tokenExp', Auth.expiresAt);
+        Auth.renderBtn();
+      },
+      clear(){
+        Auth.token = null; Auth.expiresAt = null;
+        LS.del('mm.token'); LS.del('mm.tokenExp');
+        Auth.renderBtn();
+      },
+      renderBtn(){
+        const b = $('#logoutBtn');
+        if (b) b.classList.toggle('hidden', !Auth.token || !!settings.mock);
+      },
+      showGate(reason){
+        const g = $('#authGate'); if (!g) return;
+        g.classList.remove('hidden'); Auth.gateShown = true;
+        const err = $('#authError'); if (err) err.textContent = reason || '';
+        setTimeout(() => { const i = $('#authKey'); if (i) i.focus(); }, 80);
+      },
+      hideGate(){ const g = $('#authGate'); if (g) g.classList.add('hidden'); Auth.gateShown = false; },
+      /** Проверяет доступ при загрузке. true — продолжаем, false — показан экран входа */
+      async ensure(){
+        if (settings.mock){ Auth.hideGate(); return true; }
+        try {
+          await Api.get('/api/v2/auth/check', { noAuth: true });
+          Auth.hideGate();
+          return true;                      // токен действителен ИЛИ авторизация на сервере не включена
+        } catch(e){
+          if (e && e.status === 401){ Auth.clear(); Auth.showGate(); return false; }
+          return true;                      // 404 (старый бэкенд) или сеть недоступна — не блокируем приложение
+        }
+      },
+      /** Вызывается из Api.req при любом 401 — сессия истекла/ключ отозван */
+      onUnauthorized(){
+        if (settings.mock || Auth.gateShown) return;
+        const had = !!Auth.token;
+        Auth.clear();
+        Auth.showGate();
+        if (had) toast('Сессия истекла', 'Токен устарел или ключ изменён — войдите заново', 'warn', 6000);
+      },
+    };
+    function bindAuthGate(){
+      const inp = $('#authKey'), btn = $('#authSubmit'), err = $('#authError');
+      if (!inp || !btn) return;
+      const submit = async () => {
+        const key = inp.value.trim();
+        if (!key){ err.textContent = 'Введите ключ доступа'; return; }
+        btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+        err.textContent = '';
+        try {
+          const r = await Api.post('/api/v2/auth/login', { key }, { noAuth: true });
+          if (okFlag(r) && r && r.token){
+            Auth.setToken(r.token, r.expiresAt || null);
+            inp.value = '';
+            location.reload();               // перезапуск уже с токеном
+          } else {
+            err.textContent = msgOf(r, 'Неверный ключ доступа');
+          }
+        } catch(e){
+          err.textContent = (e && e.status === 404)
+            ? 'Сервер не поддерживает вход по ключу (нет POST /api/v2/auth/login)'
+            : 'Сервер недоступен: ' + ((e && e.message) || e);
+        } finally {
+          btn.disabled = false; btn.textContent = 'Войти';
+        }
+      };
+      btn.onclick = submit;
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); submit(); } });
+      const demo = $('#authDemo');
+      if (demo) demo.onclick = () => { settings.mock = true; saveSettings(); location.reload(); };
+    }
+
     /* ==================== 9. СЛОЙ ДАННЫХ ==================== */
     const Data = {
       /* --- список чатов --- */
@@ -1511,12 +1688,25 @@
           const arr = unwrap(res, ['chats','dialogs']);
           const list = asArr(arr).map(normChat);
           list.forEach((c, i) => { c.key = chatKey(c); c.idx = i; });
+          const prev = S.byId;                    // прежнее состояние — для детектора новых сообщений
           S.chatsRaw = Array.isArray(arr) ? arr : [];
           S.chats = list;
           S.byId = new Map(list.map(c => [c.key, c]));
           S.online = true; setConn(true, settings.mock ? 'демо-режим' : 'подключено');
           if (settings.mock){ Data.recomputeOutgoing(); Mock.startIncoming(); }
           emit('chats');
+          // В списке чатов виден новый lastMessage у ОТКРЫТОГО диалога → подтягиваем
+          // его историю сразу, не дожидаясь следующего тика поллинга сообщений.
+          if (prev && prev.size && ui.tabs.length){
+            list.forEach(c => {
+              if (!ui.tabs.includes(c.key)) return;
+              const old = prev.get(c.key);
+              if (!old) return;
+              const newer = (c.lastTs || 0) > (old.lastTs || 0);
+              const textChanged = (c.lastText || '') !== (old.lastText || '');
+              if (newer || textChanged) Data.loadMessages(c, { force: true });
+            });
+          }
           return list;
         } catch (e){
           S.online = false; setConn(false, e.message || 'нет соединения');
@@ -1535,18 +1725,22 @@
       async loadMessages(chat, { force = false } = {}){
         const key = chatKey(chat), b = Data.bucket(key);
         if (b.loading) return b;
-        if (!force && b.list.length && Date.now() - b.loadedAt < (settings.pollMs * 1000)) return b;
+        // допуск 1.5 с: интервал поллинга и окно «свежести» одинаковые, и из-за задержки
+        // ответа каждый второй тик раньше пролетал мимо — диалог обновлялся вдвое реже
+        if (!force && b.list.length && Date.now() - b.loadedAt < Math.max(500, (settings.pollMs || 5) * 1000 - 1500)) return b;
         b.loading = true; b.error = null; emit('msgs', key);
         try {
           const res = await Api.messages(chat, { limit: settings.limit || 200 });
           const arr = unwrap(res, ['messages','items']);
-          const norm = asArr(arr).map((r, i) => normMsg(r, i, chat)).sort((a, c) => a.ts - c.ts);
+          const norm = asArr(arr).map((r, i) => normMsg(r, i, chat)).sort(msgCmp);
           // мягкое слияние: сохраняем локальные "pending"-сообщения
           const seen = new Set(norm.map(m => String(m.id)));
           const keep = b.list.filter(m => m._pending && !seen.has(String(m.id)));
           b.list = norm.concat(keep);
           b.loadedAt = Date.now();
-          Data.touchUnread(key, b.list.length ? b.list[b.list.length - 1].ts : Date.now());
+          // прочитанным помечаем только чат, который сейчас смотрят: фоновая подкачка
+          // открытой, но неактивной вкладки не должна съедать бейдж непрочитанных
+          if (key === ui.active) Data.touchUnread(key, b.list.length ? b.list[b.list.length - 1].ts : Date.now());
           emit('msgs', key);
           return b;
         } catch (e){
@@ -1637,19 +1831,18 @@
       },
 
       /* --- вкладки --- */
-      openTab(chat, { detach = false, focus = true } = {}){
+      openTab(chat, { focus = true } = {}){
         if (!chat) return;
-        if (detach) return Win.open(chat);
         if (!ui.tabs.includes(chat.key)){
           ui.tabs.push(chat.key);
-          if (ui.tabs.length > 12) Win.notifyTooMany();
+          if (ui.tabs.length > 12) toast('Много вкладок', 'Открыто больше 12 вкладок — закройте неиспользуемые.', 'warn');
         }
         if (focus) ui.active = chat.key;
         saveUI();
         UI.mountChat(chat.key);
         emit('tabs');
         Data.markRead(chat);
-        if (!IS_POPUP) Bus.post({ t: 'tabs', tabs: ui.tabs, active: ui.active });
+        Bus.post({ t: 'tabs', tabs: ui.tabs, active: ui.active });
         if (settings.mock) Mock.startIncoming();
       },
       closeTab(key){
@@ -1658,7 +1851,17 @@
         saveUI(); UI.unmountChat(key); emit('tabs');
         Bus.post({ t: 'tabs', tabs: ui.tabs, active: ui.active });
       },
-      activate(key){ if (ui.tabs.includes(key)){ ui.active = key; saveUI(); UI.showChat(key); emit('tabs'); Data.markRead(S.byId.get(key)); Bus.post({ t: 'tabs', tabs: ui.tabs, active: key }); } },
+      activate(key){
+        if (!ui.tabs.includes(key)) return;
+        ui.active = key; saveUI(); UI.showChat(key); emit('tabs');
+        const c = S.byId.get(key);
+        if (c){
+          Data.markRead(c);
+          // вкладка могла простаивать минуты — освежаем историю (guard пропустит запрос, если она свежая)
+          Data.loadMessages(c);
+        }
+        Bus.post({ t: 'tabs', tabs: ui.tabs, active: key });
+      },
 
       /* --- коннекторы / конфиг --- */
       async loadStatuses(){
@@ -1690,6 +1893,28 @@
         catch (e){ S.groups[pl] = []; toast('Группы не получены', e.message, 'warn'); }
         emit('groups'); return S.groups[pl];
       },
+
+      /* --- фильтр «Клиенты»: кто помечен тегом «клиент» ---
+         Один запрос GET /api/v2/users/by-tag?tag=клиент; поверх накладываем локальный
+         кэш тегов (S.tagsByKey) — он свежее, если тег только что поставили в шапке чата. */
+      async loadClients(){
+        try {
+          const r = await Api.byTag(CLIENT_TAG);
+          if (okFlag(r)){
+            const set = new Set();
+            asArr(unwrap(r, ['users'])).forEach(u => {
+              const src = normPlatform(pick(u, ['source','platform','connector'], ''));
+              const idv = pick(u, ['userId','user_id','id'], null);
+              if (idv != null && src !== 'unknown') set.add(src + ':' + idv);
+            });
+            S.clientKeys = set;
+          }
+        } catch(e){ /* эндпоинта может не быть — остаётся локальный кэш тегов */ }
+        S.tagsByKey.forEach((tags, key) => {
+          if ((tags || []).includes(CLIENT_TAG)) S.clientKeys.add(key); else S.clientKeys.delete(key);
+        });
+        UI.renderList();
+      },
     };
     /** для replyTo всегда берём messageId соцсети, а не PK таблицы messages */
     function replyToMsgId(r){ return Api.toReplyTo(r); }
@@ -1699,43 +1924,6 @@
       if (tx) tx.textContent = text;
       if (dot) dot.className = 'dot' + (ok ? '' : ' off');
     }
-
-    /* ==================== 10. ОТДЕЛЬНЫЕ ОКНА ==================== */
-    const Win = {
-      count: 0,
-      open(chat){
-        if (!chat) return null;
-        const key = chatKey(chat);
-        const ex = S.popups.get(key);
-        if (ex && !ex.closed){ ex.focus(); return ex; }
-        if (window.self !== window.top){
-          toast('Отдельные окна заблокированы', 'Фронт открыт внутри iframe (предпросмотр) — браузер не даёт window.open. Скачайте/откройте messenger.html напрямую или используйте вкладки.', 'warn', 7000);
-          return null;
-        }
-        const url = location.href.split('#')[0].split('?')[0] + '?chat=' + encodeURIComponent(chat.id) + '&pl=' + encodeURIComponent(chat.platform);
-        const step = settings.cascade ? (Win.count % 6) * 34 : 0;
-        const w = clamp(settings.popW | 0, 360, 1600), h = clamp(settings.popH | 0, 400, 1200);
-        const left = Math.max(0, Math.min(screen.availWidth - w, (settings.popX | 0) + step));
-        const top  = Math.max(0, Math.min(screen.availHeight - h, (settings.popY | 0) + step));
-        const win = window.open(url, 'mm_' + key.replace(/[^\w]/g, '_'),
-          `popup=yes,width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
-        if (!win){ toast('Браузер заблокировал окно', 'Разрешите всплывающие окна для этой страницы, либо используйте вкладки.', 'warn', 6000); return null; }
-        Win.count++;
-        S.popups.set(key, win);
-        try { win.focus(); } catch(e){}
-        Bus.post({ t: 'popup-open', key, title: chat.title });
-        toast('Окно открыто', chat.title, 'ok', 2200);
-        return win;
-      },
-      close(key){
-        const w = S.popups.get(key);
-        if (w && !w.closed){ try { w.close(); } catch(e){} }
-        S.popups.delete(key);
-      },
-      isOpen(key){ const w = S.popups.get(key); return !!(w && !w.closed); },
-      notifyTooMany(){ if (ui.tabs.length > 12) toast('Много вкладок', 'Открыто больше 12 вкладок — закройте неиспользуемые или вынесите чаты в отдельные окна.', 'warn'); },
-      closeAll(){ S.popups.forEach((w, k) => Win.close(k)); },
-    };
 
     /* ==================== 11. ВИД ЧАТА (переиспользуется в главном окне и в попапах) ==================== */
     function createChatView(root, chatKeyStr, opts = {}){
@@ -1891,7 +2079,11 @@
         if (b.error && !b.list.length){
           v.msgsEl.innerHTML = `<div class="empty-state"><div class="big">${I.chat}</div>
             <h3>История недоступна</h3><p>${esc(b.error)}</p>
-            <p class="tiny">Нужен эндпоинт <span class="mono">GET ${esc((settings.msgPath || '').replace('{id}', c.id))}</span> — см. backend/MessagesController.java</p>
+            <p class="tiny">Фронт пробовал пути:<br>${msgPathCandidates(c.id).map(p => `<span class="mono">GET ${esc(p)}</span>`).join('<br>')}</p>
+            <p class="tiny">404 = маппинг не зарегистрирован. Проверьте, что <span class="mono">MessagesController</span> лежит в пакете
+              <span class="mono">v2.api</span> (как остальные контроллеры), приложение перезапущено, и откройте
+              <span class="mono">GET ${esc(settings.baseUrl.replace(/\/+$/, ''))}/api/v2/messages/ping?chatId=${esc(String(c.id))}</span> —
+              он покажет, поднят ли контроллер и сколько сообщений найдётся по этому chatId.</p>
             <button class="btn primary sm" data-retry>Повторить</button></div>`;
           v.msgsEl.querySelector('[data-retry]').onclick = () => Data.loadMessages(c, { force: true });
           return;
@@ -1941,7 +2133,7 @@
           const res = await Api.messages(c, { limit: 100, before });
           const arr = unwrap(res, ['messages','items']);
           const older = asArr(arr).map((r, i) => normMsg(r, i, c))
-            .filter(m => m.ts < before).sort((a, x) => a.ts - x.ts);
+            .filter(m => m.ts < before).sort(msgCmp);
           if (!older.length){ v.msgsEl._hasMore = false; return; }
           const h = v.msgsEl.scrollHeight, top = v.msgsEl.scrollTop;
           b.list = older.concat(b.list); v.lastKey = '';
@@ -1967,7 +2159,7 @@
           const known = new Set(b.list.map(m => String(m.id)));
           const extra = arr.map((x, i) => normMsg(x, i, c)).filter(m => !known.has(String(m.id)));
           if (!extra.length) return;
-          b.list = b.list.concat(extra).sort((a, x) => a.ts - x.ts);
+          b.list = b.list.concat(extra).sort(msgCmp);
           v.lastKey = ''; v.renderMsgs(true);
         }).catch(() => { /* эндпоинта может не быть — остаётся локальная подсветка */ });
       };
@@ -2032,19 +2224,20 @@
     /* ==================== 12. ГЛАВНЫЙ ИНТЕРФЕЙС ==================== */
     const UI = {
       views: new Map(),   // key → {view, wrap, head}
+      currentView: 'chats',
+      _tagFetch: {},      // chatKey → ts последней проверки тегов с сервера (троттлинг)
 
       /* ---------- навигация ---------- */
       setView(name){
+        if (!['chats','scan','debug'].includes(name)) name = 'chats';
+        UI.currentView = name;
         $$('.view').forEach(v => v.classList.add('hidden'));
         const el = $('#view-' + name);
-        if (el){ el.classList.remove('hidden'); el.style.display = name === 'chats' ? 'flex' : 'flex'; }
+        if (el){ el.classList.remove('hidden'); el.style.display = 'flex'; }
         $$('#nav button[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === name));
         ui.lastView = name; saveUI();
-        if (name === 'connectors'){ Views.connectors(); Data.loadStatuses(); }
-        if (name === 'config'){ Views.config(); Data.loadCfg(); }
-        if (name === 'users'){ Views.users(); }
-        if (name === 'broadcast'){ Views.broadcast(); }
-        if (name === 'settings'){ Views.settings(); }
+        if (name === 'scan'){ Views.scan(); Data.loadStatuses(); }
+        if (name === 'debug'){ Debug.open(); }
       },
 
       /* ---------- сайдбар ---------- */
@@ -2053,6 +2246,7 @@
         const q = (ui.query || '').trim().toLowerCase();
         if (q) list = list.filter(c => (c.title || '').toLowerCase().includes(q) || String(c.peer ?? c.id).includes(q) || (c.username || '').toLowerCase().includes(q));
         if (ui.filter === 'unread') list = list.filter(c => Data.unreadOf(c) > 0);
+        else if (ui.filter === 'client') list = list.filter(c => S.clientKeys.has(c.key));
         else if (PLATFORMS.includes(ui.filter)) list = list.filter(c => c.platform === ui.filter);
         list.sort((a, b) => Number(b.pinned) - Number(a.pinned) || (b.lastTs || 0) - (a.lastTs || 0));
         return list;
@@ -2062,37 +2256,34 @@
         const list = UI.filtered();
         $('#cntAll').textContent = S.chats.length;
         $('#cntUnread').textContent = S.chats.filter(c => Data.unreadOf(c) > 0).length;
+        const cntClient = $('#cntClient');
+        if (cntClient) cntClient.textContent = S.chats.filter(c => S.clientKeys.has(c.key)).length;
         if (!list.length){
-          el.innerHTML = `<div class="sb-empty">${S.chats.length ? 'Ничего не найдено' :
-            'Чатов пока нет.<br><br><button class="btn primary sm" id="sbStartScan">Запустить сканирование</button><br><br><span class="tiny">или включите демо-режим в Настройках</span></div>'}`;
-          $('#sbStartScan') && ($('#sbStartScan').onclick = () => UI.setView('connectors'));
+          el.innerHTML = `<div class="sb-empty">${
+            ui.filter === 'client'
+              ? 'Нет чатов с тегом «клиент».<br><br><span class="tiny">Откройте чат и нажмите «клиент» в шапке рядом с именем — он появится здесь.</span>'
+              : S.chats.length ? 'Ничего не найдено' :
+            'Чатов пока нет.<br><br><button class="btn primary sm" id="sbStartScan">Запустить сканирование</button><br><br><span class="tiny">или включите демо-режим в Отладке → Настройки</span></div>'}`;
+          const b = $('#sbStartScan'); if (b) b.onclick = () => UI.setView('scan');
           return;
         }
         el.innerHTML = list.map(c => {
           const un = Data.unreadOf(c);
           return `<div class="chat-item ${c.key === ui.active ? 'active' : ''} ${un ? 'unread' : ''}" data-key="${esc(c.key)}" title="${esc(c.title)}">
-            <div class="ci-av">${avatarHtml(c.title, c.avatar)}<span class="pl pl-${c.platform}" title="${esc(PL_NAME[c.platform] || c.platform)}">${esc(c.platform.slice(0,2).toUpperCase())}</span></div>
+            <div class="ci-av">${avatarHtml(c.title, c.avatar)}</div>
             <div class="ci-body">
               <div class="ci-top"><span class="ci-title">${c.pinned ? '📌 ' : ''}${esc(c.title)}</span><span class="ci-time">${fmtListTime(c.lastTs)}</span></div>
               <div class="ci-bottom">
-                <span class="ci-last">${c.lastAuthor ? esc(c.lastAuthor) + ': ' : ''}${esc(truncate(c.lastText || (c.isGroup ? 'группа' : 'нет сообщений'), 54))}</span>
-                ${un ? `<span class="badge">${un > 99 ? '99+' : un}</span>` : (Win.isOpen(c.key) ? `<span class="badge muted-b" title="Открыто в отдельном окне">${I.pop}</span>` : '')}
+                <span class="pill sm ${c.platform}" title="${esc(PL_NAME[c.platform] || c.platform)}">${esc(PL_SHORT[c.platform] || c.platform.slice(0, 2).toUpperCase())}</span>
+                <span class="ci-last">${c.lastAuthor ? esc(c.lastAuthor) + ': ' : ''}${esc(truncate(c.lastText || (c.isGroup ? 'группа' : 'нет сообщений'), 50))}</span>
+                ${S.clientKeys.has(c.key) ? '<span class="cli-pill" title="Тег «клиент»">клиент</span>' : ''}
+                ${un ? `<span class="badge">${un > 99 ? '99+' : un}</span>` : ''}
               </div>
-            </div>
-            <div class="ci-actions">
-              <button class="icon-btn" data-pop="${esc(c.key)}" title="В отдельном окне">${I.pop}</button>
             </div>
           </div>`;
         }).join('');
         el.querySelectorAll('.chat-item').forEach(it => {
-          it.onclick = e => {
-            if (e.target.closest('[data-pop]')) return;
-            const c = S.byId.get(it.dataset.key); if (c) Data.openTab(c);
-          };
-        });
-        el.querySelectorAll('[data-pop]').forEach(b => b.onclick = e => {
-          e.stopPropagation();
-          const c = S.byId.get(b.dataset.pop); if (c) Win.open(c); UI.renderList();
+          it.onclick = () => { const c = S.byId.get(it.dataset.key); if (c) Data.openTab(c); };
         });
       },
 
@@ -2107,7 +2298,6 @@
             <span class="pl-dot pl-${c.platform}" style="border-radius:50%"></span>
             <span class="t-title">${esc(truncate(c.title, 26))}</span>
             ${un ? `<span class="badge" style="height:16px;min-width:16px;font-size:10px">${un}</span>` : ''}
-            ${Win.isOpen(k) ? `<span title="открыто в окне" style="display:grid;place-items:center;color:var(--txt3);width:13px;height:13px">${I.pop}</span>` : ''}
             <span class="t-close" data-close="${esc(k)}">${I.close}</span>
           </div>`;
         }).join('');
@@ -2119,6 +2309,8 @@
       /* ---------- монтирование чата ---------- */
       mountChat(key){
         const body = $('#chatBody'); if (!body) return;
+        // пустое состояние «Выберите чат» не должно делить место с открытым чатом
+        const es = body.querySelector('.empty-state'); if (es) es.remove();
         if (!UI.views.has(key)){
           const wrap = document.createElement('div');
           wrap.className = 'cv-wrap';
@@ -2145,7 +2337,7 @@
         const o = UI.views.get(key);
         if (o){ o.view.destroy(); o.wrap.remove(); UI.views.delete(key); }
         if (!ui.tabs.length){ $('#chatBody').innerHTML = `<div class="empty-state"><div class="big">${I.chat}</div>
-          <h3>Выберите чат</h3><p>Кликните по диалогу слева — он откроется во вкладке. Кнопка <b>${I.pop}</b> вынесет чат в отдельное окно, чтобы следить за несколькими диалогами одновременно.</p></div>`; }
+          <h3>Выберите чат</h3><p>Кликните по диалогу слева — он откроется во вкладке. В шапке чата есть кнопки тегов, а рассылка по тегам — за кнопкой <b>рупора</b> в шапке списка.</p></div>`; }
       },
       showChat(key){
         UI.views.forEach((o, k) => o.wrap.style.display = k === key ? 'flex' : 'none');
@@ -2155,12 +2347,16 @@
         o?.view.renderMsgs(); o?.view.scrollToBottom(true);
         setTimeout(() => o?.view.inputEl.focus(), 20);
       },
-      isActive(key){ return ui.active === key && document.visibilityState === 'visible' && !Win.isOpen(key); },
+      isActive(key){ return ui.active === key && document.visibilityState === 'visible'; },
 
       renderHead(key){
         const o = UI.views.get(key); if (!o) return;
         const c = S.byId.get(key); if (!c){ o.head.innerHTML = ''; return; }
         const un = Data.unreadOf(c);
+        const known = S.tagsByKey.get(key) || null;
+        const tagBtns = (settings.quickTags || []).map(t =>
+          `<button class="qtag head ${known && known.includes(t) ? 'on' : ''}" data-qtag="${esc(t)}" ${c.isGroup ? 'disabled' : ''}
+             title="${c.isGroup ? 'Теги ставятся пользователям — это группа/беседа' : 'Поставить/снять тег «' + esc(t) + '»'}">${esc(t)}</button>`).join('');
         o.head.innerHTML = `
           ${avatarHtml(c.title, c.avatar, 'sm')}
           <div class="grow" style="min-width:0">
@@ -2169,10 +2365,11 @@
               ${c.isGroup ? '<span>группа' + (c.memberCount ? ' · ' + shortNum(c.memberCount) : '') + '</span>' : '<span>личный чат</span>'}
               ${un ? `<span style="color:var(--acc)">${un} ${plural(un,'новое','новых','новых')}</span>` : ''}</div>
           </div>
-          <button class="btn sm ghost" data-detach title="Открыть в отдельном окне">${I.pop} Окно</button>
+          <div class="head-tags" data-qtags-for="${esc(key)}" title="${c.isGroup ? 'Теги — только для личных чатов' : 'Быстрые теги пользователя'}">${tagBtns}</div>
           <button class="btn sm ghost" data-mark title="Отметить прочитанным">${I.check} Прочитано</button>`;
-        o.head.querySelector('[data-detach]').onclick = () => { Win.open(c); UI.renderTabs(); UI.renderList(); };
+        o.head.querySelectorAll('[data-qtag]').forEach(b => b.onclick = () => Views.quickTag(c, b.dataset.qtag, b));
         o.head.querySelector('[data-mark]').onclick = () => { Data.markRead(c); UI.renderList(); UI.renderTabs(); UI.renderHead(key); };
+        if (!c.isGroup) UI.refreshQuickTags(key);
       },
 
       renderInfo(key){
@@ -2196,24 +2393,64 @@
           </div>
           <div class="ip-sec"><h5>Быстрые действия</h5>
             <div class="acts" style="margin:0">
-              <button class="btn sm" data-detach>${I.pop} В отдельном окне</button>
               <button class="btn sm" data-file>${I.clip} Отправить файл</button>
               <button class="btn sm" data-refresh>Обновить историю</button>
             </div>
           </div>
-          <div class="ip-sec"><h5>Теги участников</h5>
-            <div class="tiny" style="margin-bottom:8px">Раздел «Пользователи» — поиск и управление тегами по source + userId.</div>
-            <button class="btn sm ghost" data-users>Открыть пользователей</button>
+          <div class="ip-sec"><h5>Быстрые теги</h5>
+            ${c.isGroup
+              ? `<div class="tiny" style="line-height:1.6">Теги ставятся <b>пользователям</b>, а это группа или беседа.
+                 Откройте Отладку → «Пользователи», чтобы тегировать участников. Рассылка по тегам — кнопка-рупор в шапке списка чатов.</div>
+                 <button class="btn sm ghost" data-users style="margin-top:8px">Открыть пользователей</button>`
+              : `<div class="qtag-row" data-qtags data-qtags-for="${esc(key)}">${(settings.quickTags || []).map(t =>
+                   `<button class="qtag" data-qtag="${esc(t)}" title="Поставить/снять тег «${esc(t)}»">${esc(t)}</button>`).join('')}</div>
+                 <div class="tiny" style="margin-top:8px;line-height:1.6">Ставятся на пользователя
+                   <span class="mono">${esc(c.platform)}/${esc(String(c.peer))}</span> через
+                   <span class="mono">/api/v2/users/{source}/{userId}/tags</span>. Кнопка гаснет, если такого пользователя
+                   ещё нет в таблице <span class="mono">users</span> — сначала должно пройти сканирование.</div>
+                 <button class="btn sm ghost" data-users style="margin-top:8px">Все теги и поиск</button>`}
           </div>
           <div class="ip-sec"><h5>Сырые данные</h5>
             <div class="log" style="max-height:180px;color:var(--txt2);font-size:10.5px">${esc(JSON.stringify(c.raw ?? {}, null, 1))}</div>
           </div>`;
         o.info.querySelector('[data-close]').onclick = () => { settings.showInfo = false; saveSettings(); UI.renderInfo(key); };
         o.info.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => { navigator.clipboard?.writeText(b.dataset.copy); toast('Скопировано', b.dataset.copy, 'ok', 1600); });
-        o.info.querySelector('[data-detach]').onclick = () => Win.open(c);
         o.info.querySelector('[data-file]').onclick = () => o.view.pickFile();
         o.info.querySelector('[data-refresh]').onclick = () => o.view.refresh();
-        o.info.querySelector('[data-users]').onclick = () => UI.setView('users');
+        o.info.querySelector('[data-users]').onclick = () => { UI.setView('debug'); Debug.setSection('users'); };
+        o.info.querySelectorAll('[data-qtag]').forEach(b => {
+          b.onclick = () => Views.quickTag(c, b.dataset.qtag, b);
+        });
+        UI.refreshQuickTags(key);
+      },
+
+      /**
+       * Прочитать теги пользователя с сервера и подсветить кнопки (в шапке чата и в панели
+       * информации одновременно). Запрос троттлится: не чаще раза в 15 с на чат, если не force.
+       * При ошибке ничего не меняем — состояние кнопок только что мог выставить quickTag()
+       * по фактическому ответу сервера, иначе гонка стирала бы клик.
+       */
+      async refreshQuickTags(key, force){
+        const c = S.byId.get(key);
+        if (!c || c.isGroup) return;
+        const now = Date.now();
+        if (!force && UI._tagFetch[key] && now - UI._tagFetch[key] < 15000){ UI.syncTagButtons(key); return; }
+        UI._tagFetch[key] = now;
+        try {
+          const r = await Api.tags(c.platform, c.peer);
+          if (!okFlag(r)) return;                    // пользователя ещё нет в БД — оставим кнопки как есть
+          const tags = asArr(unwrap(r, ['tags'])).map(String);
+          S.tagsByKey.set(key, tags);
+          if (tags.includes(CLIENT_TAG)) S.clientKeys.add(key); else S.clientKeys.delete(key);
+          UI.syncTagButtons(key);
+          UI.renderList();
+        } catch(e){ /* 404/500 «User not found» — оставляем текущее состояние */ }
+      },
+      /** Синхронизировать все кнопки тегов чата (шапка + панель информации) с кэшем S.tagsByKey */
+      syncTagButtons(key){
+        const tags = S.tagsByKey.get(key) || [];
+        document.querySelectorAll('[data-qtags-for="' + key + '"] [data-qtag]').forEach(b =>
+          b.classList.toggle('on', tags.includes(b.dataset.qtag)));
       },
 
       /* ---------- глобальный поиск ---------- */
@@ -2275,21 +2512,211 @@
     };
 
     /* ==================== 13. АДМИН-РАЗДЕЛЫ ==================== */
+    /* Состояние выбора групп в «Скане»: живёт в JS, а не в DOM, поэтому
+       перерисовки карточек не сбрасывают галочки и не тормозят интерфейс. */
+    const Scan = {
+      sel: { tg: new Set(), vk: new Set(), max: new Set() },   // отмеченные ID
+      selInit: { tg: false, vk: false, max: false },           // инициализирован ли sel из вайтлиста
+      query: { tg: '', vk: '', max: '' },                      // фильтр списка
+      shown: { tg: 150, vk: 150, max: 150 },                   // сколько строк отрисовано
+      scroll: { tg: 0, vk: 0, max: 0 },
+      PAGE: 150,
+
+      initSel(pl){
+        if (Scan.selInit[pl]) return;
+        const cfg = (S.statuses[pl] && S.statuses[pl].config) || {};
+        const wl = cfg.whitelistGroupIds || cfg.whitelist || [];
+        if (Array.isArray(wl)){
+          Scan.sel[pl] = new Set(wl.map(Number).filter(n => !isNaN(n)));
+          Scan.selInit[pl] = true;
+        }
+      },
+      filtered(pl){
+        const groups = S.groups[pl] || [];
+        const q = (Scan.query[pl] || '').trim().toLowerCase();
+        if (!q) return groups;
+        return groups.filter(g => String(g.title || '').toLowerCase().includes(q) || String(g.id).includes(q));
+      },
+      cardHtml(pl){
+        Scan.initSel(pl);
+        const st = S.statuses[pl] || {}, s = st.status || {}, cfg = st.config || {};
+        const chats = S.chats.filter(c => c.platform === pl);
+        const chatGroups = chats.filter(c => c.isGroup).length;
+        const led = st.error ? 'err' : (s.isRunning ? (s.isListening ? 'on' : 'warn') : '');
+        return `<div class="card" data-scan="${pl}">
+          <div class="card-head">
+            <div class="logo-sq ${pl}">${pl.toUpperCase()}</div>
+            <div class="grow"><h3>${PL_NAME[pl]}</h3>
+              <p><span class="led ${led}" style="display:inline-block;vertical-align:0;margin-right:5px"></span>
+                ${st.error ? 'нет ответа' : s.isRunning ? (s.isListening ? 'работает, слушает' : 'работает') : 'остановлен'}
+                · в базе ${chats.length} ${plural(chats.length,'чат','чата','чатов')} (${chatGroups} групп)</p></div>
+          </div>
+          ${st.error ? `<div class="note warn" style="margin-bottom:10px"><b>Коннектор не отвечает:</b> ${esc(st.error)}</div>` : ''}
+          <div class="field">
+            <label>limitPerChat — сколько сообщений выкачать из каждого чата</label>
+            <div class="row"><input class="inp mono" data-limit type="number" min="1" max="5000" value="${cfg.limitPerChat ?? settings.scanLimit ?? 200}">
+              <button class="btn sm ghost" data-savelimit title="Сохранить limitPerChat в конфиг коннектора (POST /api/${pl}/updateConfig)">В конфиг</button>
+              <span class="tiny grow" id="scanState-${pl}">${s.isScanning ? 'идёт сканирование…' : ''}</span></div>
+          </div>
+          <div class="acts">
+            <button class="btn sm primary" data-scanstart ${st.error ? 'disabled' : ''}>🔍 Сканировать всё</button>
+            <button class="btn sm" data-scanonly>Сканировать выбранные</button>
+            <button class="btn sm ghost" data-reload>Обновить список групп</button>
+          </div>
+          <div class="ip-sec" style="padding:10px 0;border-top:1px solid var(--line)">
+            <h5>Что выкачивать</h5>
+            <div class="switch-row"><div class="lbl">Группы и беседы<small>scanGroups</small></div>
+              <button class="sw ${cfg.scanGroups !== false ? 'on' : ''}" data-sw="scanGroups"></button></div>
+            <div class="switch-row"><div class="lbl">Личные диалоги<small>scanPersonal</small></div>
+              <button class="sw ${cfg.scanPersonal !== false ? 'on' : ''}" data-sw="scanPersonal"></button></div>
+            <div class="switch-row"><div class="lbl">Скачивать медиа<small>downloadMedia</small></div>
+              <button class="sw ${cfg.downloadMedia ? 'on' : ''}" data-sw="downloadMedia"></button></div>
+            <div class="tiny" style="margin-top:6px">Применяется сразу · <span class="mono">POST /api/${pl}/updateConfig</span></div>
+          </div>
+          ${pl === 'max'
+            ? `<div class="note" style="margin-top:6px">У MAX нет вайтлиста — сканируются все чаты,
+               объём ограничивает <span class="mono">limitPerChat</span>.</div>`
+            : `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)">
+                <div class="row" style="margin-bottom:7px">
+                  <h5 style="margin:0;flex:1;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--txt3)">Группы и беседы · вайтлист</h5>
+                  <button class="btn sm ghost" data-wlall title="Отметить все группы из текущего фильтра">Все</button>
+                  <button class="btn sm ghost" data-wlnone title="Снять отметки с групп из текущего фильтра">Снять</button>
+                  <button class="btn sm primary" data-wlsave>Сохранить вайтлист</button>
+                </div>
+                <div class="grp-toolbar">
+                  <div class="search grp-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                    <input data-gq placeholder="Фильтр по названию или ID…" value="${esc(Scan.query[pl] || '')}" autocomplete="off">
+                  </div>
+                  <button class="btn sm ghost" data-wlclear title="Пустой вайтлист = разрешены все группы">Очистить вайтлист</button>
+                </div>
+                <div class="tiny" style="margin-bottom:6px">Источник списка: ${esc(Groups.sourceLabel(pl))}</div>
+                <div class="scroll-list" data-wllist style="max-height:320px"></div>
+                <div class="grp-meta">
+                  <span class="tiny grow" data-wlmeta></span>
+                  <button class="btn sm ghost hidden" data-more>Показать ещё</button>
+                </div>
+              </div>`}
+        </div>`;
+      },
+      renderRows(pl){
+        const card = document.querySelector('[data-scan="' + pl + '"]'); if (!card) return;
+        const box = card.querySelector('[data-wllist]'); if (!box) return;
+        const groups = S.groups[pl] || [];
+        const filt = Scan.filtered(pl);
+        const cap = Scan.shown[pl] || Scan.PAGE;
+        const rows = filt.slice(0, cap);
+        if (!groups.length)
+          box.innerHTML = '<div class="sb-empty">Список загружается… Если долго — нажмите «Обновить список групп».</div>';
+        else if (!rows.length)
+          box.innerHTML = '<div class="sb-empty">Ничего не найдено по фильтру</div>';
+        else
+          box.innerHTML = Groups.rowsHtml(rows, Array.from(Scan.sel[pl]));
+        const meta = card.querySelector('[data-wlmeta]');
+        if (meta) meta.textContent = groups.length
+          ? `выбрано ${Scan.sel[pl].size} · показано ${rows.length} из ${filt.length}${filt.length !== groups.length ? ` (фильтр из ${groups.length})` : ''}`
+          : `выбрано ${Scan.sel[pl].size}`;
+        const more = card.querySelector('[data-more]');
+        if (more) more.classList.toggle('hidden', filt.length <= cap);
+        box.scrollTop = Scan.scroll[pl] || 0;
+      },
+      bindCard(pl){
+        const card = document.querySelector('[data-scan="' + pl + '"]'); if (!card) return;
+        card.querySelector('[data-scanstart]').onclick = () => Views.scanStart(pl, card, []);
+        card.querySelector('[data-scanonly]').onclick = () => {
+          const ids = Array.from(Scan.sel[pl]);
+          if (!ids.length) return toast('Ничего не выбрано', 'Отметьте группы/беседы галочками или жмите «Сканировать всё»', 'warn');
+          Views.scanStart(pl, card, ids);
+        };
+        card.querySelector('[data-reload]').onclick = () => Groups.reload(pl, true);
+        const box = card.querySelector('[data-wllist]');
+        if (box){
+          // один обработчик на весь список: клик меняет только Set и класс одной строки — без перерисовок
+          box.onclick = e => {
+            const cp = e.target.closest('[data-copyid]');
+            if (cp){ navigator.clipboard?.writeText(cp.dataset.copyid); toast('ID скопирован', cp.dataset.copyid, 'ok', 1500); return; }
+            const li = e.target.closest('[data-gid]');
+            if (!li) return;
+            const id = Number(li.dataset.gid);
+            if (Scan.sel[pl].has(id)) Scan.sel[pl].delete(id); else Scan.sel[pl].add(id);
+            const chk = li.querySelector('[data-chk]');
+            if (chk) chk.classList.toggle('on', Scan.sel[pl].has(id));
+            const meta = card.querySelector('[data-wlmeta]');
+            if (meta) meta.textContent = meta.textContent.replace(/^выбрано \d+/, 'выбрано ' + Scan.sel[pl].size);
+          };
+          box.onscroll = throttle(() => { Scan.scroll[pl] = box.scrollTop; }, 200);
+        }
+        const gq = card.querySelector('[data-gq]');
+        if (gq) gq.oninput = debounce(e => {
+          Scan.query[pl] = e.target.value; Scan.shown[pl] = Scan.PAGE; Scan.scroll[pl] = 0; Scan.renderRows(pl);
+        }, 150);
+        const more = card.querySelector('[data-more]');
+        if (more) more.onclick = () => { Scan.shown[pl] = (Scan.shown[pl] || Scan.PAGE) + 300; Scan.renderRows(pl); };
+        const all = card.querySelector('[data-wlall]');
+        if (all) all.onclick = () => { Scan.filtered(pl).forEach(g => Scan.sel[pl].add(Number(g.id))); Scan.renderRows(pl); };
+        const none = card.querySelector('[data-wlnone]');
+        if (none) none.onclick = () => {
+          const drop = new Set(Scan.filtered(pl).map(g => Number(g.id)));
+          Scan.sel[pl] = new Set(Array.from(Scan.sel[pl]).filter(id => !drop.has(id)));
+          Scan.renderRows(pl);
+        };
+        const save = card.querySelector('[data-wlsave]');
+        if (save) save.onclick = () => Views.scanSaveWhitelist(pl, Array.from(Scan.sel[pl]));
+        const clear = card.querySelector('[data-wlclear]');
+        if (clear) clear.onclick = () => Views.scanSaveWhitelist(pl, []);
+        // переключатели конфига сканирования — применяются сразу, полным телом конфига
+        card.querySelectorAll('[data-sw]').forEach(b => b.onclick = async () => {
+          b.classList.toggle('on');
+          const patch = {}; patch[b.dataset.sw] = b.classList.contains('on');
+          b.disabled = true;
+          try {
+            if (!await Views.ensureCfg(pl)){ b.classList.toggle('on'); Views.cfgNotLoaded(pl); return; }
+            const r = await Api.conn(pl).updCfg(Views.cfgBody(pl, patch));
+            const ok = okFlag(r);
+            toast(ok ? 'Параметр сохранён' : 'Не удалось сохранить',
+                  Views.cfgErrHint(msgOf(r, `${PL_NAME[pl]} · ${b.dataset.sw} = ${patch[b.dataset.sw]}`)),
+                  ok ? 'ok' : 'err', ok ? 2500 : 9000);
+            Data.loadStatuses();
+          } catch(e){
+            b.classList.toggle('on');   // откатываем — сервер не принял
+            toast('Конфиг не обновлён', Views.cfgErrHint(e.message || String(e)), 'err', 9000);
+          } finally { b.disabled = false; }
+        });
+        const savelimit = card.querySelector('[data-savelimit]');
+        if (savelimit) savelimit.onclick = async () => {
+          const n = clamp(Number(card.querySelector('[data-limit]').value) || 200, 1, 5000);
+          savelimit.disabled = true;
+          try {
+            if (!await Views.ensureCfg(pl)){ Views.cfgNotLoaded(pl); return; }
+            const r = await Api.conn(pl).updCfg(Views.cfgBody(pl, { limitPerChat: n }));
+            toast(okFlag(r) ? 'Лимит сохранён' : 'Не удалось сохранить',
+                  Views.cfgErrHint(msgOf(r, 'limitPerChat = ' + n)), okFlag(r) ? 'ok' : 'err');
+            Data.loadStatuses();
+          } catch(e){ toast('Конфиг не обновлён', Views.cfgErrHint(e.message || String(e)), 'err'); }
+          finally { savelimit.disabled = false; }
+        };
+        Scan.renderRows(pl);
+      },
+    };
+
     const Views = {
-      /* ---------- КОННЕКТОРЫ ---------- */
+      /* ---------- КОННЕКТОРЫ (статус + ручное управление) ---------- */
       connectors(){
         const host = $('#connectorCards');
+        const sw = (name, label, val) => `<div class="switch-row"><div class="lbl">${label}</div>
+              <button class="sw ${val ? 'on' : ''}" data-sw="${name}"></button></div>`;
+
         host.innerHTML = PLATFORMS.map(pl => {
           const st = S.statuses[pl] || {};
           const s = st.status || {}, cfg = st.config || {};
           const err = st.error;
           const led = err ? 'err' : (s.isRunning ? (s.isListening ? 'on' : 'warn') : '');
-          const on = v => v ? 'on' : 'off';
+          const wl = cfg.whitelistGroupIds || cfg.whitelist || [];
           return `<div class="card" data-pl="${pl}">
             <div class="card-head">
               <div class="logo-sq ${pl}">${pl.toUpperCase()}</div>
-              <div class="grow"><h3>${PL_NAME[pl]}</h3><p>/api/${pl}</p></div>
-              <span class="led ${led}" title="${err ? esc(err) : ''}"></span>
+              <div class="grow"><h3>${PL_NAME[pl]}</h3><p class="mono">/api/${pl}</p></div>
+              <span class="led ${led}" title="${err ? esc(err) : (s.isListening ? 'работает и слушает' : s.isRunning ? 'работает, прослушка выключена' : 'остановлен')}"></span>
             </div>
             ${err ? `<div class="note warn" style="margin-bottom:10px"><b>Нет ответа:</b> ${esc(err)}</div>` : ''}
             <div class="stat-grid">
@@ -2302,39 +2729,38 @@
               <button class="btn sm ${s.isRunning ? '' : 'ok'}" data-a="start">▶ Старт</button>
               <button class="btn sm ${s.isRunning ? 'danger' : ''}" data-a="stop">■ Стоп</button>
               <button class="btn sm ${s.isListening ? 'danger' : 'ok'}" data-a="listen">${s.isListening ? '⏸ Стоп прослушки' : '● Прослушка'}</button>
-              <button class="btn sm primary" data-a="scan">🔍 Сканировать</button>
+              <button class="btn sm ghost" data-a="toscan">🔍 Сканирование</button>
             </div>
             <div class="ip-sec" style="padding:10px 0 0;border-top:1px solid var(--line)">
-              <h5>Конфигурация коннектора</h5>
-              ${sw('scanGroups', 'Сканировать группы', cfg.scanGroups)}
-              ${sw('scanPersonal', 'Сканировать личные', cfg.scanPersonal)}
-              ${sw('downloadMedia', 'Скачивать медиа', cfg.downloadMedia)}
-              ${pl === 'max'
-                ? `<div class="field" style="margin-top:8px"><label>Лимит сообщений на чат</label>
-                     <div class="row"><input class="inp mono" data-num="limitPerChat" type="number" min="1" max="5000" value="${cfg.limitPerChat ?? 200}">
-                     <button class="btn sm primary" data-a="savecfg">Сохранить</button></div></div>`
-                : `<div class="row" style="margin-top:9px;gap:6px">
-                     <button class="btn sm" data-a="wl">Вайтлист (${(cfg.whitelistGroupIds || []).length})</button>
-                     ${pl === 'tg' ? `<button class="btn sm ghost" data-a="groups">Список групп</button>` : ''}
-                     <button class="btn sm primary" data-a="savecfg">Сохранить конфиг</button></div>`}
+              <h5>Прослушка и вайтлист</h5>
+              ${pl === 'vk' ? sw('listenWhitelist', 'Вайтлист для прослушки', cfg.listenWhitelist !== false) : ''}
+              <div class="row" style="margin-top:9px;gap:6px;flex-wrap:wrap">
+                ${pl === 'max'
+                  ? `<span class="tiny grow">У MAX нет вайтлиста — limitPerChat задаётся во вкладке «Скан»</span>`
+                  : `<button class="btn sm" data-a="wl">Вайтлист (${Array.isArray(wl) ? wl.length : 0})</button>`}
+                ${pl === 'vk' ? `<button class="btn sm primary" data-a="savecfg">Сохранить</button>` : ''}
+              </div>
+              <div class="tiny" style="margin-top:7px">Параметры сканирования (группы и беседы, личные диалоги,
+                медиа, limitPerChat) настраиваются во вкладке <b>«Скан»</b> — в карточке каждого мессенджера.</div>
+              ${pl === 'vk' && !('listenWhitelist' in cfg) ? `<div class="tiny" style="margin-top:6px;color:var(--warn)">
+                  Поле <span class="mono">listenWhitelist</span> отсутствует в ответе <span class="mono">/api/vk/config</span> —
+                  добавьте <span class="mono">public boolean listenWhitelist = true;</span> в <span class="mono">ConnectorConfig</span>,
+                  и переключатель начнёт сохраняться. Сейчас действует значение по умолчанию: включён.</div>` : ''}
             </div>
           </div>`;
-          function sw(name, label, val){
-            return `<div class="switch-row"><div class="lbl">${label}</div>
-              <button class="sw ${val ? 'on' : ''}" data-sw="${name}"></button></div>`;
-          }
         }).join('');
 
         host.querySelectorAll('[data-pl]').forEach(card => {
           const pl = card.dataset.pl;
           card.querySelectorAll('[data-sw]').forEach(b => b.onclick = async () => {
             b.classList.toggle('on');
-            const body = {}; body[b.dataset.sw] = b.classList.contains('on');
-            await Views.connAction(pl, 'updCfg', body, card);
+            const patch = {}; patch[b.dataset.sw] = b.classList.contains('on');
+            if (!await Views.ensureCfg(pl)){ b.classList.toggle('on'); Views.cfgNotLoaded(pl); return; }
+            await Views.wrap(pl, 'updateConfig', () => Api.conn(pl).updCfg(Views.cfgBody(pl, patch)));
           });
           card.querySelectorAll('[data-a]').forEach(b => b.onclick = () => Views.connClick(pl, b.dataset.a, card));
         });
-        renderLog();
+        AutoStart.render();
       },
 
       async connClick(pl, act, card){
@@ -2346,25 +2772,16 @@
             const running = S.statuses[pl]?.status?.isListening;
             await Views.wrap(pl, running ? 'stopListening' : 'startListening', () => running ? A.unlisten() : A.listen());
           }
-          if (act === 'scan'){
-            const limit = await promptModal('Сканирование ' + PL_NAME[pl], {
-              label: 'limitPerChat — сколько сообщений выкачать из каждого чата',
-              value: '200',
-              hint: 'ScanOptions.chatIds = [] (пустой список → все разрешённые чаты). '
-                  + 'POST /api/' + pl + '/startScanWithOptions' });
-            if (limit == null) return;
-            await Views.wrap(pl, 'startScanWithOptions', () => A.scan({ chatIds: [], limitPerChat: Number(limit) || 200 }));
-            toast('Сканирование запущено', PL_NAME[pl] + ' — история подтянется в чаты', 'ok');
-          }
+          if (act === 'toscan'){ UI.setView('scan'); return; }
           if (act === 'savecfg'){
-            const body = {};
-            card.querySelectorAll('[data-sw]').forEach(b => body[b.dataset.sw] = b.classList.contains('on'));
+            const patch = {};
+            card.querySelectorAll('[data-sw]').forEach(b => patch[b.dataset.sw] = b.classList.contains('on'));
             const num = card.querySelector('[data-num]');
-            if (num) body[num.dataset.num] = Number(num.value) || 0;
-            await Views.wrap(pl, 'updateConfig', () => A.updCfg(body));
+            if (num) patch[num.dataset.num] = Number(num.value) || 0;
+            if (!await Views.ensureCfg(pl)){ Views.cfgNotLoaded(pl); return; }
+            await Views.wrap(pl, 'updateConfig', () => A.updCfg(Views.cfgBody(pl, patch)));
           }
           if (act === 'wl') return Views.whitelist(pl);
-          if (act === 'groups') return Views.groupsModal(pl);
         } catch(e){ toast('Ошибка ' + PL_NAME[pl], e.message || String(e), 'err'); }
         Data.loadStatuses();
       },
@@ -2372,43 +2789,88 @@
         const t0 = performance.now();
         const r = await fn();
         const ok = okFlag(r);
-        toast(PL_NAME[pl] + ' · ' + name, ok ? (msgOf(r, 'OK') || 'OK') + ` (${Math.round(performance.now() - t0)} мс)` : (msgOf(r, 'Ошибка') || 'success=false'), ok ? 'ok' : 'err');
+        toast(PL_NAME[pl] + ' · ' + name,
+              Views.cfgErrHint(msgOf(r, ok ? 'OK' : 'Ошибка') || 'OK') + ` (${Math.round(performance.now() - t0)} мс)`,
+              ok ? 'ok' : 'err', ok ? 3800 : 9000);
         return r;
       },
 
+      /** Понятная подсказка для типичной ошибки TG-конфига: ConfigRepository.get() = findById(1L).get() на пустой таблице */
+      cfgErrHint(msg){
+        return /no value present/i.test(String(msg))
+          ? String(msg) + ' — на бэкенде нет строки в таблице config: ConfigRepository.get() = findById(1L).get() бросил NoSuchElementException. '
+            + 'Замените backend/ConfigRepository.java (get() создаст строку сам) — после рестарта tg_ids заполнятся и конфиг начнёт сохраняться.'
+          : msg;
+      },
+
+      /** Полный конфиг коннектора + точечно изменённое поле (patch).
+          ВСЕГДА отправляет все известные поля ConnectorConfig, даже если GET /api/{pl}/config
+          чего-то не вернул: частичное тело (вроде одного {downloadMedia:true}) бэкенд
+          десериализует с дефолтами Java — whitelist=null (у TG на нём NPE), scanPersonal=false
+          и т.д., то есть молча сбрасывает/ломает остальные настройки.
+          Ключ whitelist дублируется как whitelistGroupIds — на случай, если контроллер
+          читает ответное имя поля. Неизвестные поля Jackson просто игнорирует. */
+      cfgBody(pl, patch){
+        const cfg = (S.statuses[pl] && S.statuses[pl].config) || {};
+        const wl = cfg.whitelistGroupIds || cfg.whitelist;
+        const wlArr = Array.isArray(wl) ? wl.map(Number).filter(n => !isNaN(n)) : [];
+        const body = {
+          scanGroups: cfg.scanGroups !== false,
+          scanPersonal: cfg.scanPersonal !== false,
+          downloadMedia: !!cfg.downloadMedia,
+          limitPerChat: Number(cfg.limitPerChat) || Number(settings.scanLimit) || 200,
+          whitelist: wlArr,
+          whitelistGroupIds: wlArr,
+          listenWhitelist: cfg.listenWhitelist !== false,
+        };
+        return Object.assign(body, patch || {});
+      },
+      /** Конфиг коннектора гарантированно загружен (или null) — без него cfgBody не из чего собрать полное тело */
+      async ensureCfg(pl){
+        const cur = S.statuses[pl] && S.statuses[pl].config;
+        if (cur && Object.keys(cur).length) return cur;
+        try { await Data.loadStatuses(); } catch(e){}
+        const got = S.statuses[pl] && S.statuses[pl].config;
+        return (got && Object.keys(got).length) ? got : null;
+      },
+      cfgNotLoaded(pl){
+        toast('Конфиг не загружен',
+              `GET /api/${pl}/config не ответил — изменения НЕ отправлены (частичным телом можно сбросить остальные настройки). `
+              + 'Проверьте, что коннектор запущен, и повторите.', 'err', 9000);
+      },
+
+      /* ---------- МОДАЛКА ВАЙТЛИСТА (старый вариант, зовётся из карточки коннектора) ---------- */
       async whitelist(pl){
         const A = Api.conn(pl);
-        let cur = S.statuses[pl]?.config?.whitelistGroupIds || [];
+        let cur = S.statuses[pl]?.config?.whitelistGroupIds || S.statuses[pl]?.config?.whitelist || [];
         try { const r = await A.wlGet(); const got = unwrap(r, ['whitelistGroupIds','whitelist','ids']); if (Array.isArray(got)) cur = got; } catch(e){}
-        let groups = [];
-        if (pl === 'tg'){ try { groups = (await Data.loadGroups(pl)) || []; } catch(e){} }
-        const m = modal({
+        const groups = await Groups.list(pl);
+        modal({
           title: 'Вайтлист — ' + PL_NAME[pl], wide: true,
-          body: `<div class="note"><b>POST /api/${pl}/whitelist</b> · тело <span class="mono">{ "groupIds": [ … ] }</span>. ID можно вписать вручную или выбрать из списка групп.</div>
-            <div class="field"><label>ID групп/каналов (через запятую или по одному в строке)</label>
+          body: `<div class="note"><b>POST /api/${pl}/whitelist</b> · тело <span class="mono">{ "groupIds": [ … ] }</span>.
+            Пустой список = разрешены все группы и беседы.</div>
+            <div class="field"><label>ID групп/бесед (через запятую или по одному в строке)</label>
               <textarea class="inp mono" id="wlText">${esc((cur || []).join(', '))}</textarea></div>
             <div class="grid c2" style="gap:12px">
-              <div><div class="tiny" style="margin-bottom:6px">Выбор из списка ${pl === 'tg' ? 'групп (GET /api/tg/groups)' : '(недоступно для этой платформы)'}</div>
-                <div class="scroll-list" id="wlGroups" style="max-height:260px">${groups.length ? groups.map(g => `
-                  <div class="li" data-gid="${esc(String(g.id ?? g.groupId ?? g.peer_id))}">
-                    <span class="chk" data-chk>${I.check}</span>
-                    <div class="grow"><div class="nm">${esc(g.title || g.name || '—')}</div><div class="id mono">${esc(String(g.id ?? g.groupId ?? ''))} ${g.membersCount ? '· ' + shortNum(g.membersCount) : ''}</div></div>
-                  </div>`).join('') : '<div class="sb-empty">Нет данных</div>'}</div></div>
+              <div><div class="tiny" style="margin-bottom:6px">Известные группы и беседы (${groups.length})</div>
+                <div class="scroll-list" id="wlGroups" style="max-height:280px">${Groups.rowsHtml(groups, cur)}</div></div>
               <div><div class="tiny" style="margin-bottom:6px">Текущий вайтлист</div>
-                <div class="scroll-list" id="wlCur" style="max-height:260px"></div></div>
+                <div class="scroll-list" id="wlCur" style="max-height:280px"></div></div>
             </div>`,
           actions: `<button class="btn ghost" data-x>Закрыть</button><button class="btn primary" data-save>Сохранить вайтлист</button>`,
           onMount(el, close){
             const ta = el.querySelector('#wlText');
-            const parse = () => ta.value.split(/[,\n\s]+/).map(s => s.trim()).filter(Boolean).map(Number).filter(n => !isNaN(n));
+            const parse = () => Groups.parseIds(ta.value);
             const renderCur = () => {
               const ids = parse();
-              el.querySelector('#wlCur').innerHTML = ids.length ? ids.map(i => `<div class="li mono">${i}</div>`).join('') : '<div class="sb-empty">Пусто</div>';
-              el.querySelectorAll('#wlGroups [data-gid]').forEach(li => li.querySelector('[data-chk]').classList.toggle('on', ids.includes(Number(li.dataset.gid))));
+              el.querySelector('#wlCur').innerHTML = ids.length
+                ? ids.map(i => `<div class="li mono">${i}</div>`).join('') : '<div class="sb-empty">Пусто = все группы</div>';
+              el.querySelectorAll('#wlGroups [data-gid]').forEach(li =>
+                li.querySelector('[data-chk]').classList.toggle('on', ids.includes(Number(li.dataset.gid))));
             };
             ta.addEventListener('input', debounce(renderCur, 250));
             el.querySelectorAll('#wlGroups [data-gid]').forEach(li => li.onclick = () => {
-              const id = Number(li.dataset.gid); const ids = new Set(parse());
+              const id = Number(li.dataset.gid), ids = new Set(parse());
               ids.has(id) ? ids.delete(id) : ids.add(id);
               ta.value = Array.from(ids).join(', '); renderCur();
             });
@@ -2416,157 +2878,138 @@
             el.querySelector('[data-x]').onclick = close;
             el.querySelector('[data-save]').onclick = async () => {
               const ids = parse();
-              try { const r = await A.wlSet(ids); toast(okFlag(r) ? 'Вайтлист сохранён' : 'Ошибка', msgOf(r, ids.length + ' групп'), okFlag(r) ? 'ok' : 'err'); close(); Data.loadStatuses(); }
-              catch(e){ toast('Не удалось сохранить', e.message, 'err'); }
+              try {
+                const r = await A.wlSet(ids);
+                toast(okFlag(r) ? 'Вайтлист сохранён' : 'Ошибка',
+                      msgOf(r, ids.length ? ids.length + ' групп' : 'пустой список = все группы'), okFlag(r) ? 'ok' : 'err');
+                Scan.sel[pl] = new Set(ids); Scan.selInit[pl] = true;   // «Скан» увидит сохранённое
+                close(); Data.loadStatuses(); Groups.reload(pl);
+              } catch(e){ toast('Не удалось сохранить', e.message, 'err'); }
             };
           }
         });
       },
 
-      async groupsModal(pl){
-        const groups = await Data.loadGroups(pl);
-        modal({ title: 'Группы и каналы — ' + PL_NAME[pl], wide: true,
-          body: `<div class="tiny" style="margin-bottom:8px">GET /api/${pl}/groups · найдено: ${groups.length}</div>
-            <div class="tbl-wrap" style="max-height:60vh"><table class="tbl"><thead><tr><th>ID</th><th>Название</th><th>Тип</th><th>Участников</th><th></th></tr></thead>
-            <tbody>${groups.map(g => `<tr>
-              <td class="mono">${esc(String(g.id ?? g.groupId ?? ''))}</td>
-              <td>${esc(g.title || g.name || '—')}</td>
-              <td>${esc(g.type || '—')}</td>
-              <td>${g.membersCount != null ? shortNum(g.membersCount) : '—'}</td>
-              <td><button class="btn sm ghost" data-c="${esc(String(g.id ?? g.groupId ?? ''))}">${I.copy}</button></td></tr>`).join('') || '<tr><td colspan="5" class="sb-empty">Пусто</td></tr>'}
-            </tbody></table></div>`,
-          onMount(el, close){ el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { navigator.clipboard?.writeText(b.dataset.c); toast('Скопировано', b.dataset.c, 'ok', 1500); }); } });
+      /* ---------- СКАНИРОВАНИЕ (все мессенджеры) ----------
+         Раньше список групп перерисовывался целиком на каждое событие, а при пустом
+         ответе API запрашивался заново — отсюда были фризы. Теперь:
+         - списки кэшируются (даже пустые) и не перезапрашиваются, пока запрос в полёте;
+         - состояние чекбоксов живёт в Set (Scan.sel), а не в DOM;
+         - один обработчик на весь список (делегирование): клик меняет Set и один класс;
+         - строки рендерятся порциями (150), есть фильтр по названию/ID и «Показать ещё». */
+      scan(){
+        $('#scanHint').innerHTML = `<b>Сканирование</b> выкачивает историю сообщений в базу — чаты после этого появляются
+          в списке слева. Отметьте нужные группы галочками и нажмите <b>«Сканировать выбранные»</b>, либо сохраните
+          отметки как <b>вайтлист</b> (пустой вайтлист = разрешены все группы). Личные диалоги регулирует переключатель
+          в Отладке → «Коннекторы». У MAX вайтлиста нет — только лимит сообщений на чат.`;
+        const host = $('#scanCards');
+        // запоминаем фильтр и скролл списков, чтобы перерисовка их не сбрасывала
+        host.querySelectorAll('[data-scan]').forEach(card => {
+          const pl = card.dataset.scan;
+          const box = card.querySelector('[data-wllist]');
+          if (box) Scan.scroll[pl] = box.scrollTop;
+          const inp = card.querySelector('[data-gq]');
+          if (inp != null) Scan.query[pl] = inp.value;
+        });
+        host.innerHTML = PLATFORMS.map(pl => Scan.cardHtml(pl)).join('');
+        PLATFORMS.forEach(pl => { Scan.bindCard(pl); Groups.list(pl); });
       },
 
-      /* ---------- РАССЫЛКИ (по тегам) ---------- */
-      broadcast(){
-        $('#bcShapeNote').innerHTML = `<b>Как это работает на бэкенде.</b>
-          <span class="mono">BroadcastService</span> берёт получателей запросом
-          <span class="mono">findUserIdsByTags(tags)</span>, затем для каждого коннектора вызывает
-          <span class="mono">connector.sendMessage(peerId, message, attachments, null)</span>.<br>
-          <span class="mono">totalRecipients</span> в ответе = <i>найдено пользователей × число коннекторов</i>.`;
-        const upd = () => {
-          const n = Views.bcTags().length;
-          $('#bcCount').textContent = 'тегов: ' + n;
-        };
-        $('#bcTags').oninput = upd;
-        $('#bcAll').onclick = () => {
-          const on = $('#bcAll').classList.toggle('on');
-          $('#bcConnector').disabled = on;
-        };
-        $('#bcLoadTags').onclick = () => Views.loadTagHints();
-        upd();
-        Views.renderBcHistory();
-        Views.loadTagHints(true);
-      },
-      bcTags(){
-        return ($('#bcTags').value || '').split(/[,;\n]+/).map(x => x.trim()).filter(Boolean);
-      },
-      /** точный BroadcastRequest */
-      bcPayload(){
-        const p = {
-          connectorType: $('#bcAll').classList.contains('on') ? null : $('#bcConnector').value,
-          tags: Views.bcTags(),
-          message: $('#bcMessage').value,
-          sendToAllConnectors: $('#bcAll').classList.contains('on'),
-        };
-        const att = ($('#bcAttachments').value || '').trim();
-        if (att) p.attachments = att;          // String, не массив; пустое не шлём
-        return p;
-      },
-      async loadTagHints(silent){
+      async scanStart(pl, card, ids){
+        const limit = Number(card.querySelector('[data-limit]').value) || settings.scanLimit || 200;
+        const st = card.querySelector(`#scanState-${pl}`);
+        if (st) st.textContent = 'запуск…';
         try {
-          const r = await Api.searchUsers('');           // пустой запрос → надеемся на список всех
-          let users = asArr(unwrap(r, ['users']));
-          if (!users.length){
-            // запасной вариант: собираем теги из уже открытых чатов/поиска по букве
-            const r2 = await Api.searchUsers('a'); users = asArr(unwrap(r2, ['users']));
+          const r = await Api.conn(pl).scan({ chatIds: ids || [], limitPerChat: limit });
+          const ok = okFlag(r);
+          if (st) st.textContent = ok ? 'сканирование запущено' : 'ошибка запуска';
+          toast(ok ? 'Сканирование запущено' : 'Не удалось запустить',
+                (msgOf(r, '') || `${PL_NAME[pl]}: ${ids && ids.length ? ids.length + ' выбранных' : 'все чаты'}, лимит ${limit}`),
+                ok ? 'ok' : 'err', 5000);
+          Data.loadStatuses();
+          setTimeout(() => Data.loadChats(true), 4000);
+          setTimeout(() => Data.loadChats(true), 15000);
+        } catch(e){
+          if (st) st.textContent = 'ошибка';
+          toast('Сканирование не запустилось', e.message || String(e), 'err', 6000);
+        }
+      },
+
+      async scanSaveWhitelist(pl, ids){
+        try {
+          const r = await Api.conn(pl).wlSet(ids);
+          toast(okFlag(r) ? 'Вайтлист сохранён' : 'Ошибка',
+                msgOf(r, ids.length ? ids.length + ' ID' : 'пусто = разрешены все'), okFlag(r) ? 'ok' : 'err');
+          Scan.sel[pl] = new Set((ids || []).map(Number));   // отметки = то, что теперь на сервере
+          Scan.selInit[pl] = true;
+          await Data.loadStatuses();
+          if (!$('#view-scan').classList.contains('hidden')) Views.scan();
+        } catch(e){ toast('Не удалось сохранить вайтлист', e.message, 'err'); }
+      },
+
+      /* ---------- ОТЛАДКА ---------- */
+      debug(){
+        Views.logFilter = Views.logFilter || 'all';
+        renderLog();
+        const a = $('#swAutoStart');
+        if (a) a.classList.toggle('on', !!settings.autoStart);
+        $('#dbgMock').classList.toggle('on', !!settings.mock);
+        $('#dbgStorage').textContent = LS.ok ? 'доступно' : 'НЕДОСТУПНО — настройки живут только до перезагрузки (sandbox/приватный режим)';
+        const state = {
+          baseUrl: settings.baseUrl,
+          mock: settings.mock,
+          'поллинг списка (poll)': settings.poll,
+          'поллинг сообщений (pollMsgs)': settings.pollMsgs,
+          'интервал, с': settings.pollMs,
+          'токен доступа': Auth.token ? ('сохранён' + (Auth.expiresAt ? ' до ' + new Date(Auth.expiresAt).toLocaleString('ru-RU') : '')) : 'нет',
+          sendMode: settings.sendMode,
+          chatsPath: settings.chatsPath,
+          msgPath: settings.msgPath,
+          myIds: settings.myIds,
+          quickTags: settings.quickTags,
+          'чатов загружено': S.chats.length,
+          'открыто вкладок': ui.tabs.length,
+          'историй в кэше': S.msgs.size,
+          'сообщений в кэше': Array.from(S.msgs.values()).reduce((n, b) => n + b.list.length, 0),
+          'запросов в журнале': S.apiLog.length,
+          localStorage: LS.ok ? 'ok' : 'недоступен',
+          BroadcastChannel: ('BroadcastChannel' in window) ? 'ok' : 'нет (будет fallback на localStorage)',
+          iframe: (window.self !== window.top) ? 'да — предпросмотр, нет сети и бэкенда' : 'нет',
+        };
+        $('#appState').textContent = Object.entries(state)
+          .map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`).join('\n');
+      },
+
+      async ping(kind, out){
+        const row = (name, ok, text) => {
+          const el = document.createElement('div');
+          el.className = 'li';
+          el.innerHTML = `<span class="led ${ok ? 'on' : 'err'}"></span>
+            <div class="grow"><div class="nm">${esc(name)}</div><div class="id mono" style="white-space:pre-wrap">${esc(text)}</div></div>`;
+          out.appendChild(el);
+          el.scrollIntoView({ block: 'nearest' });
+        };
+        const chat = S.byId.get(ui.active) || S.chats[0];
+        const tasks = [];
+        const run = async (name, fn) => {
+          const t0 = performance.now();
+          try {
+            const r = await fn();
+            row(name, true, `${Math.round(performance.now() - t0)} мс · ${truncate(typeof r === 'string' ? r : JSON.stringify(r), 260)}`);
+          } catch(e){
+            row(name, false, `${Math.round(performance.now() - t0)} мс · ${e.status ? 'HTTP ' + e.status + ' · ' : ''}${e.message || e}`);
           }
-          const tags = new Set();
-          users.forEach(u => (pick(u, ['tags'], []) || []).forEach(t => tags.add(t)));
-          const dl = $('#bcTagsList');
-          if (dl) dl.innerHTML = Array.from(tags).sort().map(t => `<option value="${esc(t)}">`).join('');
-          if (!silent) toast('Тегов найдено', tags.size + (tags.size ? ': ' + Array.from(tags).slice(0, 8).join(', ') : ''), tags.size ? 'ok' : 'warn', 5000);
-          return Array.from(tags);
-        } catch(e){
-          if (!silent) toast('Не удалось получить теги', e.message + ' — введите теги вручную', 'warn', 5000);
-          return [];
-        }
-      },
-      async bcSend(){
-        const p = Views.bcPayload();
-        // защита от NPE на бэкенде: findUserIdsByTags(null)
-        if (!p.tags.length) return toast('Не указаны теги', 'BroadcastService вызовет findUserIdsByTags(tags) — пустой список тегов даст NPE или 0 получателей. Заполните поле «Теги».', 'warn', 7000);
-        if (!String(p.message || '').trim()) return toast('Пустое сообщение', 'Укажите текст рассылки', 'warn');
-        const who = p.sendToAllConnectors ? 'ВСЕ коннекторы' : PL_NAME[p.connectorType] || p.connectorType;
-        if (!await confirmModal('Отправить рассылку?',
-            `Теги: ${p.tags.join(', ')}\nКанал: ${who}\n\nПолучатели будут выбраны из базы по тегам. Действие нельзя отменить.`,
-            'Отправить')) return;
-        const btn = $('#bcSend');
-        btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Отправка…';
-        $('#bcTotal').textContent = '…'; $('#bcOk').textContent = '…'; $('#bcFail').textContent = '…';
-        $('#bcProgress').innerHTML = ''; $('#bcErrors').innerHTML = '';
-        try {
-          const res = await Api.broadcast(p);
-          // UnifiedSendController возвращает BroadcastResponse НАПРЯМУЮ (без обёртки ApiResponse)
-          const d = (res && typeof res === 'object') ? (unwrap(res) ?? res) : {};
-          const total = Number(pick(d, ['totalRecipients','total'], 0)) || 0;
-          const okc = Number(pick(d, ['successCount','sent','success'], 0)) || 0;
-          const fail = Number(pick(d, ['failedCount','failed'], 0)) || 0;
-          const errs = pick(d, ['errors'], null) || {};
-          $('#bcTotal').textContent = total; $('#bcOk').textContent = okc; $('#bcFail').textContent = fail;
-          Views.bcProgress(total, okc, fail);
-          Views.bcErrors(errs);
-          $('#bcResult').textContent = JSON.stringify(res, null, 2);
-          toast('Рассылка завершена', `всего ${total} · успешно ${okc} · ошибок ${fail}`, fail ? 'warn' : 'ok', 6000);
-          S.bcHistory.unshift({ at: Date.now(), payload: p, ok: okFlag(res), total, okc, fail });
-          S.bcHistory = S.bcHistory.slice(0, 20); LS.set('mm.bc', S.bcHistory); Views.renderBcHistory();
-        } catch(e){
-          const detail = (e.data && (e.data.error || e.data.message)) || e.message || String(e);
-          $('#bcTotal').textContent = '—'; $('#bcOk').textContent = '—'; $('#bcFail').textContent = '—';
-          $('#bcResult').textContent = 'ОШИБКА: ' + detail + '\n\nОтправленный BroadcastRequest:\n' + JSON.stringify(p, null, 2);
-          toast('Рассылка не удалась', detail, 'err', 7000);
-        } finally {
-          btn.disabled = false;
-          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l18-7-7 18-2.5-7.5L3 11z"/></svg> Отправить рассылку';
-        }
-      },
-      bcProgress(total, okc, fail){
-        if (!total){ $('#bcProgress').innerHTML = '<div class="tiny">Получателей не найдено — проверьте теги.</div>'; return; }
-        const pct = n => Math.max(0, Math.round(n / total * 100));
-        $('#bcProgress').innerHTML = `<div class="progress">
-            ${okc ? `<div class="seg ok" style="width:${pct(okc)}%">${okc}</div>` : ''}
-            ${fail ? `<div class="seg err" style="width:${pct(fail)}%">${fail}</div>` : ''}
-            ${(total - okc - fail) > 0 ? `<div class="seg skip" style="width:${pct(total - okc - fail)}">${total - okc - fail}</div>` : ''}
-          </div>`;
-      },
-      bcErrors(errs){
-        const entries = Object.entries(errs || {});
-        if (!entries.length){ $('#bcErrors').innerHTML = ''; return; }
-        $('#bcErrors').innerHTML = `<div class="tiny" style="margin-bottom:6px">Ошибки по получателям (${entries.length}) — ключ формата <span class="mono">{connector}_user_{userId}</span>:</div>
-          <div class="tbl-wrap" style="max-height:200px"><table class="tbl"><thead><tr><th>Получатель</th><th>Ошибка</th></tr></thead><tbody>
-          ${entries.slice(0, 60).map(([k, v]) => `<tr><td class="mono">${esc(k)}</td><td>${esc(String(v))}</td></tr>`).join('')}
-          </tbody></table></div>`;
-      },
-      renderBcHistory(){
-        const el = $('#bcHistory'); if (!el) return;
-        el.innerHTML = S.bcHistory.length ? S.bcHistory.map((h, i) => `<div class="li">
-            <span class="led ${h.ok ? (h.fail ? 'warn' : 'on') : 'err'}"></span>
-            <div class="grow"><div class="nm">${esc(truncate(h.payload.message || '(без текста)', 40))}</div>
-            <div class="id">${new Date(h.at).toLocaleString('ru-RU')} · ${h.payload.sendToAllConnectors ? 'все коннекторы' : h.payload.connectorType} · теги: ${esc((h.payload.tags || []).join(', ') || '—')} · ${h.okc || 0}/${h.total || 0}</div></div>
-            <button class="btn sm ghost" data-rp="${i}">Повторить</button></div>`).join('')
-          : '<div class="sb-empty">История пуста</div>';
-        el.querySelectorAll('[data-rp]').forEach(b => b.onclick = () => {
-          const p = S.bcHistory[+b.dataset.rp]?.payload; if (!p) return;
-          $('#bcConnector').value = p.connectorType || 'tg';
-          $('#bcAll').classList.toggle('on', !!p.sendToAllConnectors);
-          $('#bcConnector').disabled = !!p.sendToAllConnectors;
-          $('#bcTags').value = (p.tags || []).join(', ');
-          $('#bcMessage').value = p.message || '';
-          $('#bcAttachments').value = p.attachments || '';
-          $('#bcTags').dispatchEvent(new Event('input'));
-          toast('Заполнено из истории', 'Проверьте и нажмите «Отправить рассылку»', 'ok', 2500);
-        });
+        };
+        if (kind === 'chats' || kind === 'all') tasks.push(run('GET ' + settings.chatsPath, () => Api.chats()));
+        if ((kind === 'messages' || kind === 'all') && chat)
+          tasks.push(run('GET ' + settings.msgPath.replace('{id}', chat.id), () => Api.messages(chat, { limit: 5 })));
+        if (kind === 'status' || kind === 'all')
+          PLATFORMS.forEach(pl => tasks.push(run(`GET /api/${pl}/status`, () => Api.conn(pl).status())));
+        if (kind === 'lpping' || kind === 'all')
+          tasks.push(run('GET /api/v2/messages/ping', () => Api.get('/api/v2/messages/ping')));
+        if (kind === 'cfg' || kind === 'all') tasks.push(run('GET /api/v2/config/ids', () => Api.cfgIds()));
+        if (kind === 'users' || kind === 'all') tasks.push(run('GET /api/v2/users/search?query=', () => Api.searchUsers('')));
+        for (const t of tasks) await t;
       },
 
       /* ---------- КОНФИГУРАЦИЯ ID ---------- */
@@ -2670,6 +3113,38 @@
         catch(e){ toast('Ошибка', e.message, 'err'); }
       },
 
+      /* ---------- БЫСТРЫЕ ТЕГИ В ЧАТЕ ----------
+         Кнопки живут в шапке чата (рядом с аватаром и названием) и в панели информации.
+         Состояние синхронизируется со списком тегов, который вернул сервер. */
+      async quickTag(chat, tag, btn){
+        if (!chat || chat.isGroup) return;
+        // состояние читаем ДО любых изменений класса, иначе «снятие» превратится в повторное добавление
+        const wasOn = !!(btn && btn.classList.contains('on'));
+        const sel = '[data-qtags-for="' + chat.key + '"] [data-qtag]';
+        document.querySelectorAll(sel).forEach(b => b.classList.add('busy'));
+        try {
+          const r = wasOn ? await Api.delTag(chat.platform, chat.peer, tag)
+                          : await Api.addTag(chat.platform, chat.peer, tag);
+          if (!okFlag(r)) throw new Error(msgOf(r, 'success=false'));
+          const tags = asArr(unwrap(r, ['tags'])).map(String);
+          S.tagsByKey.set(chat.key, tags);
+          if (tags.includes(CLIENT_TAG)) S.clientKeys.add(chat.key); else S.clientKeys.delete(chat.key);
+          UI.syncTagButtons(chat.key);
+          UI.renderList();   // пилюля «клиент» и фильтр могут измениться
+          toast(wasOn ? 'Тег снят' : 'Тег добавлен',
+                `${tag} · ${PL_NAME[chat.platform] || chat.platform} ${chat.peer} · всего тегов: ${tags.length}`,
+                'ok', 2400);
+        } catch(e){
+          const msg = String(e.message || e);
+          toast('Тег не сохранён', /not found/i.test(msg)
+            ? `Пользователь ${chat.platform}/${chat.peer} ещё не сохранён в таблице users — запустите сканирование, `
+              + `тогда появятся и теги. Ответ сервера: ${msg}`
+            : msg, 'err', 8000);
+        } finally {
+          document.querySelectorAll(sel).forEach(b => b.classList.remove('busy'));
+        }
+      },
+
       /* ---------- НАСТРОЙКИ ---------- */
       settings(){
         $('#setBaseUrl').value = settings.baseUrl;
@@ -2682,11 +3157,12 @@
         $('#setSendMode').value = settings.sendMode;
         $('#setPollMs').value = settings.pollMs;
         $('#setTheme').value = settings.theme;
-        $('#setPopW').value = settings.popW; $('#setPopH').value = settings.popH;
-        $('#setPopX').value = settings.popX; $('#setPopY').value = settings.popY;
         setSw('#swPoll', settings.poll); setSw('#swPollMsgs', settings.pollMsgs);
+        setSw('#setAutoStart', settings.autoStart);
+        $('#setQuickTags').value = (settings.quickTags || []).join(', ');
+        $('#setScanLimit').value = settings.scanLimit || 200;
         setSw('#swMock', settings.mock); setSw('#swNotify', settings.notify);
-        setSw('#swSound', settings.sound); setSw('#swCascade', settings.cascade);
+        setSw('#swSound', settings.sound);
         function setSw(sel, v){ const b = $(sel); if (b) b.classList.toggle('on', !!v); }
       },
       readSettings(){
@@ -2698,130 +3174,524 @@
         settings.sendMode = $('#setSendMode').value;
         settings.pollMs = clamp(Number($('#setPollMs').value) || 5, 2, 120);
         settings.theme = $('#setTheme').value;
-        settings.popW = Number($('#setPopW').value) || 480; settings.popH = Number($('#setPopH').value) || 720;
-        settings.popX = Number($('#setPopX').value) || 0; settings.popY = Number($('#setPopY').value) || 0;
+        settings.autoStart = $('#setAutoStart').classList.contains('on');
+        settings.quickTags = ($('#setQuickTags').value || '').split(',').map(x => x.trim()).filter(Boolean);
+        if (!settings.quickTags.length) settings.quickTags = DEFAULTS.quickTags.slice();
+        settings.scanLimit = Number($('#setScanLimit').value) || 200;
         settings.poll = $('#swPoll').classList.contains('on');
         settings.pollMsgs = $('#swPollMsgs').classList.contains('on');
         settings.mock = $('#swMock').classList.contains('on');
         settings.notify = $('#swNotify').classList.contains('on');
         settings.sound = $('#swSound').classList.contains('on');
-        settings.cascade = $('#swCascade').classList.contains('on');
         document.body.dataset.theme = settings.theme;
+      },
+    };
+
+    /* ==================== ОТЛАДКА: ПОДВКЛАДКИ ====================
+       Всё служебное живёт в одной вкладке «Отладка» и переключается подвкладками:
+       журнал · коннекторы · конфиг ID · пользователи · настройки. */
+    const Debug = {
+      section: LS.get('mm.dbgSec', 'log'),
+      open(){ Debug.setSection(Debug.section || 'log'); },
+      setSection(name){
+        if (!['log','connectors','config','users','settings'].includes(name)) name = 'log';
+        Debug.section = name; LS.set('mm.dbgSec', name);
+        $$('#view-debug .dbg-sec').forEach(x => x.classList.toggle('hidden', x.dataset.sec !== name));
+        $$('#dbgTabs .dbg-tab').forEach(b => b.classList.toggle('active', b.dataset.sec === name));
+        if (name === 'log') Views.debug();
+        if (name === 'connectors'){ Views.connectors(); Data.loadStatuses(); }
+        if (name === 'config'){ Views.config(); Data.loadCfg(); }
+        if (name === 'users') Views.users();
+        if (name === 'settings') Views.settings();
+      },
+      isVisible(sec){
+        const v = $('#view-debug');
+        return !!(v && !v.classList.contains('hidden') && Debug.section === sec);
+      },
+    };
+
+    /* ==================== РАССЫЛКА (попап из меню чатов) ====================
+       Открывается кнопкой-рупором в шапке списка чатов. Внутри: выбор мессенджеров,
+       все теги из базы (кликабельные), текст, вложения, результат и история.
+       Тело запроса — прежний BroadcastRequest, поэтому бэкенд менять не нужно. */
+    const Broadcast = {
+      tagsAll: [],       // все известные теги
+      loadedAt: 0,
+      m: null,           // текущая модалка
+
+      open(){
+        if (Broadcast.m){ try { Broadcast.m.close(); } catch(e){} }
+        Broadcast.m = modal({
+          title: 'Рассылка по тегам',
+          wide: true,
+          body: Broadcast.bodyHtml(),
+          actions: `<button class="btn ghost" data-bcx>Закрыть</button>
+                    <button class="btn ghost" data-bcjson>Показать JSON</button>
+                    <button class="btn primary" data-bcsend>${I.send} Отправить рассылку</button>`,
+          onMount(el, close){ Broadcast.bind(el, close); },
+        });
+        return Broadcast.m;
+      },
+
+      bodyHtml(){
+        const pl = p => `<button class="bc-pl on" data-bpl="${p}">${PL_NAME[p]}</button>`;
+        return `<div class="bc-grid">
+          <div>
+            <div class="field">
+              <label>Мессенджеры</label>
+              <div class="bc-pls">${PLATFORMS.map(pl).join('')}</div>
+              <div class="tiny">Отметьте один или несколько. Если выбраны все — уйдёт один запрос
+                с <span class="mono">sendToAllConnectors=true</span>, иначе по запросу на каждый коннектор.</div>
+            </div>
+            <div class="field">
+              <label>Теги получателей <span class="tiny">— получат все, у кого есть хотя бы один из тегов</span></label>
+              <div class="bc-tags" id="bcTagBox"><span class="tiny">загрузка тегов…</span></div>
+              <div class="row" style="margin-top:6px">
+                <input class="inp grow" id="bcTagCustom" placeholder="Свой тег + Enter" autocomplete="off">
+                <button class="btn sm ghost" id="bcTagsReload" title="Перечитать теги из базы">Обновить</button>
+              </div>
+              <div class="tiny" id="bcSelInfo" style="margin-top:5px">тегов не выбрано</div>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label>Текст рассылки (message)</label>
+              <textarea class="inp" id="bcMessage" rows="7" placeholder="Текст рассылки…"></textarea>
+            </div>
+            <div class="field">
+              <label>Вложения (attachments) — <b>строка</b>, не массив</label>
+              <input class="inp mono" id="bcAttachments" placeholder="photo123_456789,doc789_123 · или URL для TG">
+              <div class="tiny" style="margin-top:4px">Формат строки — как в VK API; для TG это URL. Пусто → поле не отправляется.</div>
+            </div>
+            <div class="stat-grid" id="bcStats">
+              <div class="stat"><div class="s-k">Всего</div><div class="s-v" id="bcTotal">—</div></div>
+              <div class="stat"><div class="s-k">Успешно</div><div class="s-v on" id="bcOk">—</div></div>
+              <div class="stat"><div class="s-k">Ошибок</div><div class="s-v off" id="bcFail">—</div></div>
+            </div>
+            <div id="bcProgress"></div>
+            <div id="bcErrors" style="margin-top:8px"></div>
+            <div id="bcResult" class="log" style="color:var(--txt2);margin-top:8px;max-height:150px">—</div>
+          </div>
+        </div>
+        <div style="margin-top:14px">
+          <div class="row" style="margin-bottom:8px">
+            <h4 style="margin:0;flex:1;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--txt3)">История (локально)</h4>
+            <button class="btn sm ghost" id="bcHistClear">Очистить</button>
+          </div>
+          <div class="scroll-list" id="bcHistory" style="max-height:200px"></div>
+        </div>`;
+      },
+
+      bind(el, close){
+        Broadcast.el = el;
+        Broadcast.selTags = new Set();
+        Broadcast.selPl = new Set(PLATFORMS);   // по умолчанию — все коннекторы (sendToAllConnectors)
+        el.querySelector('[data-bcx]').onclick = () => { Broadcast.m = null; close(); };
+
+        el.querySelectorAll('[data-bpl]').forEach(b => b.onclick = () => {
+          const p = b.dataset.bpl;
+          if (Broadcast.selPl.has(p)){ Broadcast.selPl.delete(p); b.classList.remove('on'); }
+          else { Broadcast.selPl.add(p); b.classList.add('on'); }
+          Broadcast.updInfo();
+        });
+
+        const custom = el.querySelector('#bcTagCustom');
+        custom.addEventListener('keydown', e => {
+          if (e.key !== 'Enter') return;
+          e.preventDefault();
+          const t = custom.value.trim().toLowerCase();
+          if (!t) return;
+          if (!Broadcast.tagsAll.includes(t)) Broadcast.tagsAll.push(t);
+          Broadcast.selTags.add(t); custom.value = '';
+          Broadcast.renderTags(); Broadcast.updInfo();
+        });
+        el.querySelector('#bcTagsReload').onclick = () => Broadcast.loadTags(false);
+        el.querySelector('#bcHistClear').onclick = () => { S.bcHistory = []; LS.set('mm.bc', S.bcHistory); Broadcast.renderHistory(); };
+        el.querySelector('[data-bcjson]').onclick = () => Broadcast.showJson();
+        el.querySelector('[data-bcsend]').onclick = () => Broadcast.send();
+
+        Broadcast.loadTags(true);
+        Broadcast.renderHistory();
+        Broadcast.updInfo();
+      },
+
+      renderTags(){
+        const box = Broadcast.el && Broadcast.el.querySelector('#bcTagBox');
+        if (!box) return;
+        const quick = settings.quickTags || [];
+        const rest = Broadcast.tagsAll.filter(t => !quick.includes(t)).sort((a, b) => a.localeCompare(b, 'ru'));
+        const all = quick.concat(rest);
+        if (!all.length){ box.innerHTML = '<span class="tiny">тегов в базе пока нет — добавьте свой ниже</span>'; return; }
+        box.innerHTML = all.map(t =>
+          `<button class="qtag ${Broadcast.selTags.has(t) ? 'on' : ''}" data-bctag="${esc(t)}">${esc(t)}</button>`).join('');
+        box.querySelectorAll('[data-bctag]').forEach(b => b.onclick = () => {
+          const t = b.dataset.bctag;
+          if (Broadcast.selTags.has(t)){ Broadcast.selTags.delete(t); b.classList.remove('on'); }
+          else { Broadcast.selTags.add(t); b.classList.add('on'); }
+          Broadcast.updInfo();
+        });
+      },
+
+      updInfo(){
+        const el = Broadcast.el; if (!el) return;
+        const info = el.querySelector('#bcSelInfo');
+        const n = Broadcast.selTags ? Broadcast.selTags.size : 0;
+        const k = Broadcast.selPl ? Broadcast.selPl.size : 0;
+        if (info) info.innerHTML = `выбрано тегов: <b>${n}</b>${n ? ' — <span class="mono">' + esc(Array.from(Broadcast.selTags).join(', ')) + '</span>' : ''}
+          · мессенджеров: <b>${k}</b>${k === PLATFORMS.length ? ' (sendToAllConnectors)' : ''}`;
+      },
+
+      /** Все теги из базы: сначала /users/tags/all, дальше фолбэки по поиску пользователей */
+      async loadTags(silent){
+        const collect = arr => { const set = new Set();
+          asArr(arr).forEach(u => (pick(u, ['tags'], []) || []).forEach(t => t && set.add(String(t))));
+          return Array.from(set); };
+        let tags = [];
+        try { tags = asArr(unwrap(await Api.allTags(), ['tags'])).map(String).filter(Boolean); } catch(e){}
+        for (const q of ['', 'a', 'е', 'о']){
+          if (tags.length) break;
+          try { tags = collect(unwrap(await Api.searchUsers(q), ['users'])); } catch(e){}
+        }
+        (settings.quickTags || []).forEach(t => { if (!tags.includes(t)) tags.push(t); });
+        Broadcast.tagsAll = tags;
+        Broadcast.loadedAt = Date.now();
+        Broadcast.renderTags();
+        if (!silent) toast(tags.length ? 'Теги из базы' : 'Теги не найдены',
+          tags.length ? tags.length + ': ' + tags.slice(0, 10).join(', ')
+                      : 'Введите тег вручную. Проверьте GET /api/v2/users/tags/all или /api/v2/users/search',
+          tags.length ? 'ok' : 'warn', 6000);
+        return tags;
+      },
+
+      /** точный BroadcastRequest; при полном наборе коннекторов — один запрос со sendToAllConnectors */
+      payload(){
+        const allPl = Broadcast.selPl.size === PLATFORMS.length;
+        const p = {
+          connectorType: allPl ? null : (Array.from(Broadcast.selPl)[0] || null),
+          tags: Array.from(Broadcast.selTags || []),
+          message: (Broadcast.el.querySelector('#bcMessage').value || ''),
+          sendToAllConnectors: allPl,
+        };
+        const att = (Broadcast.el.querySelector('#bcAttachments').value || '').trim();
+        if (att) p.attachments = att;
+        return p;
+      },
+      /** те же запросы, что уйдут в send(): один (sendToAllConnectors) или по одному на коннектор */
+      targets(){
+        const p = Broadcast.payload();
+        if (p.sendToAllConnectors) return [p];
+        return Array.from(Broadcast.selPl).map(pl => Object.assign({}, p, { connectorType: pl, sendToAllConnectors: false }));
+      },
+      showJson(){
+        const out = Broadcast.el.querySelector('#bcResult');
+        const t = Broadcast.targets();
+        out.textContent = t.map((x, i) =>
+          `POST /api/v2/broadcast${t.length > 1 ? '  (запрос ' + (i + 1) + ' из ' + t.length + ')' : ''}\n` + JSON.stringify(x, null, 2)
+        ).join('\n\n');
+        toast('BroadcastRequest сформирован', 'Запрос НЕ отправлен', 'info', 3500);
+      },
+
+      async send(){
+        const p = Broadcast.payload();
+        if (!Broadcast.selPl.size) return toast('Выберите мессенджер', 'Не отмечен ни один коннектор', 'warn');
+        if (!p.tags.length) return toast('Не указаны теги', 'Отметьте хотя бы один тег — получатели выбираются из базы по тегам (findUserIdsByTags).', 'warn', 7000);
+        if (!String(p.message || '').trim()) return toast('Пустое сообщение', 'Укажите текст рассылки', 'warn');
+        const who = p.sendToAllConnectors ? 'ВСЕ коннекторы' : Array.from(Broadcast.selPl).map(x => PL_NAME[x] || x).join(', ');
+        if (!await confirmModal('Отправить рассылку?',
+            `Теги: ${p.tags.join(', ')}\nКанал: ${who}\n\nПолучатели будут выбраны из базы по тегам. Действие нельзя отменить.`,
+            'Отправить')) return;
+
+        const btn = Broadcast.el.querySelector('[data-bcsend]');
+        btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Отправка…';
+        $('#bcTotal').textContent = '…'; $('#bcOk').textContent = '…'; $('#bcFail').textContent = '…';
+        $('#bcProgress').innerHTML = ''; $('#bcErrors').innerHTML = '';
+
+        // если выбраны не все коннекторы — по запросу на каждый, иначе бэкенд не примет список
+        const targets = Broadcast.targets();
+        let total = 0, okc = 0, fail = 0, errs = {}, failed = false;
+        try {
+          for (const req of targets){
+            try {
+              const res = await Api.broadcast(req);
+              const d = (res && typeof res === 'object') ? (unwrap(res) ?? res) : {};
+              total += Number(pick(d, ['totalRecipients','total'], 0)) || 0;
+              okc   += Number(pick(d, ['successCount','sent','success'], 0)) || 0;
+              fail  += Number(pick(d, ['failedCount','failed'], 0)) || 0;
+              Object.assign(errs, pick(d, ['errors'], null) || {});
+              $('#bcResult').textContent = JSON.stringify(res, null, 2);
+            } catch(e){
+              failed = true;
+              const detail = (e.data && (e.data.error || e.data.message)) || e.message || String(e);
+              errs[(req.connectorType || 'all') + '_request'] = detail;
+              $('#bcResult').textContent = 'ОШИБКА (' + (req.connectorType || 'all') + '): ' + detail
+                + '\n\nОтправленный BroadcastRequest:\n' + JSON.stringify(req, null, 2);
+            }
+            $('#bcTotal').textContent = total; $('#bcOk').textContent = okc; $('#bcFail').textContent = fail;
+            Broadcast.progress(total, okc, fail); Broadcast.errors(errs);
+          }
+          toast(failed ? 'Рассылка завершилась с ошибками' : 'Рассылка завершена',
+                `всего ${total} · успешно ${okc} · ошибок ${fail}`, failed ? 'err' : (fail ? 'warn' : 'ok'), 6000);
+        } finally {
+          btn.disabled = false; btn.innerHTML = I.send + ' Отправить рассылку';
+          S.bcHistory.unshift({ at: Date.now(), payload: Object.assign({}, p, { connectors: targets.map(t => t.sendToAllConnectors ? 'all' : t.connectorType) }), ok: !failed, total, okc, fail });
+          S.bcHistory = S.bcHistory.slice(0, 20); LS.set('mm.bc', S.bcHistory);
+          Broadcast.renderHistory();
+        }
+      },
+
+      progress(total, okc, fail){
+        const box = $('#bcProgress'); if (!box) return;
+        if (!total){ box.innerHTML = '<div class="tiny">Получателей не найдено — проверьте теги.</div>'; return; }
+        const pct = n => Math.max(0, Math.round(n / total * 100));
+        box.innerHTML = `<div class="progress">
+            ${okc ? `<div class="seg ok" style="width:${pct(okc)}%">${okc}</div>` : ''}
+            ${fail ? `<div class="seg err" style="width:${pct(fail)}%">${fail}</div>` : ''}
+            ${(total - okc - fail) > 0 ? `<div class="seg skip" style="width:${pct(total - okc - fail)}%">${total - okc - fail}</div>` : ''}
+          </div>`;
+      },
+      errors(errs){
+        const box = $('#bcErrors'); if (!box) return;
+        const entries = Object.entries(errs || {});
+        if (!entries.length){ box.innerHTML = ''; return; }
+        box.innerHTML = `<div class="tiny" style="margin-bottom:6px">Ошибки (${entries.length}) — ключ формата <span class="mono">{connector}_user_{userId}</span>:</div>
+          <div class="tbl-wrap" style="max-height:160px"><table class="tbl"><thead><tr><th>Получатель</th><th>Ошибка</th></tr></thead><tbody>
+          ${entries.slice(0, 60).map(([k, v]) => `<tr><td class="mono">${esc(k)}</td><td>${esc(String(v))}</td></tr>`).join('')}
+          </tbody></table></div>`;
+      },
+      renderHistory(){
+        const el = $('#bcHistory'); if (!el) return;
+        el.innerHTML = S.bcHistory.length ? S.bcHistory.map((h, i) => `<div class="li">
+            <span class="led ${h.ok ? (h.fail ? 'warn' : 'on') : 'err'}"></span>
+            <div class="grow"><div class="nm">${esc(truncate(h.payload.message || '(без текста)', 40))}</div>
+            <div class="id">${new Date(h.at).toLocaleString('ru-RU')} · ${h.payload.connectors ? (h.payload.connectors.includes('all') ? 'все коннекторы' : h.payload.connectors.join(', ')) : (h.payload.sendToAllConnectors ? 'все коннекторы' : (h.payload.connectorType || '—'))} · теги: ${esc((h.payload.tags || []).join(', ') || '—')} · ${h.okc || 0}/${h.total || 0}</div></div>
+            <button class="btn sm ghost" data-bcrp="${i}">Повторить</button></div>`).join('')
+          : '<div class="sb-empty">История пуста</div>';
+        el.querySelectorAll('[data-bcrp]').forEach(b => b.onclick = () => {
+          const p = S.bcHistory[+b.dataset.bcrp] && S.bcHistory[+b.dataset.bcrp].payload;
+          if (!p) return;
+          Broadcast.selTags = new Set(p.tags || []);
+          Broadcast.selPl = p.connectors
+            ? new Set(p.connectors.includes('all') ? PLATFORMS.slice() : p.connectors)
+            : new Set(p.sendToAllConnectors ? PLATFORMS.slice() : (p.connectorType ? [p.connectorType] : []));
+          Broadcast.el.querySelectorAll('[data-bpl]').forEach(x => x.classList.toggle('on', Broadcast.selPl.has(x.dataset.bpl)));
+          (p.tags || []).forEach(t => { if (!Broadcast.tagsAll.includes(t)) Broadcast.tagsAll.push(t); });
+          Broadcast.el.querySelector('#bcMessage').value = p.message || '';
+          Broadcast.el.querySelector('#bcAttachments').value = p.attachments || '';
+          Broadcast.renderTags(); Broadcast.updInfo();
+          toast('Заполнено из истории', 'Проверьте и нажмите «Отправить рассылку»', 'ok', 2500);
+        });
+      },
+    };
+
+    /* ==================== АВТОЗАПУСК КОННЕКТОРОВ ====================
+       При загрузке (и каждые 30 с, если что-то упало) дёргает:
+         POST /api/{pl}/start           → если isRunning == false
+         POST /api/{pl}/startListening  → если isRunning && !isListening
+       Порядок важен: startListening без запущенного клиента вернёт
+       «VK не запущен. Вызовите start() сначала.»
+    */
+    const AutoStart = {
+      busy: false, log: [], timer: null,
+
+      async run(manual){
+        if (AutoStart.busy) return;
+        if (!settings.autoStart && !manual){ AutoStart.render(); return; }
+        AutoStart.busy = true;
+        AutoStart.setStatus('warn', 'Автозапуск…', 'проверяю состояние коннекторов');
+        try {
+          await Data.loadStatuses();
+          const lines = [];
+          let started = 0, listening = 0, already = 0, failed = 0;
+          for (const pl of PLATFORMS){
+            const st = S.statuses[pl];
+            if (!st || st.error){
+              lines.push(`${pl}: недоступен (${st && st.error ? st.error : 'нет статуса'})`);
+              failed++; continue;
+            }
+            const s = st.status || {};
+            try {
+              if (!s.isRunning){
+                const r = await Api.conn(pl).start();
+                if (!okFlag(r)) throw new Error(msgOf(r, 'start вернул success=false'));
+                started++; lines.push(`${pl}: запущен клиент`);
+                await Data.loadStatuses();                     // перечитать isRunning
+                Object.assign(s, S.statuses[pl]?.status || {});
+              }
+              if (s.isRunning && !s.isListening && settings.autoStartListen !== false){
+                const r = await Api.conn(pl).listen();
+                if (!okFlag(r)) throw new Error(msgOf(r, 'startListening вернул success=false'));
+                listening++; lines.push(`${pl}: прослушка включена`);
+              } else if (s.isRunning && s.isListening){
+                already++; lines.push(`${pl}: уже работает и слушает`);
+              }
+            } catch(e){
+              failed++;
+              lines.push(`${pl}: ошибка — ${e.message || e}`);
+            }
+          }
+          AutoStart.log = lines;
+          const okAll = failed === 0;
+          AutoStart.setStatus(okAll ? 'on' : 'warn',
+            okAll ? (started || listening ? 'Коннекторы запущены автоматически' : 'Все коннекторы уже работали')
+                  : 'Есть проблемы',
+            `запущено ${started} · прослушка включена ${listening} · уже работали ${already} · ошибок ${failed}`
+            + (settings.autoStart ? ' · автопроверка каждые 30 с' : ' · автозапуск выключен'));
+          if (manual) toast(okAll ? 'Коннекторы в порядке' : 'Автозапуск завершён с ошибками',
+                            lines.join(' · '), okAll ? 'ok' : 'warn', 7000);
+        } catch(e){
+          AutoStart.log = [String(e.message || e)];
+          AutoStart.setStatus('err', 'Автозапуск не удался', String(e.message || e));
+          if (manual) toast('Автозапуск не удался', e.message || String(e), 'err');
+        } finally {
+          AutoStart.busy = false;
+          AutoStart.render();
+          emit('connectors');
+        }
+      },
+
+      setStatus(kind, title, text){
+        AutoStart.state = { kind, title, text };
+        AutoStart.render();
+      },
+      render(){
+        const led = $('#autoLed'), t = $('#autoTitle'), x = $('#autoText'), l = $('#autoLog');
+        const st = AutoStart.state || { kind: '', title: 'Автозапуск', text: '' };
+        if (led) led.className = 'led ' + st.kind;
+        if (t) t.textContent = st.title;
+        if (x) x.textContent = st.text;
+        if (l) l.innerHTML = (AutoStart.log || []).map(s => {
+          const bad = /ошибк|недоступен|fail/i.test(s);
+          return `<div style="color:${bad ? 'var(--err)' : 'var(--txt2)'}">· ${esc(s)}</div>`;
+        }).join('');
+        const sw = $('#swAutoStart');
+        if (sw) sw.classList.toggle('on', !!settings.autoStart);
+      },
+      start(){
+        if (AutoStart.timer) clearInterval(AutoStart.timer);
+        AutoStart.timer = setInterval(() => {
+          if (document.hidden || settings.mock || !settings.autoStart) return;
+          AutoStart.run(false);
+        }, 30000);
+      },
+    };
+
+    /* ==================== СПИСКИ ГРУПП ДЛЯ ВАЙТЛИСТА ====================
+       Основной источник — GET /api/v2/groups (ChatsController): единый эндпоинт,
+       который возвращает группы/беседы СО ВСЕХ коннекторов одним запросом и работает
+       ДО сканирования (TG берёт их из кэша чатов TDLib, VK — из messages.getConversations).
+       Фолбэки: старый GET /api/{pl}/groups (Telegram) → база (уже просканированные чаты).
+    */
+    const Groups = {
+      source: {},                                  // pl → 'api-v2' | 'api' | 'db' | 'none'
+      inflight: {},                                // pl → Promise (не дёргаем API повторно, пока запрос в полёте)
+      allCache: null,                              // ответ /api/v2/groups: { tg:[…], vk:[…], max:[…] }
+      allInflight: null,
+      allTriedAt: 0,                               // негативный кэш: не долбим отсутствующий эндпоинт
+      async list(pl, force){
+        // КЭШ ВСЕГДА, даже пустой список: раньше пустой ответ заставлял каждый
+        // перерендер вкладки заново дёргать API → события → перерендеры → фризы.
+        if (!force && Array.isArray(S.groups[pl])) return S.groups[pl];
+        if (Groups.inflight[pl]) return Groups.inflight[pl];
+        Groups.inflight[pl] = Groups._load(pl);
+        try { return await Groups.inflight[pl]; }
+        finally { delete Groups.inflight[pl]; }
+      },
+      /** Один запрос на все платформы, с дедупликацией параллельных вызовов и негативным кэшем на 30 с */
+      loadAll(){
+        if (Groups.allCache) return Promise.resolve(Groups.allCache);
+        if (Groups.allTriedAt && Date.now() - Groups.allTriedAt < 30000) return Promise.resolve(null);
+        if (!Groups.allInflight){
+          Groups.allInflight = Api.groupsAll()
+            .then(r => {
+              const g = okFlag(r) ? unwrap(r, ['groups']) : null;
+              Groups.allCache = (g && typeof g === 'object') ? g : null;
+              const errs = (r && r.errors) || null;
+              if (errs && Object.keys(errs).length)
+                toast('Не все коннекторы отдали группы', Object.entries(errs).map(([k, v]) => k + ': ' + v).join(' · '), 'warn', 6000);
+              return Groups.allCache;
+            })
+            .catch(() => null)
+            .finally(() => { Groups.allInflight = null; Groups.allTriedAt = Date.now(); });
+        }
+        return Groups.allInflight;
+      },
+      /** Приведение одной группы к общей форме: бэкенд может отдавать id или chatId/peerId */
+      normGroup(g){
+        return {
+          id: pick(g, ['id','chatId','groupId','peer_id','peerId'], null),
+          title: pick(g, ['title','name'], '—'),
+          type: pick(g, ['type'], ''),
+          members: pick(g, ['membersCount','members_count','members'], null),
+        };
+      },
+      async _load(pl){
+        let list = [];
+        // 1) единый эндпоинт /api/v2/groups — все платформы одним запросом, до сканирования
+        const all = await Groups.loadAll();
+        if (all && Array.isArray(all[pl])){
+          list = all[pl].map(Groups.normGroup).filter(g => g.id != null);
+          if (list.length) Groups.source[pl] = 'api-v2';
+        }
+        // 2) старый платформенный эндпоинт (есть у Telegram)
+        if (!list.length && pl === 'tg'){
+          try {
+            const r = await Api.conn(pl).groups();
+            list = asArr(unwrap(r, ['groups'])).map(Groups.normGroup).filter(g => g.id != null);
+            if (list.length) Groups.source[pl] = 'api';
+          } catch(e){ list = []; }
+        }
+        // 3) фолбэк: группы и беседы из уже загруженных чатов
+        if (!list.length){
+          list = S.chats.filter(c => c.platform === pl && c.isGroup && c.peer != null)
+            .map(c => ({ id: Number(c.peer), title: c.title, type: c.platform === 'vk' && Number(c.peer) >= 2e9 ? 'беседа' : 'группа', members: c.memberCount }));
+          Groups.source[pl] = list.length ? 'db' : 'none';
+        }
+        S.groups[pl] = list;
+        emit('groups');
+        return list;
+      },
+      async reload(pl, rerender){
+        Groups.allCache = null; Groups.allTriedAt = 0;   // «Обновить списки» — значит перечитать всё
+        S.groups[pl] = null;
+        await Groups.list(pl, true);
+        if (rerender && !$('#view-scan').classList.contains('hidden')) Views.scan();
+        return S.groups[pl] || [];
+      },
+      sourceLabel(pl){
+        const src = Groups.source[pl];
+        if (src === 'api-v2') return 'GET /api/v2/groups — живые данные коннектора (до сканирования)';
+        if (src === 'api') return `GET /api/${pl}/groups`;
+        if (src === 'db')  return 'база (уже просканированные чаты) — /api/v2/groups для этой платформы ничего не вернул';
+        return 'нет данных — запустите коннектор (Отладка → Коннекторы) и нажмите «Обновить список групп»';
+      },
+      rowsHtml(groups, whitelist){
+        if (!groups || !groups.length)
+          return '<div class="sb-empty">Список пуст. Запустите коннектор и нажмите «Обновить список групп» — или запустите сканирование, тогда группы появятся из базы.</div>';
+        const wl = new Set((whitelist || []).map(Number));
+        return groups.map(g => `<div class="li" data-gid="${esc(String(g.id))}" style="cursor:pointer">
+            <span class="chk ${wl.has(Number(g.id)) ? 'on' : ''}" data-chk>${I.check}</span>
+            <div class="grow"><div class="nm">${esc(g.title || '—')}</div>
+              <div class="id mono">${esc(String(g.id))}${g.type ? ' · ' + esc(g.type) : ''}${g.members ? ' · ' + shortNum(g.members) : ''}</div></div>
+            <button class="btn sm ghost" data-copyid="${esc(String(g.id))}" title="Скопировать ID">${I.copy}</button>
+          </div>`).join('');
+      },
+      parseIds(text){
+        return String(text || '').split(/[,\n\s]+/).map(x => x.trim()).filter(Boolean)
+          .map(Number).filter(n => !isNaN(n));
       },
     };
 
     /* --- журнал API --- */
     function renderLog(){
       const el = $('#apiLog'); if (!el) return;
-      el.innerHTML = S.apiLog.length ? S.apiLog.slice(0, 80).map(l => {
+      const onlyFail = (Views.logFilter || 'all') === 'fail';
+      const rows = S.apiLog.filter(l => !onlyFail || !l.ok).slice(0, 200);
+      const cnt = $('#logCount');
+      if (cnt) cnt.textContent = `${rows.length} из ${S.apiLog.length}` + (onlyFail ? ' (только ошибки)' : '');
+      el.innerHTML = rows.length ? rows.map(l => {
         const cls = l.ok ? 'l-dim' : 'l-err';
         return `<div class="${cls}">[${new Date(l.t).toLocaleTimeString('ru-RU')}] ${l.method} ${esc(l.url)} → ${l.ok ? 'OK' : 'FAIL'} ${l.ms}мс ${l.extra != null ? esc(String(l.extra)) : ''}</div>`;
-      }).join('') : '<span class="l-dim">запросов ещё не было</span>';
-    }
-
-    /* ==================== 14. РЕЖИМ ОТДЕЛЬНОГО ОКНА ==================== */
-    function initPopup(){
-      document.body.classList.add('popup');
-      const params = new URLSearchParams(location.search);
-      const rawId = params.get('chat');
-      const rawPl = normPlatform(params.get('pl'));
-      let key = rawPl + ':' + rawId;
-      let view = null, chat = null, replyMirror = null;
-
-      const findChat = () => S.byId.get(key)
-        || S.chats.find(c => String(c.id) === String(rawId) && (!rawPl || rawPl === 'unknown' || c.platform === rawPl))
-        || { key, id: rawId, platform: rawPl === 'unknown' ? 'tg' : rawPl, peer: rawId, title: 'Чат ' + rawId, raw: {}, _synthetic: true };
-
-      function paintHead(){
-        document.title = (chat?.title || 'Чат') + ' · Multi Messenger';
-        $('#popTitle').textContent = chat.title;
-        $('#popSub').innerHTML = `<span class="pill ${chat.platform}">${esc((PL_NAME[chat.platform] || chat.platform).toUpperCase())}</span>
-          <span class="mono">peer ${esc(String(chat.peer ?? chat.id))}</span>${chat._synthetic ? '<span style="color:var(--warn)">· нет в списке</span>' : ''}`;
-        $('#popAv').innerHTML = avatarHtml(chat.title, chat.avatar, 'sm');
-        if (view && view.ctxEl) view.ctxEl.textContent = `${PL_NAME[chat.platform] || chat.platform} · peer ${chat.peer ?? chat.id}`;
-      }
-
-      function build(){
-        chat = findChat();
-        key = chat.key || key;
-        paintHead();
-        const host = document.createElement('div');
-        host.style.cssText = 'flex:1;display:flex;flex-direction:column;min-height:0;min-width:0';
-        // окно использует собственный composer из разметки (поле ввода уже в DOM)
-        const composerEl = document.querySelector('#popupWrap > .composer');
-        $('#popupWrap').insertBefore(host, composerEl);
-        view = createChatView(host, key, {
-          inputEl: $('#popInput'),
-          msgsEl: $('#popMsgs'),
-          replyEl: $('#popReply'),
-          sendEl: $('#popSend'),
-          emojiEl: $('#popEmojiPop'),
-          attachEl: $('#popAttach'),
-        });
-        // свой рендер-контейнер уже существует — убираем пустой msgs-узел из host
-        const dupMsgs = host.querySelector('[data-msgs]'); if (dupMsgs) dupMsgs.remove();
-        view.renderMsgs = function(force){
-          const b = S.msgs.get(key) || { list: [], loading: false, error: null };
-          const el = $('#popMsgs');
-          if (b.loading && !b.list.length){ el.innerHTML = `<div class="msgs-loading"><span class="spin" style="display:inline-block;vertical-align:-3px"></span> Загрузка…</div>`; return; }
-          if (b.error && !b.list.length){
-            el.innerHTML = `<div class="empty-state"><div class="big">${I.chat}</div><h3>История недоступна</h3><p>${esc(b.error)}</p>
-              <p class="tiny">Нужен <span class="mono">GET ${esc((settings.msgPath || '').replace('{id}', chat.id))}</span></p></div>`; return; }
-          if (!b.list.length){ el.innerHTML = `<div class="empty-state"><div class="big">${I.chat}</div><h3>Нет сообщений</h3><p>Напишите первым — сообщение уйдёт через ${settings.sendMode === 'unified' ? 'POST /api/v2/send' : 'POST /api/' + chat.platform + '/send/message'}.</p></div>`; return; }
-          const sig = b.list.length + '|' + (b.list[b.list.length - 1]?.id ?? '') + '|' + (b.list[b.list.length - 1]?.status ?? '');
-          if (!force && sig === view.lastKey) return;
-          const first = view.lastKey === ''; view.lastKey = sig;
-          const stick = view.stick !== false || first;
-          el.innerHTML = renderMessagesHtml(b.list, chat, view.searchQ || '');
-          el.querySelectorAll('[data-act]').forEach(elm => elm.onclick = e => {
-            e.stopPropagation();
-            const bb = S.msgs.get(key); const m = bb?.list.find(x => String(x.id) === String(elm.dataset.mid));
-            if (!m) return;
-            const a = elm.dataset.act;
-            if (a === 'reply') view.setReply(m);
-            else if (a === 'copy'){ navigator.clipboard?.writeText(m.text || ''); toast('Скопировано', truncate(m.text, 50), 'ok', 1500); }
-            else if (a === 'del'){ bb.list = bb.list.filter(x => x !== m); view.renderMsgs(true); }
-            else if (a === 'resend'){ view.inputEl.value = m.text; view.inputEl.dispatchEvent(new Event('input')); view.inputEl.focus(); }
-          });
-          if (stick) requestAnimationFrame(() => { el.scrollTop = el.scrollHeight; });
-        };
-        view.scrollToBottom = () => { const el = $('#popMsgs'); el.scrollTop = el.scrollHeight; view.stick = true; };
-
-
-        $('#popSend').onclick = () => view.doSend();
-        $('#popSend').disabled = true;
-        $('#popRefresh').onclick = () => Data.loadMessages(chat, { force: true });
-        $('#popToMain').onclick = () => { Bus.post({ t: 'focus-main', key }); try { window.close(); } catch(e){} };
-        $('#popEmoji').onclick = e => { e.stopPropagation(); view.toggleEmoji(); };
-        $('#popFile').onclick = () => view.pickFile();
-        $('#popJump').onclick = () => view.scrollToBottom();
-
-        const el = $('#popMsgs');
-        el.addEventListener('scroll', throttle(() => {
-          view.stick = el.scrollHeight - el.scrollTop - el.clientHeight < 90;
-          $('#popJump') && $('#popJump').classList.toggle('hidden', view.stick);
-        }, 120));
-
-        Data.loadMessages(chat, { force: true });
-        Data.markRead(chat);
-        Bus.post({ t: 'popup-ready', key });
-      }
-
-      on('msgs', k => { if (k === key) view?.renderMsgs(); });
-      on('chats', () => { chat = findChat(); paintHead(); view?.renderMsgs(); });
-      Bus.on(m => {
-        if ((m.t === 'sent' || m.t === 'incoming' || m.t === 'read') && (!m.key || m.key === key)) view?.renderMsgs(true);
-        if (m.t === 'settings'){ Object.assign(settings, m.settings || {}); document.body.dataset.theme = settings.theme; }
-      });
-
-      (async () => {
-        // статусы тянем ПЕРЕД историей: из них берётся myUserId, иначе все сообщения будут «входящими»
-        try { await Data.loadStatuses(); } catch(e){}
-        try { await Data.loadChats(true); } catch(e){}
-        build();
-        setInterval(() => { if (!document.hidden && settings.pollMsgs) Data.loadMessages(chat); }, Math.max(2000, (settings.pollMs || 5) * 1000));
-        window.addEventListener('beforeunload', () => Bus.post({ t: 'popup-close', key }));
-      })();
+      }).join('') : '<span class="l-dim">' + (onlyFail ? 'ошибок нет' : 'запросов ещё не было') + '</span>';
     }
 
     /* ==================== 15. ГЛАВНОЕ ОКНО: ИНИЦИАЛИЗАЦИЯ ==================== */
@@ -2829,39 +3699,96 @@
       // навигация
       $$('#nav button[data-view]').forEach(b => b.onclick = () => UI.setView(b.dataset.view));
       $('#themeBtn').onclick = () => { settings.theme = settings.theme === 'dark' ? 'light' : 'dark'; document.body.dataset.theme = settings.theme; saveSettings(); };
-      $('#popoutBtn').onclick = () => { const c = S.byId.get(ui.active); c ? Win.open(c) : toast('Нет активного чата', 'Сначала откройте чат', 'warn'); };
-      $('#detachBtn').onclick = () => { const c = S.byId.get(ui.active); if (c){ Win.open(c); UI.renderTabs(); UI.renderList(); } };
+      $('#bcBtn').onclick = () => Broadcast.open();
+      $('#logoutBtn').onclick = async () => {
+        if (!await confirmModal('Выйти?', 'Токен доступа будет удалён из этого браузера — для возврата понадобится ключ.', 'Выйти', true)) return;
+        Auth.clear();
+        location.reload();
+      };
+      $$('#dbgTabs .dbg-tab').forEach(b => b.onclick = () => Debug.setSection(b.dataset.sec));
       $('#infoToggle').onclick = () => { settings.showInfo = !settings.showInfo; saveSettings(); UI.renderInfo(ui.active); };
       $('#refreshChatsBtn').onclick = async () => { $('#refreshChatsBtn').innerHTML = '<span class="spin"></span>'; try { await Data.loadChats(); toast('Обновлено', S.chats.length + ' чатов', 'ok', 1800); } catch(e){} $('#refreshChatsBtn').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/></svg>'; };
-      $('#newChatBtn').onclick = newChatModal;
 
       // фильтры
       $$('#chatFilters .chip').forEach(ch => ch.onclick = () => {
         $$('#chatFilters .chip').forEach(x => x.classList.remove('active'));
         ch.classList.add('active'); ui.filter = ch.dataset.f; saveUI(); UI.renderList();
+        // фильтр «Клиенты»: тянем свежие теги с сервера и перерисовываем по результату
+        if (ui.filter === 'client'){
+          $('#chatList').innerHTML = '<div class="sb-empty"><span class="spin" style="display:inline-block;vertical-align:-3px"></span> Загружаем теги…</div>';
+          Data.loadClients().catch(() => UI.renderList());
+        }
       });
       // поиск
       $('#chatSearch').addEventListener('input', debounce(e => UI.globalSearch(e.target.value), 320));
       $('#chatSearchToggle').onclick = () => { const b = $('#chatSearchBar'); b.classList.toggle('hidden'); if (!b.classList.contains('hidden')) $('#inChatSearch').focus(); else { $('#inChatSearch').value = ''; UI.views.get(ui.active)?.view.setSearch(''); } };
       $('#inChatSearch').addEventListener('input', debounce(e => UI.views.get(ui.active)?.view.setSearch(e.target.value), 200));
 
-      // коннекторы / конфиг / пользователи / рассылки
-      $('#refreshConnBtn').onclick = () => Data.loadStatuses();
+      // коннекторы
+      $('#refreshConnBtn').onclick = async () => { await Data.loadStatuses(); Views.connectors(); };
+      $('#autoStartNow').onclick = () => AutoStart.run(true);
+      $('#swAutoStart').onclick = async () => {
+        settings.autoStart = $('#swAutoStart').classList.toggle('on');
+        saveSettings(); AutoStart.render();
+        if (settings.autoStart) AutoStart.run(true);
+      };
+
+      // отладка
       $('#clearLogBtn').onclick = () => { S.apiLog = []; renderLog(); };
+      $('#logFilterAll').onclick = () => { Views.logFilter = 'all'; renderLog(); };
+      $('#logFilterFail').onclick = () => { Views.logFilter = 'fail'; renderLog(); };
+      $('#logCopy').onclick = () => {
+        const txt = S.apiLog.slice(0, 200).map(l =>
+          `[${new Date(l.t).toISOString()}] ${l.method} ${l.url} → ${l.ok ? 'OK' : 'FAIL'} ${l.ms}мс ${l.extra ?? ''}`).join('\n');
+        navigator.clipboard?.writeText(txt);
+        toast('Журнал скопирован', S.apiLog.length + ' записей', 'ok', 2000);
+      };
+      $$('#view-debug [data-ping]').forEach(b => b.onclick = async () => {
+        const out = $('#pingResult');
+        if (b.dataset.ping === 'all') out.innerHTML = '';
+        b.disabled = true;
+        await Views.ping(b.dataset.ping, out);
+        b.disabled = false;
+      });
+      $('#dbgMock').onclick = () => {
+        settings.mock = !settings.mock;
+        $('#dbgMock').classList.toggle('on', settings.mock);
+        saveSettings();
+        if (settings.mock) Mock.build(); else Mock.stopIncoming();
+        Data.loadChats(true).then(() => Data.loadClients()).catch(() => {}); Views.debug(); Auth.renderBtn();
+        toast(settings.mock ? 'Демо-режим включён' : 'Демо-режим выключен',
+              settings.mock ? 'Данные генерируются в браузере' : 'Запросы идут на ' + settings.baseUrl, 'ok');
+      };
+      $('#dbgResetCache').onclick = async () => {
+        if (!await confirmModal('Сбросить кэш сообщений?', 'История во всех открытых чатах будет перечитана с сервера.', 'Сбросить')) return;
+        S.msgs.clear(); UI.views.forEach((o, k) => { o.view.lastKey = ''; });
+        ui.tabs.forEach(k => { const c = S.byId.get(k); if (c) Data.loadMessages(c, { force: true }); });
+        toast('Кэш сброшен', '', 'ok', 2000);
+      };
+      $('#dbgResetAll').onclick = async () => {
+        if (!await confirmModal('Сбросить все локальные данные?',
+            'Удалятся настройки, список вкладок, счётчики непрочитанного, история рассылок и быстрые теги в этом браузере.', 'Сбросить всё', true)) return;
+        ['mm.settings','mm.ui','mm.unread','mm.bc'].forEach(k => LS.del(k));
+        location.reload();
+      };
+
+      // сканирование
+      $('#scanReload').onclick = async () => {
+        $('#scanReload').disabled = true;
+        Groups.allCache = null; Groups.allTriedAt = 0;
+        await Promise.all(PLATFORMS.map(pl => Groups.reload(pl)));
+        $('#scanReload').disabled = false;
+        Views.scan();
+        toast('Списки обновлены', PLATFORMS.map(pl => `${pl}: ${(S.groups[pl] || []).length}`).join(' · '), 'ok', 3500);
+      };
       $('#cfgReload').onclick = $('#cfgFullReload').onclick = () => Data.loadCfg();
       $('#userSearchBtn').onclick = () => Views.searchUsers();
       $('#userSearch').addEventListener('keydown', e => { if (e.key === 'Enter') Views.searchUsers(); });
       $('#tagAdd').onclick = () => Views.addTag();
       $('#tagInput').addEventListener('keydown', e => { if (e.key === 'Enter') Views.addTag(); });
-      $('#bcSend').onclick = () => Views.bcSend();
-      $('#bcDryRun').onclick = () => {
-        $('#bcResult').textContent = 'POST /api/v2/broadcast\n' + JSON.stringify(Views.bcPayload(), null, 2);
-        toast('BroadcastRequest сформирован', 'Запрос НЕ отправлен', 'info', 3500);
-      };
-
       // настройки
-      ['#swPoll','#swPollMsgs','#swMock','#swNotify','#swSound','#swCascade'].forEach(sel => $(sel).onclick = () => $(sel).classList.toggle('on'));
-      $('#saveSettings').onclick = () => { Views.readSettings(); saveSettings(); toast('Настройки сохранены', 'Base URL: ' + settings.baseUrl, 'ok'); Data.loadChats(true); UI.renderList(); };
+      ['#swPoll','#swPollMsgs','#swMock','#swNotify','#swSound'].forEach(sel => { const b = $(sel); if (b) b.onclick = () => b.classList.toggle('on'); });
+      $('#saveSettings').onclick = () => { Views.readSettings(); saveSettings(); startPolling(); toast('Настройки сохранены', 'Base URL: ' + settings.baseUrl, 'ok'); Data.loadChats(true); UI.renderList(); };
       $('#testApi').onclick = async () => {
         Views.readSettings();
         const t0 = performance.now();
@@ -2876,7 +3803,8 @@
 
       // горячие клавиши
       document.addEventListener('keydown', e => {
-        if (e.altKey && /^[1-6]$/.test(e.key)){ e.preventDefault(); UI.setView(['chats','connectors','broadcast','config','users','settings'][+e.key - 1]); }
+        if (e.altKey && /^[1-3]$/.test(e.key)){ e.preventDefault();
+          UI.setView(['chats','scan','debug'][+e.key - 1]); }
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); UI.setView('chats'); $('#chatSearch').focus(); }
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'w' && ui.active){ e.preventDefault(); Data.closeTab(ui.active); }
         if (e.key === 'Escape' && modalStack.length) modalStack.pop()();
@@ -2895,17 +3823,31 @@
         if (key === ui.active) UI.renderHead(key);
         UI.renderList(); UI.renderTabs();
       });
-      on('connectors', () => { if (!$('#view-connectors').classList.contains('hidden')) Views.connectors(); });
-      on('config', () => { if (!$('#view-config').classList.contains('hidden')) Views.config(); });
+      // перерисовка «Скана» — с задержкой: события groups/connectors приходят пачкой,
+      // и раньше каждое из них перерисовывало всю вкладку (это и были фризы)
+      const rerenderScan = debounce(() => {
+        if (!$('#view-scan').classList.contains('hidden')) Views.scan();
+      }, 220);
+      on('connectors', () => { if (Debug.isVisible('connectors')) Views.connectors(); rerenderScan(); });
+      on('groups', rerenderScan);
+      on('config', () => { if (Debug.isVisible('config')) Views.config(); });
       on('log', debounce(renderLog, 200));
       on('incoming', ({ chat, msg, own }) => {
         if (own) return;
         const c = normChat(chat, 0); c.key = chatKey(c);
         // обновить last/unread в списке
         const ex = S.byId.get(c.key);
-        if (ex){ ex.lastText = msg.text; ex.lastTs = msg.ts; ex.lastAuthor = msg.authorName; if (!UI.isActive(c.key) && !Win.isOpen(c.key)) ex.unread = (ex.unread || 0) + 1; }
+        if (ex){ ex.lastText = msg.text; ex.lastTs = msg.ts; ex.lastAuthor = msg.authorName; if (!UI.isActive(c.key)) ex.unread = (ex.unread || 0) + 1; }
         emit('chats');
-        if (!UI.isActive(c.key) && !Win.isOpen(c.key) && settings.notify){
+        // диалог открыт → вставляем сообщение на месте (демо-режим: мгновенно, без ожидания поллинга)
+        const bIn = S.msgs.get(c.key);
+        if (bIn && bIn.list && !bIn.list.some(x => String(x.id) === String(msg.id))){
+          bIn.list.push(msg);
+          bIn.list.sort(msgCmp);
+          if (c.key === ui.active) Data.markRead(ex || c);
+          emit('msgs', c.key);
+        }
+        if (!UI.isActive(c.key) && settings.notify){
           toast(msg.authorName || c.title, truncate(msg.text, 90), 'info', 4200);
           beep();
         }
@@ -2913,65 +3855,47 @@
 
       // шина между окнами
       Bus.on(m => {
-        if (m.t === 'tabs'){ if (!IS_POPUP){ ui.tabs = m.tabs || []; ui.active = m.active; saveUI(); ui.tabs.forEach(k => { const c = S.byId.get(k); if (c) UI.mountChat(k); }); UI.renderTabs(); } }
-        if (m.t === 'sent'){ const b = S.msgs.get(m.key); if (b){ if (!b.list.some(x => String(x.id) === String(m.msg.id))) b.list.push(m.msg); b.list.sort((a, x) => a.ts - x.ts); emit('msgs', m.key); } }
+        if (m.t === 'tabs'){ ui.tabs = m.tabs || []; ui.active = m.active; saveUI(); ui.tabs.forEach(k => { const c = S.byId.get(k); if (c) UI.mountChat(k); }); UI.renderTabs(); }
+        if (m.t === 'sent'){ const b = S.msgs.get(m.key); if (b){ if (!b.list.some(x => String(x.id) === String(m.msg.id))) b.list.push(m.msg); b.list.sort(msgCmp); emit('msgs', m.key); } }
         if (m.t === 'read'){ const u = S.unread[m.key] || {}; S.unread[m.key] = { lastSeen: Math.max(u.lastSeen || 0, m.ts || 0), count: 0 }; LS.set('mm.unread', S.unread); const c = S.byId.get(m.key); if (c) c.unread = 0; emit('unread'); emit('chats'); }
-        if (m.t === 'popup-open' || m.t === 'popup-close'){ UI.renderTabs(); UI.renderList(); }
         if (m.t === 'settings'){ Object.assign(settings, m.settings || {}); document.body.dataset.theme = settings.theme; }
-        if (m.t === 'focus-main'){
-          const c = S.byId.get(m.key);
-          if (c){ UI.setView('chats'); Data.openTab(c); }
-          window.focus();
-        }
         if (m.t === 'reload-chats'){ Data.loadChats(true); }
       });
-      window.addEventListener('beforeunload', () => Bus.post({ t: IS_POPUP ? 'popup-close' : 'main-closed', key: IS_POPUP ? (normPlatform(new URLSearchParams(location.search).get('pl')) + ':' + new URLSearchParams(location.search).get('chat')) : null }));
-      document.addEventListener('visibilitychange', () => { if (!document.hidden && !IS_POPUP){ Data.loadChats(true); } });
-    }
-
-    /* ---------- модалка «новое сообщение» ---------- */
-    function newChatModal(){
-      modal({ title: 'Новое сообщение',
-        body: `<div class="field"><label>Платформа</label>
-            <select class="inp" id="ncPl"><option value="tg">Telegram</option><option value="vk">VK</option><option value="max">MAX</option></select></div>
-          <div class="field"><label>peer — chatId получателя в соцсети</label><input class="inp mono" id="ncPeer" placeholder="например 123456789 или -1001234567890"></div>
-          <div class="field"><label>message</label><textarea class="inp" id="ncText" placeholder="Сообщение…"></textarea></div>
-          <div class="field"><label>attachments — <b>строка</b> (не обязательно)</label>
-            <input class="inp mono" id="ncAtt" placeholder="photo123_456789,doc789_123"></div>
-          <div class="note">Отправка: <span class="mono">POST /api/v2/send</span> с телом
-            <span class="mono">{ connector, peer, message, attachments, replyTo }</span>.<br>
-            Чат появится в списке только после того, как бэкенд сохранит его в таблицу <span class="mono">chats</span>
-            (это делают коннекторы при сканировании/прослушке) и вернёт в <span class="mono">GET ${esc(settings.chatsPath)}</span>.</div>`,
-        actions: `<button class="btn ghost" data-x>Отмена</button><button class="btn primary" data-go>Отправить</button>`,
-        onMount(el, close){
-          el.querySelector('#ncPeer').focus();
-          el.querySelector('[data-x]').onclick = close;
-          el.querySelector('[data-go]').onclick = async () => {
-            const pl = el.querySelector('#ncPl').value, peer = el.querySelector('#ncPeer').value.trim(),
-                  text = el.querySelector('#ncText').value.trim(), att = el.querySelector('#ncAtt').value.trim();
-            if (!peer) return toast('Укажите peer (chatId)', '', 'warn');
-            if (!text && !att) return toast('Пустое сообщение', 'Нужен текст или вложения', 'warn');
-            // временный локальный чат — на сервере он появится после сохранения в таблицу chats
-            const fake = normChat({ chat: { chatId: peer, source: pl, title: 'Чат ' + peer, group: false }, lastMessage: text, timestamp: Date.now() }, 0);
-            fake.key = chatKey(fake);
-            if (!S.byId.has(fake.key)){ S.chats.unshift(fake); S.byId.set(fake.key, fake); }
-            close();
-            Data.openTab(fake);
-            try { await Data.send(fake, text, { attachments: att || [] }); } catch(e){}
-            Data.loadChats(true);
-          };
-        } });
+      window.addEventListener('beforeunload', () => Bus.post({ t: 'main-closed' }));
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden){
+          Data.loadChats(true); Data.loadClients();
+          const c = S.byId.get(ui.active);
+          if (c) Data.loadMessages(c, { force: true });   // пока вкладка была в фоне, поллинг стоял
+        }
+      });
     }
 
     /* ==================== 16. ПОЛЛИНГ ==================== */
+    let pollTimers = [];
     function startPolling(){
-      setInterval(() => { if (document.hidden || IS_POPUP) return; if (settings.poll && settings.mock === false) Data.loadChats(true); }, (settings.pollMs || 5) * 1000);
-      setInterval(() => {
-        if (document.hidden || IS_POPUP || !settings.pollMsgs) return;
-        ui.tabs.slice(0, 4).forEach(k => { const c = S.byId.get(k); if (c && k === ui.active) Data.loadMessages(c); });
-      }, (settings.pollMs || 5) * 1000);
-      setInterval(() => { if (!$('#view-connectors').classList.contains('hidden') && !document.hidden) Data.loadStatuses(); }, 15000);
-      setInterval(() => { UI.renderList(); }, 30000); // обновление «N мин назад»
+      // пересоздаём таймеры, чтобы смена «Интервал поллинга» в настройках применялась без перезагрузки
+      pollTimers.forEach(t => clearInterval(t)); pollTimers = [];
+      const ms = Math.max(2000, (settings.pollMs || 5) * 1000);
+      pollTimers.push(setInterval(() => {
+        if (document.hidden) return;
+        if (settings.poll && settings.mock === false) Data.loadChats(true);
+      }, ms));
+      // СООБЩЕНИЯ: поллингуем АКТИВНЫЙ диалог.
+      // Раньше было ui.tabs.slice(0, 4) и поиск ui.active внутри — если активная вкладка
+      // оказывалась пятой и дальше (вкладки копятся и переживают перезагрузку), сообщения
+      // не обновлялись вообще: список чатов жил, а диалог — нет, только F5 помогал.
+      pollTimers.push(setInterval(() => {
+        if (document.hidden || !settings.pollMsgs) return;
+        const c = S.byId.get(ui.active);
+        if (c) Data.loadMessages(c);
+      }, ms));
+      // статусы коннекторов нужны «Отладке → Коннекторы» и «Скану» — обновляем, только когда они открыты
+      pollTimers.push(setInterval(() => {
+        if (document.hidden) return;
+        if (Debug.isVisible('connectors') || UI.currentView === 'scan') Data.loadStatuses();
+      }, 15000));
+      pollTimers.push(setInterval(() => { if (!$('#view-chats').classList.contains('hidden')) UI.renderList(); }, 30000)); // «N мин назад»
     }
 
     /* ==================== 17. ЗАПУСК ==================== */
@@ -2980,41 +3904,53 @@
       try { inFrame = window.self !== window.top; } catch(e){ inFrame = true; }
       if (!inFrame) return;
       const b = document.createElement('div');
-      b.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:400;background:#5b3a00;color:#ffe6b3;'
+      b.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:400;background:#3a2200;color:#ffd9a8;'
         + 'font-size:12.5px;padding:7px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 2px 12px rgba(0,0,0,.4)';
       b.innerHTML = `<span style="flex:1">⚠ Страница открыта внутри <b>предпросмотра</b> (sandbox-iframe): здесь нет доступа к сети и к бэкенду,
-          <span class="mono">window.open</span> заблокирован, а <span class="mono">localStorage</span> может быть недоступен${LS.ok ? '' : ' <b>(сейчас недоступен — настройки живут только до перезагрузки)</b>'}.
+          а <span class="mono">localStorage</span> может быть недоступен${LS.ok ? '' : ' <b>(сейчас недоступен — настройки живут только до перезагрузки)</b>'}.
           Скачайте <span class="mono">messenger.html</span> и откройте его в обычной вкладке браузера — либо положите в
           <span class="mono">src/main/resources/static/</span>. Для знакомства с интерфейсом включите <b>демо-режим</b>.</span>
         <button class="btn sm" data-mock>Включить демо-режим</button>
-        <button class="btn sm ghost" data-hide style="color:#ffe6b3">Скрыть</button>`;
+        <button class="btn sm ghost" data-hide style="color:#ffd9a8">Скрыть</button>`;
       document.body.appendChild(b);
       document.body.style.paddingTop = '0';
       b.querySelector('[data-hide]').onclick = () => b.remove();
-      b.querySelector('[data-mock]').onclick = () => { settings.mock = true; saveSettings(); Mock.build(); Data.loadChats(); b.remove(); };
+      b.querySelector('[data-mock]').onclick = () => { settings.mock = true; saveSettings(); Mock.build(); Data.loadChats().then(() => Data.loadClients()).catch(() => {}); b.remove(); };
       // чтобы баннер не перекрывал шапку
       const app = $('#app'); if (app) app.style.paddingTop = '0';
     }
 
     (async function boot(){
       document.body.dataset.theme = settings.theme || 'dark';
-      if (IS_POPUP) { initPopup(); return; }
-
       sandboxBanner();
       bindGlobal();
+      bindAuthGate();
+      Auth.renderBtn();
+      if (settings.mock) Mock.build();          // демо-данные сразу, без лишних кликов
+      if (!await Auth.ensure()) return;         // нет доступа — показан экран входа; после «Войти» страница перезапустится
+      // восстановить сохранённый фильтр списка чатов (например «Клиенты»)
+      if (ui.filter){
+        $$('#chatFilters .chip').forEach(x => x.classList.toggle('active', x.dataset.f === ui.filter));
+        if (ui.filter === 'client') Data.loadClients().catch(() => {});
+      }
       UI.setView(ui.lastView || 'chats');
       $('#chatBody').innerHTML = `<div class="empty-state"><div class="big">${I.chat}</div>
         <h3>Выберите чат</h3>
-        <p>Кликните по диалогу слева — он откроется во вкладке. Иконка <b>«в отдельном окне»</b> вынесет чат в собственное окно операционной системы: можно открыть несколько диалогов рядом и следить за ними одновременно.</p>
+        <p>Кликните по диалогу слева — он откроется во вкладке. В шапке чата рядом с именем есть кнопки тегов
+        <b>ликтрос · т-паз · клиент · личное</b>, а рассылка по тегам — за кнопкой-рупором в шапке списка чатов.</p>
         <div class="row" style="gap:8px;margin-top:6px"><button class="btn primary sm" id="esRefresh">Обновить список</button>
         <button class="btn sm ghost" id="esMock">Включить демо-режим</button></div>
         <p class="tiny" style="margin-top:14px">API: <span class="mono">${esc(settings.baseUrl)}</span> · <span class="mono">${esc(settings.chatsPath)}</span></p></div>`;
       $('#esRefresh').onclick = () => Data.loadChats();
-      $('#esMock').onclick = () => { settings.mock = true; saveSettings(); Mock.build(); Data.loadChats(); toast('Демо-режим включён', 'Данные генерируются локально, входящие имитируются', 'ok'); };
+      $('#esMock').onclick = () => { settings.mock = true; saveSettings(); Mock.build(); Data.loadChats().then(() => Data.loadClients()).catch(() => {}); toast('Демо-режим включён', 'Данные генерируются локально, входящие имитируются', 'ok'); };
 
       // статусы коннекторов — ПЕРЕД чатами: из них берётся myUserId для определения исходящих
       Data.loadStatuses().catch(() => {});
       try { await Data.loadChats(true); } catch(e){ /* уже показали статус */ }
+      Data.loadClients().catch(() => {});   // фильтр «Клиенты»: кто помечен тегом «клиент»
+      // автозапуск клиентов и прослушки + периодическая проверка
+      AutoStart.render(); AutoStart.start();
+      AutoStart.run(false);
 
       // восстановить вкладки
       (ui.tabs || []).forEach(k => { if (S.byId.has(k)) UI.mountChat(k); });
@@ -3022,7 +3958,7 @@
       UI.renderList(); UI.renderTabs();
       startPolling();
       if (!S.chats.length && !settings.mock){
-        setTimeout(() => toast('Список чатов пуст', 'Проверьте base URL в Настройках или запустите сканирование в «Коннекторах». Для знакомства с интерфейсом включите демо-режим.', 'warn', 8000), 600);
+        setTimeout(() => toast('Список чатов пуст', 'Проверьте base URL в Отладке → Настройки или запустите сканирование во вкладке «Скан». Для знакомства с интерфейсом включите демо-режим.', 'warn', 8000), 600);
       }
     })();
 

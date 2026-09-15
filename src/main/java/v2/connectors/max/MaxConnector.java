@@ -10,7 +10,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import v2.connectors.base.*;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * MAX Connector для v2 - реализует BaseConnector.
@@ -40,6 +43,11 @@ public class MaxConnector implements BaseConnector {
     @Override
     public String platform() {
         return "max";
+    }
+
+    @Override
+    public List<Map<String, Object>> getAllGroups() {
+        return List.of((Map<String, Object>) Objects.requireNonNull(new HashMap<>().put("12345", "group")));
     }
 
     @Override

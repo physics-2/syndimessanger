@@ -44,6 +44,15 @@ public class Message {
         this.timestamp = System.currentTimeMillis(); // КРИТИЧНО: задаем время создания
     }
 
+    public Message(String source, Long messageId, Long chatId, Long authorId, String text, String mediaUrl, Long timestamp) {
+        this.source = source;
+        this.messageId = messageId;
+        this.chatId = chatId;
+        this.authorId = authorId;
+        this.text = text;
+        this.timestamp = timestamp;
+        this.mediaUrl = mediaUrl;
+    }
 
     // Getters and Setters
     public Long getId() { return id; }

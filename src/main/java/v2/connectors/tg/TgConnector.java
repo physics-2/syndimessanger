@@ -106,6 +106,8 @@ public class TgConnector implements BaseConnector {
             mapper.setUserResolver(this::getOrFetchUser);
             scanner.setUserResolver(this::getOrFetchUser);
 
+            configRepository.saveOrUpdate(new v2.entity.Config(new ArrayList<>(),List.of(String.valueOf(client.getMeAsync().get().id)),new ArrayList<>()));
+
             return "Клиент запущен";
         } catch (Exception e) {
             return "Ошибка: " + e.getMessage();
