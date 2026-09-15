@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Массовая рассылка по тегам</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            text-align: center;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #fafafa;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-item input {
+            width: auto;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.875rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .results {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: none;
+        }
+
+        .result-card {
+            background: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--border);
+        }
+
+        .result-card.success { border-left-color: var(--success); }
+        .result-card.error { border-left-color: var(--error); }
+        .result-card.processing { border-left-color: var(--warning); }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+        .bg-success { background-color: var(--success); }
+        .bg-error { background-color: var(--error); }
+        .bg-warning { background-color: var(--warning); }
+        .bg-primary { background-color: var(--primary); }
+
+        .helper-text {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚀 Массовая рассылка</h1>
+
+    <form id="broadcastForm">
+        <!-- Выбор платформы -->
+        <div class="form-group">
+            <label for="connectorType">Платформа отправки</label>
+            <select id="connectorType" name="connectorType" required>
+                <option value="vk">ВКонтакте</option>
+                <option value="telegram">Telegram</option>
+                <option value="max">MAX</option>
+            </select>
+            <div class="helper-text">Выберите платформу для отправки сообщений.</div>
+        </div>
+
+        <!-- Опция отправки на все платформы -->
+        <div class="form-group">
+            <label class="checkbox-item">
+                <input type="checkbox" id="sendToAllConnectors">
+                <strong>Отправить через все доступные коннекторы</strong>
+            </label>
+            <div class="helper-text">Если отмечено, сообщение будет отправлено через все платформы (VK, Telegram, MAX).</div>
+        </div>
+
+        <!-- Теги -->
+        <div class="form-group">
+            <label for="tags">Теги получателей</label>
+            <input type="text" id="tags" name="tags" placeholder="vip, active, new" required>
+            <div class="helper-text">Перечислите теги через запятую. Сообщение получат пользователи с любым из указанных тегов.</div>
+        </div>
+
+        <!-- Сообщение -->
+        <div class="form-group">
+            <label for="message">Текст сообщения</label>
+            <textarea id="message" name="message" placeholder="Введите текст рассылки..." required></textarea>
+        </div>
+
+        <!-- Вложения -->
+        <div class="form-group">
+            <label for="attachments">Вложения (опционально)</label>
+            <input type="text" id="attachments" name="attachments" placeholder="photo123_456, doc789_000">
+            <div class="helper-text">Формат строки: typeOwnerID (например, photo-123_456). Оставьте пустым, если не нужно.</div>
+        </div>
+
+        <button type="submit" id="submitBtn">Отправить рассылку</button>
+    </form>
+
+    <!-- Результаты -->
+    <div id="resultsArea" class="results">
+        <h3>Результаты отправки</h3>
+        <div id="resultsContent"></div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('broadcastForm');
+    const resultsArea = document.getElementById('resultsArea');
+    const resultsContent = document.getElementById('resultsContent');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Сбор данных
+        const connectorType = document.getElementById('connectorType').value;
+        const sendToAllConnectors = document.getElementById('sendToAllConnectors').checked;
+
+        const tagsInput = document.getElementById('tags').value;
+        const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+
+        if (tags.length === 0) {
+            alert('Введите хотя бы один тег!');
+            return;
+        }
+
+        const payload = {
+            connectorType: connectorType,
+            tags: tags,
+            message: document.getElementById('message').value,
+            attachments: document.getElementById('attachments').value.trim() || null,
+            sendToAllConnectors: sendToAllConnectors
+        };
+
+        // UI обновление
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Отправка...';
+        resultsArea.style.display = 'block';
+        resultsContent.innerHTML = '';
+
+        try {
+            await sendBroadcast(payload);
+        } catch (error) {
+            console.error('Global error:', error);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Отправить рассылку';
+        }
+    });
+
+    async function sendBroadcast(data) {
+        const cardId = 'res-broadcast';
+
+        // Создаем карточку результата
+        const card = document.createElement('div');
+        card.className = 'result-card processing';
+        card.id = cardId;
+        card.innerHTML = `
+            <div class="stat-row">
+                <strong>${data.sendToAllConnectors ? 'Все платформы' : getPlatformName(data.connectorType)}</strong>
+                <span class="badge bg-warning">В процессе</span>
+            </div>
+            <div class="stat-row" style="margin-top:5px; color: #6b7280;">
+                <span>Отправка по тегам: ${data.tags.join(', ')}</span>
+            </div>
+        `;
+        resultsContent.appendChild(card);
+
+        try {
+            const response = await fetch('/api/v2/broadcast', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            const resultData = await response.json();
+
+            // Обновляем карточку
+            card.className = 'result-card ' + (response.ok && resultData.success ? 'success' : 'error');
+
+            let statsHtml = '';
+            if (resultData.data || resultData.success) {
+                const resp = resultData.data || resultData;
+                statsHtml = `
+                    <div class="stat-row"><span>Всего:</span> <strong>${resp.totalRecipients ?? 0}</strong></div>
+                    <div class="stat-row"><span>Успешно:</span> <span class="badge bg-success">${resp.successCount ?? 0}</span></div>
+                    <div class="stat-row"><span>Ошибки:</span> <span class="badge bg-error">${resp.failedCount ?? 0}</span></div>
+                `;
+            } else {
+                statsHtml = `<div class="stat-row"><span>Статус:</span> ${response.ok ? 'OK' : 'Error'}</div>`;
+            }
+
+            card.innerHTML = `
+                <div class="stat-row">
+                    <strong>${data.sendToAllConnectors ? 'Все платформы' : getPlatformName(data.connectorType)}</strong>
+                    <span class="badge ${response.ok && resultData.success ? 'bg-success' : 'bg-error'}">${response.ok && resultData.success ? 'Готово' : 'Ошибка'}</span>
+                </div>
+                ${statsHtml}
+                ${!response.ok || !resultData.success ? `<div style="color:var(--error); font-size:0.8rem; margin-top:5px;">${resultData.message || resultData.error || 'Неизвестная ошибка'}</div>` : ''}
+            `;
+
+        } catch (err) {
+            card.className = 'result-card error';
+            card.innerHTML = `
+                <div class="stat-row">
+                    <strong>${getPlatformName(data.connectorType)}</strong>
+                    <span class="badge bg-error">Сбой сети</span>
+                </div>
+                <div style="color:var(--error); font-size:0.8rem; margin-top:5px;">${err.message}</div>
+            `;
+        }
+    }
+
+    function getPlatformName(key) {
+        const names = {
+            'vk': 'ВКонтакте',
+            'telegram': 'Telegram',
+            'max': 'MAX'
+        };
+        return names[key] || key;
+    }
+</script>
+
+</body>
+</html>

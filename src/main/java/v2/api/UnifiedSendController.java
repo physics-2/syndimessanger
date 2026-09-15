@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v2")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class UnifiedSendController {
 
@@ -25,6 +24,10 @@ public class UnifiedSendController {
     private  BroadcastService broadcastService;
 
 
+    public UnifiedSendController(UnifiedSendService sendService, BroadcastService broadcastService) {
+        this.sendService = sendService;
+        this.broadcastService = broadcastService;
+    }
 
     @PostMapping("/send")
     public ApiResponse<Long> sendMessage(@RequestBody SendMessageRequest request) {

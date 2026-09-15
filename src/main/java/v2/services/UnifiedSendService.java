@@ -11,7 +11,6 @@ import v2.dto.ApiResponse;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class UnifiedSendService {
 
     private  Map<String, BaseConnector> connectors;
